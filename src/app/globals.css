@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.bg-vnl {
+  background: linear-gradient(135deg, #0033cc, #cc0000);
+}
+
+.text-vnl {
+  background: linear-gradient(90deg, #0033cc, #cc0000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
