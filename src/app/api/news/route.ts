@@ -12,7 +12,16 @@ export async function POST(req: Request) {
   await connectDB();
   const body = await req.json();
 
-  const created = await News.create(body);
+  const created = await News.create({
+    title: body.title,
+    desc: body.desc,
+    image: body.image,
+
+    // 🔥 NEW FIELDS
+    author: body.author || "VNL Admin",
+    createdAt: body.createdAt || new Date(),
+  });
+
   return NextResponse.json(created);
 }
 
