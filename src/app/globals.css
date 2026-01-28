@@ -19,6 +19,27 @@
   }
 }
 
+@keyframes peek {
+  0% {
+    transform: translateX(0%);
+  }
+  60% {
+    transform: translateX(0%); /* эхэндээ хэсэг хугацаанд зогсоно */
+  }
+  85% {
+    transform: translateX(-30%); /* илүү гарсан хэсгийг л харуулна */
+  }
+  100% {
+    transform: translateX(0%); /* шууд эхлэл рүү буцна */
+  }
+}
+
+.animate-peek {
+  animation: peek 3s ease-in-out infinite;
+}
+
+
+
 body {
   background: var(--background);
   color: var(--foreground);
