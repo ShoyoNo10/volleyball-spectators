@@ -101,7 +101,7 @@ export default function NewsPage() {
   return (
     <>
       {/* GRID */}
-      <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16">
         {news.length === 0 && (
           <p className="text-gray-500">Одоогоор мэдээ алга</p>
         )}

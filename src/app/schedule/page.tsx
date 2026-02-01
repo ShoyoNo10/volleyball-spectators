@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 interface Game {
   _id: string;
-  date: string; // "2021-03-03"
+  date: string;
   time: string;
   teamA: {
     name: string;
@@ -54,7 +54,6 @@ export default function SchedulePage() {
       });
   }, []);
 
-  // 🔹 Days for selector (unique, sorted)
   const days = useMemo(() => {
     const map = new Map<string, Game>();
     games.forEach((g) => {
@@ -70,7 +69,6 @@ export default function SchedulePage() {
     );
   }, [games]);
 
-  // 🔹 Games for selected day
   const filteredGames = useMemo(
     () =>
       games.filter(
@@ -79,7 +77,6 @@ export default function SchedulePage() {
     [games, selectedDate]
   );
 
-  // 🔹 Auto scroll selected day into view
   useEffect(() => {
     const el = dayRefs.current[selectedDate];
     if (el) {
@@ -97,16 +94,25 @@ export default function SchedulePage() {
   }, [selectedDate]);
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gray-50">
+    <div className="max-w-md mx-auto min-h-screen bg-black">
       {/* HEADER */}
-      <div className="px-4 pt-4 pb-2 sticky top-0 bg-gray-50 z-10">
+      <div className="px-4 pt-4 pb-2 sticky top-0 bg-black z-10 ">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-black">
+          <h1 className="text-xl font-bold text-white tracking-wide">
             {monthTitle}
           </h1>
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-1 text-sm font-medium text-black border rounded-md px-2 py-1"
+            className="
+              flex items-center gap-1
+              text-sm font-medium
+              text-gray-300
+              border border-gray-700
+              rounded-md
+              px-2 py-1
+              hover:bg-gray-800 hover:text-white
+              transition
+            "
           >
             <ArrowBigLeft size={18} />
             Буцах
@@ -129,11 +135,16 @@ export default function SchedulePage() {
                   setSelectedDate(d.date)
                 }
                 className={`
-                  min-w-[64px] px-3 py-2 rounded-xl text-center transition
+                  min-w-[64px]
+                  px-3 py-2
+                  rounded-xl
+                  text-center
+                  transition
                   ${
                     isSelected
-                      ? "bg-black text-white scale-105 shadow-md"
-                      : "bg-white text-gray-700 border hover:bg-gray-100"
+  ? "bg-red-700 text-white scale-105 shadow-md shadow-red-500/20"
+  : "bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-800 hover:text-white"
+
                   }
                 `}
               >
@@ -152,9 +163,9 @@ export default function SchedulePage() {
       </div>
 
       {/* MATCH LIST */}
-      <div className="px-4 mt-4 space-y-3">
+      <div className="px-4 mt-4 space-y-3 pb-16">
         {filteredGames.length === 0 && (
-          <div className="text-center text-sm text-gray-400 mt-10">
+          <div className="text-center text-sm text-gray-500 mt-10">
             Энэ өдөр тоглолт байхгүй
           </div>
         )}
@@ -164,12 +175,19 @@ export default function SchedulePage() {
             key={m._id}
             href={`/games/${m._id}`}
             className="
-              block bg-white rounded-xl p-3 shadow-sm
-              hover:shadow-lg hover:scale-[1.02] transition
+              block
+              bg-gradient-to-b from-gray-900 to-black
+              border border-gray-800
+              rounded-xl
+              p-3
+              shadow-lg
+              hover:shadow-red-500/30
+              hover:-translate-y-0.5
+              transition
             "
           >
             {/* TIME */}
-            <div className="text-xs font-semibold text-gray-500 mb-2">
+            <div className="text-xs font-semibold text-gray-400 mb-2">
               {m.time}
             </div>
 
@@ -182,23 +200,27 @@ export default function SchedulePage() {
                   alt={m.teamA.name}
                   width={45}
                   height={45}
-                  className="rounded-full border bg-white"
+                  className="
+                    rounded-full
+                    border border-gray-700
+                    bg-black
+                  "
                 />
-                <span className="text-sm font-semibold line-clamp-2">
+                <span className="text-sm font-semibold line-clamp-2 text-white">
                   {m.teamA.name}
                 </span>
               </div>
 
               {/* VS */}
-              <div className="flex items-center">
-                <div className="bg-black text-white px-2 py-1 rounded-md font-bold text-sm">
+              <div className="flex items-center justify-center">
+                <div className="bg-black border border-gray-700 text-white px-2 py-1 rounded-md font-bold text-sm">
                   VS
                 </div>
               </div>
 
               {/* TEAM B */}
               <div className="flex items-center gap-2 justify-end min-w-0">
-                <span className="text-sm font-semibold line-clamp-2 text-right">
+                <span className="text-sm font-semibold line-clamp-2 text-white text-right">
                   {m.teamB.name}
                 </span>
                 <Image
@@ -206,7 +228,11 @@ export default function SchedulePage() {
                   alt={m.teamB.name}
                   width={45}
                   height={45}
-                  className="rounded-full border bg-white"
+                  className="
+                    rounded-full
+                    border border-gray-700
+                    bg-black
+                  "
                 />
               </div>
             </div>

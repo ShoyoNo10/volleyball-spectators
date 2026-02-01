@@ -25,7 +25,7 @@ export default function Navbar2() {
         className="
           bg-black
           border border-gray-700
-          rounded-xl
+          rounded-full
           shadow-lg
           px-2
           py-2
@@ -55,7 +55,7 @@ export default function Navbar2() {
                   text-center
                   px-1.5
                   py-1.5
-                  rounded-lg
+                  rounded-full
                   text-[11px]
                   md:text-base
                   font-medium
@@ -63,7 +63,7 @@ export default function Navbar2() {
                   truncate
                   ${
                     active
-                      ? "bg-vnl text-white shadow"
+                      ? "bg-blue-500 text-white shadow"
                       : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }
                 `}

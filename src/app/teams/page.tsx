@@ -27,43 +27,79 @@ export default function TeamsPage() {
   );
 
   return (
-    <div className="p-4">
-      <div className="flex gap-2 mb-4">
+    <div className="p-4 max-w-6xl mx-auto">
+      {/* GENDER TOGGLE */}
+      <div className="flex justify-center gap-3 mb-6">
         <button
           onClick={() => setGender("men")}
-          className={`px-4 py-2 rounded ${
-            gender === "men"
-              ? "bg-red-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={`
+            px-6 py-2 rounded-full text-sm font-semibold transition
+            ${
+              gender === "men"
+                ? "bg-red-500 text-white shadow-lg shadow-red-300"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            }
+          `}
         >
           Men&apos;s
         </button>
         <button
           onClick={() => setGender("women")}
-          className={`px-4 py-2 rounded ${
-            gender === "women"
-              ? "bg-red-500 text-white"
-              : "bg-gray-200"
-          }`}
+          className={`
+            px-6 py-2 rounded-full text-sm font-semibold transition
+            ${
+              gender === "women"
+                ? "bg-red-500 text-white shadow-lg shadow-red-300"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            }
+          `}
         >
           Women&apos;s
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* TEAMS GRID */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
         {filtered.map((t) => (
           <div
             key={t._id}
             onClick={() => router.push(`/teams/${t._id}`)}
-            className="cursor-pointer bg-white rounded-xl shadow p-3 text-center hover:scale-105 transition"
+            className="
+              group
+              cursor-pointer
+              bg-gradient-to-b from-gray-900 to-black
+              rounded-2xl
+              overflow-hidden
+              shadow-lg
+              hover:shadow-red-500/30
+              hover:-translate-y-1
+              transition
+            "
           >
-            <img
-              src={t.flagUrl}
-              alt={t.name}
-              className="w-16 h-10 mx-auto object-contain mb-2"
-            />
-            <b>{t.code}</b>
+            {/* FLAG / LOGO AREA */}
+            <div className="h-28 sm:h-32 md:h-36 w-full flex items-center justify-center bg-black">
+              <img
+                src={t.flagUrl}
+                alt={t.name}
+                className="
+                  max-h-full
+                  max-w-full
+                  object-contain
+                  transition
+                  group-hover:scale-110
+                "
+              />
+            </div>
+
+            {/* TEAM NAME */}
+            <div className="py-2 text-center bg-black/80">
+              <div className="text-sm font-bold tracking-wide text-white">
+                {t.code}
+              </div>
+              {/* <div className="text-[11px] text-gray-400 truncate px-2">
+                {t.name}
+              </div> */}
+            </div>
           </div>
         ))}
       </div>
