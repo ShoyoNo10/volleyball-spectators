@@ -326,13 +326,13 @@ function MatchRow({ match }: { match: Match }) {
 
       {isUpcoming && (
         <div className="absolute -top-2 -left-2 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
-          ⏳ ТУН УДАХГҮЙ
+           ТУН УДАХГҮЙ
         </div>
       )}
 
       {isFinished && (
         <div className="absolute -top-2 -left-2 bg-gray-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
-          ✔ ДУУССАН
+           ДУУССАН
         </div>
       )}
 
