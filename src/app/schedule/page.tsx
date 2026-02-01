@@ -63,18 +63,13 @@ export default function SchedulePage() {
     });
 
     return Array.from(map.values()).sort(
-      (a, b) =>
-        new Date(a.date).getTime() -
-        new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [games]);
 
   const filteredGames = useMemo(
-    () =>
-      games.filter(
-        (g) => g.date === selectedDate
-      ),
-    [games, selectedDate]
+    () => games.filter((g) => g.date === selectedDate),
+    [games, selectedDate],
   );
 
   useEffect(() => {
@@ -122,8 +117,7 @@ export default function SchedulePage() {
         {/* DATE SELECTOR */}
         <div className="flex gap-3 overflow-x-auto no-scrollbar mt-3 pb-2">
           {days.map((d) => {
-            const isSelected =
-              d.date === selectedDate;
+            const isSelected = d.date === selectedDate;
 
             return (
               <button
@@ -131,9 +125,7 @@ export default function SchedulePage() {
                 ref={(el) => {
                   dayRefs.current[d.date] = el;
                 }}
-                onClick={() =>
-                  setSelectedDate(d.date)
-                }
+                onClick={() => setSelectedDate(d.date)}
                 className={`
                   min-w-[64px]
                   px-3 py-2
@@ -142,20 +134,15 @@ export default function SchedulePage() {
                   transition
                   ${
                     isSelected
-  ? "bg-red-700 text-white scale-105 shadow-md shadow-red-500/20"
-  : "bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-800 hover:text-white"
-
+                      ? "bg-red-700 text-white scale-105 shadow-md shadow-red-500/20"
+                      : "bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-800 hover:text-white"
                   }
                 `}
               >
                 <div className="text-sm font-bold">
-                  {new Date(
-                    d.date
-                  ).getDate()}
+                  {new Date(d.date).getDate()}
                 </div>
-                <div className="text-xs">
-                  {getWeekLabel(d.date)}
-                </div>
+                <div className="text-xs">{getWeekLabel(d.date)}</div>
               </button>
             );
           })}

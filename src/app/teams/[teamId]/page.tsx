@@ -18,8 +18,8 @@ export default function TeamPage() {
     typeof teamIdRaw === "string"
       ? teamIdRaw
       : Array.isArray(teamIdRaw)
-      ? teamIdRaw[0]
-      : null;
+        ? teamIdRaw[0]
+        : null;
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export default function TeamPage() {
       try {
         const res = await fetch(
           `/api/players?teamId=${encodeURIComponent(teamId)}`,
-          { cache: "no-store" }
+          { cache: "no-store" },
         );
 
         if (!res.ok) {
@@ -74,9 +74,7 @@ export default function TeamPage() {
         </h1>
 
         {loading && (
-          <div className="text-gray-500 text-center">
-            Loading players...
-          </div>
+          <div className="text-gray-500 text-center">Loading players...</div>
         )}
 
         {!loading && players.length === 0 && (
@@ -105,29 +103,17 @@ export default function TeamPage() {
                 {players.map((p, i) => (
                   <tr
                     key={p._id}
-                    onClick={() =>
-                      (window.location.href = `/players/${p._id}`)
-                    }
+                    onClick={() => (window.location.href = `/players/${p._id}`)}
                     className={`
                       cursor-pointer
                       transition
-                      ${
-                        i % 2 === 0
-                          ? "bg-gray-950"
-                          : "bg-black"
-                      }
+                      ${i % 2 === 0 ? "bg-gray-950" : "bg-black"}
                       hover:bg-gray-800
                     `}
                   >
-                    <td className="p-3 font-bold text-red-500">
-                      {p.number}
-                    </td>
-                    <td className="p-3 font-semibold text-white">
-                      {p.name}
-                    </td>
-                    <td className="p-3 text-gray-400">
-                      {p.position}
-                    </td>
+                    <td className="p-3 font-bold text-red-500">{p.number}</td>
+                    <td className="p-3 font-semibold text-white">{p.name}</td>
+                    <td className="p-3 text-gray-400">{p.position}</td>
                   </tr>
                 ))}
               </tbody>

@@ -22,9 +22,7 @@ export default function TeamsPage() {
       .then(setTeams);
   }, []);
 
-  const filtered = teams.filter(
-    (t) => t.gender === gender
-  );
+  const filtered = teams.filter((t) => t.gender === gender);
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
