@@ -15,6 +15,9 @@ interface Match {
   time: string;
   status: MatchStatus;
   liveUrl: string;
+
+  // 🔥 NEW
+  competition: string;
 }
 
 type MatchForm = Omit<Match, "_id">;
@@ -38,13 +41,13 @@ export default function AdminMatches() {
     time: "",
     status: "upcoming",
     liveUrl: "",
+    competition: "VNL 2026", // 🔥 default
   });
 
   /* LOAD */
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/matches", { cache: "no-store" });
-      if (!res.ok) return setMatches([]);
       const data = await res.json();
       if (Array.isArray(data)) setMatches(data);
       else setMatches([]);
@@ -83,10 +86,20 @@ export default function AdminMatches() {
       if (logoAFile) logoA = await uploadLogo(logoAFile);
       if (logoBFile) logoB = await uploadLogo(logoBFile);
 
+      const payload = {
+        ...form,
+        logoA,
+        logoB,
+        competition: form.competition || "VNL", // 🔥 FORCE SEND
+      };
+console.log("PAYLOAD:", payload);
+
+      console.log("SENDING MATCH:", payload);
+
       const res = await fetch("/api/matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, logoA, logoB }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Create failed");
@@ -101,7 +114,9 @@ export default function AdminMatches() {
         time: "",
         status: "upcoming",
         liveUrl: "",
+        competition: "VNL 2026",
       });
+
       setLogoAFile(null);
       setLogoBFile(null);
       await load();
@@ -135,7 +150,11 @@ export default function AdminMatches() {
     await fetch("/api/matches", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, liveUrl: linkDraft }),
+      body: JSON.stringify({
+        id,
+        liveUrl: linkDraft,
+        competition: form.competition, // 🔥 allow update if needed
+      }),
     });
     setEditingId(null);
     setLinkDraft("");
@@ -151,7 +170,14 @@ export default function AdminMatches() {
       {/* FORM */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
         {(
-          ["date", "teamA", "teamB", "gender", "time"] as const
+          [
+            "date",
+            "teamA",
+            "teamB",
+            "gender",
+            "time",
+            "competition", // 🔥 NEW INPUT
+          ] as const
         ).map((key) => (
           <input
             key={key}
@@ -202,9 +228,10 @@ export default function AdminMatches() {
             className="bg-white p-3 rounded shadow flex justify-between items-center"
           >
             <div>
-              <b>{m.teamA}</b> VS <b>{m.teamB}</b>{" "}
-              <span className="text-sm text-gray-500">
-                — {m.status.toUpperCase()}
+              <b>{m.teamA}</b> VS{" "}
+              <b>{m.teamB}</b>{" "}
+              <span className="text-xs text-gray-500">
+                — {m.competition || "VNL"}
               </span>
               <div className="text-xs text-gray-400">
                 {m.liveUrl ? (
@@ -241,35 +268,6 @@ export default function AdminMatches() {
                   FINISHED
                 </option>
               </select>
-
-              {editingId === m._id ? (
-                <div className="flex gap-1">
-                  <input
-                    className="border p-1 text-xs rounded w-40"
-                    placeholder="Paste live link"
-                    value={linkDraft}
-                    onChange={(e) =>
-                      setLinkDraft(e.target.value)
-                    }
-                  />
-                  <button
-                    onClick={() => saveLink(m._id)}
-                    className="text-green-600 text-xs font-bold"
-                  >
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setEditingId(m._id);
-                    setLinkDraft(m.liveUrl || "");
-                  }}
-                  className="text-blue-500 text-xs font-bold"
-                >
-                  ✏️ Link
-                </button>
-              )}
 
               <button
                 onClick={() => remove(m._id)}

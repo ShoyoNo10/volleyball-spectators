@@ -15,11 +15,14 @@ interface Match {
   time: string;
   status: MatchStatus;
   liveUrl: string;
+
+  // 🔥 NEW (style-д нөлөөлөхгүй)
+  competition?: string;
 }
 
 export default function LivePage() {
   const [matches, setMatches] = useState<Match[]>([]);
-  const [todayLabel, setTodayLabel] = useState<string>(""); // 🔥 Client-only date
+  const [todayLabel, setTodayLabel] = useState<string>(""); // client-only date
 
   useEffect(() => {
     // 🔹 Load matches
@@ -30,7 +33,7 @@ export default function LivePage() {
     };
     load();
 
-    // 🔹 Set date on client only (fix hydration)
+    // 🔹 Set date on client only (hydration safe)
     const label = new Date().toLocaleDateString("mn-MN", {
       year: "numeric",
       month: "2-digit",
@@ -76,7 +79,7 @@ export default function LivePage() {
         </div>
       </div>
 
-      {/* ANIMATIONS */}
+      {/* ANIMATIONS (ХЭВЭЭР) */}
       <style jsx global>{`
         @keyframes pulseGlow {
           0% {
@@ -140,7 +143,7 @@ function MatchRow({ match }: { match: Match }) {
         ${!isFinished ? "hover:scale-[1.02]" : ""}
       `}
     >
-      {/* STATUS BADGE */}
+      {/* STATUS BADGE (ХЭВЭЭР) */}
       {isLive && (
         <div className="absolute -top-2 -left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-blinkLive">
           🔴 LIVE
@@ -156,6 +159,13 @@ function MatchRow({ match }: { match: Match }) {
       {isFinished && (
         <div className="absolute -top-2 -left-2 bg-gray-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
           ✔ ДУУССАН
+        </div>
+      )}
+
+      {/* 🔥 COMPETITION — NEW (style safe, VS дээр) */}
+      {match.competition && (
+        <div className="text-center text-[10px] font-bold tracking-widest text-cyan-300 mb-1">
+          {match.competition}
         </div>
       )}
 

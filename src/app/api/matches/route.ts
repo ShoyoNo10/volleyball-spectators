@@ -11,7 +11,14 @@ export async function GET() {
 export async function POST(req: Request) {
   await connectDB();
   const body = await req.json();
-  const created = await Match.create(body);
+    console.log("API BODY:", body); 
+
+  // 🔥 competition орж ирэхгүй бол default өгнө
+  const created = await Match.create({
+    ...body,
+    competition: body.competition || "VNL",
+  });
+
   return NextResponse.json(created);
 }
 
@@ -24,11 +31,18 @@ export async function DELETE(req: Request) {
 
 export async function PATCH(req: Request) {
   await connectDB();
-  const { id, status, liveUrl } = await req.json();
+  const { id, status, liveUrl, competition } = await req.json();
 
-  const update: { status?: string; liveUrl?: string } = {};
+  const update: {
+    status?: string;
+    liveUrl?: string;
+    competition?: string;
+  } = {};
+
   if (status) update.status = status;
   if (typeof liveUrl === "string") update.liveUrl = liveUrl;
+  if (typeof competition === "string")
+    update.competition = competition;
 
   await Match.findByIdAndUpdate(id, update);
   return NextResponse.json({ success: true });
