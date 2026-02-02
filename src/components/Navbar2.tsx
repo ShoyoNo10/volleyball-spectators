@@ -10,9 +10,9 @@ type Item = {
 
 const items: Item[] = [
   { href: "/news", label: "News" },
-  { href: "/teams", label: "Teams" },
-  { href: "/schedule", label: "Schedule" },
-  { href: "/statistics", label: "Stats" },
+  { href: "/teams", label: "Багууд" },
+  { href: "/schedule", label: "Хуваарь" },
+  { href: "/statistics", label: "Статистик" },
   { href: "/standings", label: "Standings" },
 ];
 

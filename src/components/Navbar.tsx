@@ -9,8 +9,8 @@ export default function Navbar() {
         <h1 className="font-bold text-lg md:text-xl">VOLLEY LIVE</h1>
         {/* Desktop menu */}
         <div className="hidden md:flex space-x-6">
-          <Link href="/news">Холбогдох</Link>
-          <Link href="/teams">Дэлхийн чансаа</Link>
+          <Link href="/contact">Холбогдох</Link>
+          <Link href="/ranking">Дэлхийн чансаа</Link>
         </div>
         {/* Mobile button */}
         <button className="md:hidden text-2xl" onClick={() => setOpen(!open)}>
@@ -20,10 +20,10 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="flex flex-col mt-3 space-y-2 md:hidden">
-          <Link href="/news" onClick={() => setOpen(false)}>
+          <Link href="/contact" onClick={() => setOpen(false)}>
             Холбогдох
           </Link>
-          <Link href="/teams" onClick={() => setOpen(false)}>
+          <Link href="/ranking" onClick={() => setOpen(false)}>
             Дэлхийн чансаа
           </Link>
         </div>
