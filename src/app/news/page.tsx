@@ -32,7 +32,20 @@ function formatDate(dateStr: string) {
 export default function NewsPage() {
   const [news, setNews] = useState<News[]>([]);
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
-  const [activePost, setActivePost] = useState<News | null>(null); // 🔥 MODAL STATE
+  const [activePost, setActivePost] = useState<News | null>(null);
+
+  // 🔒 BODY SCROLL LOCK (Modal open үед арын пост scroll хийхгүй)
+  useEffect(() => {
+    if (activePost) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activePost]);
 
   // 🔹 Fetch news
   useEffect(() => {
@@ -52,8 +65,6 @@ export default function NewsPage() {
 
   // 🔹 Like handler
   const handleLike = async (id: string) => {
-    console.log("LIKE ID SENT:", id);
-
     if (likedMap[id]) return;
 
     // Optimistic UI
@@ -87,7 +98,7 @@ export default function NewsPage() {
         )
       );
 
-      // 🔥 Update modal post too
+      // Update modal post too
       setActivePost((prev) =>
         prev && prev._id === id
           ? { ...prev, likes: data.likes }
@@ -101,7 +112,7 @@ export default function NewsPage() {
   return (
     <>
       {/* GRID */}
-      <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16">
+      <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16 bg-black min-h-screen">
         {news.length === 0 && (
           <p className="text-gray-500">Одоогоор мэдээ алга</p>
         )}
@@ -112,7 +123,7 @@ export default function NewsPage() {
           return (
             <div
               key={n._id}
-              onClick={() => setActivePost(n)} // 🔥 OPEN MODAL
+              onClick={() => setActivePost(n)}
               className="
                 bg-[#0b0f1a] text-white rounded-2xl
                 border border-white/10 overflow-hidden
@@ -123,7 +134,6 @@ export default function NewsPage() {
               {/* TOP BAR — USER + DATE */}
               <div className="flex items-center justify-between px-3 py-2 bg-[#121726] border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  {/* Avatar initial */}
                   <div className="w-8 h-8 rounded-full bg-black border border-white/20 flex items-center justify-center font-bold text-xs">
                     {n.author?.charAt(0)?.toUpperCase() || "A"}
                   </div>
@@ -152,7 +162,7 @@ export default function NewsPage() {
                 <h2 className="font-bold text-base line-clamp-2">
                   {n.title}
                 </h2>
-                <p className="text-sm text-gray-400 line-clamp-3">
+                <p className="text-sm text-gray-400 line-clamp-3 break-words">
                   {n.desc}
                 </p>
 
@@ -161,7 +171,7 @@ export default function NewsPage() {
                   <button
                     type="button"
                     onClick={(e) => {
-                      e.stopPropagation(); // 🔥 Card click-ээс салгана
+                      e.stopPropagation();
                       e.preventDefault();
                       handleLike(String(n._id));
                     }}
@@ -190,9 +200,19 @@ export default function NewsPage() {
       {/* ================= MODAL FULL VIEW ================= */}
       {activePost && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur flex items-center justify-center p-4">
-          <div className="bg-[#0b0f1a] text-white max-w-md w-full rounded-2xl overflow-hidden border border-white/10 animate-fadeIn">
+          <div
+            className="
+              bg-[#0b0f1a] text-white
+              max-w-md w-full
+              max-h-[90vh]
+              rounded-2xl overflow-hidden
+              border border-white/10
+              animate-fadeIn
+              flex flex-col
+            "
+          >
             {/* HEADER */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#121726] border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#121726] border-b border-white/10 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-black border border-white/20 flex items-center justify-center font-bold text-xs">
                   {activePost.author?.charAt(0)?.toUpperCase() || "A"}
@@ -210,40 +230,43 @@ export default function NewsPage() {
               </button>
             </div>
 
-            {/* IMAGE */}
-            <div className="relative w-full h-64 bg-black">
-              <img
-                src={activePost.image}
-                className="w-full h-full object-cover"
-                alt=""
-              />
-            </div>
+            {/* SCROLLABLE CONTENT */}
+            <div className="flex-1 overflow-y-auto">
+              {/* IMAGE */}
+              <div className="relative w-full h-64 bg-black">
+                <img
+                  src={activePost.image}
+                  className="w-full h-full object-cover"
+                  alt=""
+                />
+              </div>
 
-            {/* CONTENT */}
-            <div className="p-4 space-y-3">
-              <h2 className="font-bold text-lg">
-                {activePost.title}
-              </h2>
+              {/* CONTENT */}
+              <div className="p-4 space-y-3">
+                <h2 className="font-bold text-lg">
+                  {activePost.title}
+                </h2>
 
-              <p className="text-sm text-gray-300 whitespace-pre-line">
-                {activePost.desc}
-              </p>
+                <p className="text-sm text-gray-300 whitespace-pre-line break-words">
+                  {activePost.desc}
+                </p>
 
-              {/* LIKE BAR */}
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleLike(String(activePost._id))
-                  }
-                  className="text-xl text-red-500 hover:scale-110 transition"
-                >
-                  <Heart fill="currentColor" />
-                </button>
+                {/* LIKE BAR */}
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleLike(String(activePost._id))
+                    }
+                    className="text-xl text-red-500 hover:scale-110 transition"
+                  >
+                    <Heart fill="currentColor" />
+                  </button>
 
-                <span className="text-sm text-gray-400">
-                  {activePost.likes || 0} likes
-                </span>
+                  <span className="text-sm text-gray-400">
+                    {activePost.likes || 0} likes
+                  </span>
+                </div>
               </div>
             </div>
           </div>
