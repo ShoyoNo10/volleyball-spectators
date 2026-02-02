@@ -106,79 +106,95 @@ export default function PlayerPage() {
     ...(player.stats || {}),
   };
 
-  return (
-    <div className="min-h-screen bg-[#0b0f19] text-white p-4">
-      <div className="max-w-md mx-auto text-center">
+ return (
+  <div className="min-h-screen bg-[#0b0f19] text-white p-4">
+    <div
+      className="
+        max-w-5xl mx-auto
+        grid grid-cols-1
+        lg:grid-cols-[380px_1fr]
+        gap-6
+      "
+    >
+      {/* LEFT — PROFILE */}
+      <div
+        className="
+          text-center
+          lg:bg-[#0f1629]
+          lg:border lg:border-white/10
+          lg:rounded-2xl
+          lg:p-6
+          lg:shadow-xl
+        "
+      >
         <img
           src={player.avatarUrl || "/user.png"}
           alt={player.name}
-          className="w-32 h-32 rounded-full mx-auto object-cover"
+          className="
+            w-32 h-32
+            rounded-full
+            mx-auto
+            object-cover
+            lg:border-4
+            lg:border-red-500/40
+            lg:shadow-lg
+          "
         />
 
-        <div className="text-red-500 text-4xl font-bold mt-2">
+        <div className="text-red-500 text-4xl font-bold mt-3">
           {player.number}
         </div>
 
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold mt-1">
           {player.name.toUpperCase()}
         </h1>
 
         {/* BIO */}
         <div className="grid grid-cols-2 gap-3 my-4 text-sm">
-          <Info
-            label="Position"
-            value={player.position}
-          />
-          <Info
-            label="Nationality"
-            value={player.nationality || "-"}
-          />
-          <Info
-            label="Birth Date"
-            value={player.birthDate || "-"}
-          />
+          <Info label="Position" value={player.position} />
+          <Info label="Nationality" value={player.nationality || "-"} />
+          <Info label="Birth Date" value={player.birthDate || "-"} />
           <Info
             label="Height"
-            value={
-              player.height
-                ? `${player.height} cm`
-                : "-"
-            }
+            value={player.height ? `${player.height} cm` : "-"}
           />
         </div>
+      </div>
 
-        <h2 className="font-bold my-4">
+      {/* RIGHT — STATS */}
+      <div
+        className="
+          lg:bg-[#0f1629]
+          lg:border lg:border-white/10
+          lg:rounded-2xl
+          lg:p-6
+          lg:shadow-xl
+        "
+      >
+        <h2 className="font-bold my-4 text-center lg:text-left">
           PLAYER COMPETITION STATISTICS
         </h2>
 
-        <Stat label="Total Points" value={s.totalPoints} />
-        <Stat
-          label="Average By Match"
-          value={s.avgByMatch}
-        />
-        <Stat
-          label="Attack Points"
-          value={s.attackPoints}
-        />
-        <Stat
-          label="Attack Efficiency"
-          value={`${s.attackEfficiency}%`}
-        />
-        <Stat
-          label="Block Points"
-          value={s.blockPoints}
-        />
-        <Stat
-          label="Block Success"
-          value={`${s.blockSuccess}%`}
-        />
-        <Stat
-          label="Serve Points"
-          value={s.servePoints}
-        />
+        <div className="space-y-1">
+          <Stat label="Total Points" value={s.totalPoints} />
+          <Stat label="Average By Match" value={s.avgByMatch} />
+          <Stat label="Attack Points" value={s.attackPoints} />
+          <Stat
+            label="Attack Efficiency"
+            value={`${s.attackEfficiency}%`}
+          />
+          <Stat label="Block Points" value={s.blockPoints} />
+          <Stat
+            label="Block Success"
+            value={`${s.blockSuccess}%`}
+          />
+          <Stat label="Serve Points" value={s.servePoints} />
+        </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
 
 /* ================= UI ================= */

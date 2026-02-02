@@ -34,7 +34,7 @@ export default function TeamsPage() {
             px-6 py-2 rounded-full text-sm font-semibold transition
             ${
               gender === "men"
-                ? "bg-red-500 text-white shadow-lg shadow-red-300"
+                ? "bg-red-500 text-white"
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
             }
           `}
@@ -47,7 +47,7 @@ export default function TeamsPage() {
             px-6 py-2 rounded-full text-sm font-semibold transition
             ${
               gender === "women"
-                ? "bg-red-500 text-white shadow-lg shadow-red-300"
+                ? "bg-red-500 text-white "
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
             }
           `}
@@ -75,7 +75,7 @@ export default function TeamsPage() {
             "
           >
             {/* FLAG / LOGO AREA */}
-            <div className="h-28 sm:h-32 md:h-36 w-full flex items-center justify-center bg-black">
+            <div className="h-20 sm:h-24 md:h-28 w-full flex items-center justify-center bg-black">
               <img
                 src={t.flagUrl}
                 alt={t.name}

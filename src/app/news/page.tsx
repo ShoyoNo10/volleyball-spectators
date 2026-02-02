@@ -34,7 +34,7 @@ export default function NewsPage() {
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const [activePost, setActivePost] = useState<News | null>(null);
 
-  // 🔒 BODY SCROLL LOCK (Modal open үед арын пост scroll хийхгүй)
+  // 🔒 BODY SCROLL LOCK
   useEffect(() => {
     if (activePost) {
       document.body.style.overflow = "hidden";
@@ -54,7 +54,6 @@ export default function NewsPage() {
       .then((data: News[]) => {
         setNews(data);
 
-        // 🔥 Build liked map from localStorage
         const map: Record<string, boolean> = {};
         data.forEach((n) => {
           map[n._id] = Boolean(localStorage.getItem(`liked_${n._id}`));
@@ -67,7 +66,6 @@ export default function NewsPage() {
   const handleLike = async (id: string) => {
     if (likedMap[id]) return;
 
-    // Optimistic UI
     setLikedMap((prev) => ({
       ...prev,
       [id]: true,
@@ -86,7 +84,6 @@ export default function NewsPage() {
 
       const data = await res.json();
 
-      // Update likes count
       setNews((prev) =>
         prev.map((n) =>
           n._id === id
@@ -94,15 +91,12 @@ export default function NewsPage() {
                 ...n,
                 likes: data.likes,
               }
-            : n
-        )
+            : n,
+        ),
       );
 
-      // Update modal post too
       setActivePost((prev) =>
-        prev && prev._id === id
-          ? { ...prev, likes: data.likes }
-          : prev
+        prev && prev._id === id ? { ...prev, likes: data.likes } : prev,
       );
     } catch (err) {
       console.error("Like failed", err);
@@ -112,9 +106,18 @@ export default function NewsPage() {
   return (
     <>
       {/* GRID */}
-      <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-16 bg-black min-h-screen">
+      <div
+        className="
+          p-4 md:p-10
+          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+          gap-6 pb-16
+          bg-black min-h-screen
+
+          lg:max-w-7xl lg:mx-auto
+        "
+      >
         {news.length === 0 && (
-          <p className="text-gray-500">Одоогоор мэдээ алга</p>
+          <p className="text-gray-500">Уншиж байна...</p>
         )}
 
         {news.map((n) => {
@@ -127,11 +130,13 @@ export default function NewsPage() {
               className="
                 bg-[#0b0f1a] text-white rounded-2xl
                 border border-white/10 overflow-hidden
-                hover:scale-[1.02] hover:shadow-xl
+                hover:scale-[1.02] hover:shadow-2xl
                 transition cursor-pointer
+
+                lg:hover:scale-[1.04]
               "
             >
-              {/* TOP BAR — USER + DATE */}
+              {/* TOP BAR */}
               <div className="flex items-center justify-between px-3 py-2 bg-[#121726] border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-black border border-white/20 flex items-center justify-center font-bold text-xs">
@@ -148,7 +153,7 @@ export default function NewsPage() {
               </div>
 
               {/* IMAGE */}
-              <div className="relative w-full h-44">
+              <div className="relative w-full h-44 lg:h-56">
                 <Image
                   src={n.image}
                   alt={n.title}
@@ -159,7 +164,7 @@ export default function NewsPage() {
 
               {/* CONTENT */}
               <div className="p-4 space-y-2">
-                <h2 className="font-bold text-base line-clamp-2">
+                <h2 className="font-bold text-base lg:text-lg line-clamp-2">
                   {n.title}
                 </h2>
                 <p className="text-sm text-gray-400 line-clamp-3 break-words">
@@ -203,12 +208,15 @@ export default function NewsPage() {
           <div
             className="
               bg-[#0b0f1a] text-white
-              max-w-md w-full
+              w-full
               max-h-[90vh]
               rounded-2xl overflow-hidden
               border border-white/10
               animate-fadeIn
               flex flex-col
+
+              md:max-w-2xl
+              lg:max-w-4xl
             "
           >
             {/* HEADER */}
@@ -231,42 +239,35 @@ export default function NewsPage() {
             </div>
 
             {/* SCROLLABLE CONTENT */}
-            <div className="flex-1 overflow-y-auto">
-              {/* IMAGE */}
-              <div className="relative w-full h-64 bg-black">
-                <img
-                  src={activePost.image}
-                  className="w-full h-full object-cover"
-                  alt=""
-                />
-              </div>
+            {/* IMAGE — FIXED HEIGHT, NEVER SHRINKS */}
+            <div className="relative w-full bg-black shrink-0 aspect-[16/9] max-h-[360px]">
+              <img
+                src={activePost.image}
+                className="w-full h-full object-contain"
+                alt=""
+              />
+            </div>
 
-              {/* CONTENT */}
-              <div className="p-4 space-y-3">
-                <h2 className="font-bold text-lg">
-                  {activePost.title}
-                </h2>
+            {/* TEXT — ONLY THIS SCROLLS */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-15">
+              <h2 className="font-bold text-lg">{activePost.title}</h2>
 
-                <p className="text-sm text-gray-300 whitespace-pre-line break-words">
-                  {activePost.desc}
-                </p>
+              <p className="text-sm text-gray-300 whitespace-pre-line break-words">
+                {activePost.desc}
+              </p>
 
-                {/* LIKE BAR */}
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleLike(String(activePost._id))
-                    }
-                    className="text-xl text-red-500 hover:scale-110 transition"
-                  >
-                    <Heart fill="currentColor" />
-                  </button>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleLike(String(activePost._id))}
+                  className="text-xl text-red-500 hover:scale-110 transition"
+                >
+                  <Heart fill="currentColor" />
+                </button>
 
-                  <span className="text-sm text-gray-400">
-                    {activePost.likes || 0} likes
-                  </span>
-                </div>
+                <span className="text-sm text-gray-400">
+                  {activePost.likes || 0} likes
+                </span>
               </div>
             </div>
           </div>
