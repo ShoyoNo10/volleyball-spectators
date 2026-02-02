@@ -151,11 +151,11 @@ export default function PlayerPage() {
 
         {/* BIO */}
         <div className="grid grid-cols-2 gap-3 my-4 text-sm">
-          <Info label="Position" value={player.position} />
-          <Info label="Nationality" value={player.nationality || "-"} />
-          <Info label="Birth Date" value={player.birthDate || "-"} />
+          <Info label="Байрлал" value={player.position} />
+          <Info label="Улс" value={player.nationality || "-"} />
+          <Info label="Төрсөн он, сар" value={player.birthDate || "-"} />
           <Info
-            label="Height"
+            label="Өндөр"
             value={player.height ? `${player.height} cm` : "-"}
           />
         </div>
@@ -172,23 +172,23 @@ export default function PlayerPage() {
         "
       >
         <h2 className="font-bold my-4 text-center lg:text-left">
-          PLAYER COMPETITION STATISTICS
+          2025 оны Үндэстнүүдийн лигийн үзүүлэлт
         </h2>
 
         <div className="space-y-1">
-          <Stat label="Total Points" value={s.totalPoints} />
-          <Stat label="Average By Match" value={s.avgByMatch} />
-          <Stat label="Attack Points" value={s.attackPoints} />
-          <Stat
+          <Stat label="Оноо" value={s.totalPoints} />
+          {/* <Stat label="Average By Match" value={s.avgByMatch} /> */}
+          <Stat label="Довтолгоо" value={s.attackPoints} />
+          {/* <Stat
             label="Attack Efficiency"
             value={`${s.attackEfficiency}%`}
-          />
-          <Stat label="Block Points" value={s.blockPoints} />
-          <Stat
+          /> */}
+          <Stat label="Хаалт" value={s.blockPoints} />
+          {/* <Stat
             label="Block Success"
             value={`${s.blockSuccess}%`}
-          />
-          <Stat label="Serve Points" value={s.servePoints} />
+          /> */}
+          <Stat label="Давуулалт" value={s.servePoints} />
         </div>
       </div>
     </div>

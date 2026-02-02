@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Team {
   _id: string;
@@ -65,7 +66,7 @@ export default function TeamsPage() {
             className="
               group
               cursor-pointer
-              bg-gradient-to-b from-gray-900 to-black
+              bg-linear-to-b from-gray-900 to-black
               rounded-2xl
               overflow-hidden
               shadow-lg
@@ -75,17 +76,13 @@ export default function TeamsPage() {
             "
           >
             {/* FLAG / LOGO AREA */}
-            <div className="h-20 sm:h-24 md:h-28 w-full flex items-center justify-center bg-black">
-              <img
+            <div className="h-20 sm:h-24 md:h-28 w-full flex items-center justify-center bg-black relative overflow-hidden">
+              <Image
                 src={t.flagUrl}
                 alt={t.name}
-                className="
-                  max-h-full
-                  max-w-full
-                  object-contain
-                  transition
-                  group-hover:scale-110
-                "
+                fill
+                sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
+                className="object-contain transition group-hover:scale-110"
               />
             </div>
 
