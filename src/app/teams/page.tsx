@@ -40,7 +40,7 @@ export default function TeamsPage() {
             }
           `}
         >
-          Men&apos;s
+          Эрэгтэй
         </button>
         <button
           onClick={() => setGender("women")}
@@ -53,7 +53,7 @@ export default function TeamsPage() {
             }
           `}
         >
-          Women&apos;s
+          Эмэгтэй
         </button>
       </div>
 
@@ -76,7 +76,8 @@ export default function TeamsPage() {
             "
           >
             {/* FLAG / LOGO AREA */}
-            <div className="h-20 sm:h-24 md:h-28 w-full flex items-center justify-center bg-black relative overflow-hidden">
+           <div className="h-16 sm:h-20 md:h-24 w-full flex items-center justify-center bg-black relative overflow-hidden">
+
               <Image
                 src={t.flagUrl}
                 alt={t.name}

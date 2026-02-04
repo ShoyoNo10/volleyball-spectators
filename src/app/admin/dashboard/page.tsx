@@ -21,23 +21,34 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         <Link
           href="/admin/news"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-red-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage News
         </Link>
         <Link
           href="/admin/teams"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-blue-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage Teams
         </Link>
         <Link
           href="/admin/players"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-blue-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage teams Players
         </Link>
-
+        <Link
+          href="/admin/team-success"
+          className="bg-blue-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage teams success
+        </Link>
+        <Link
+          href="/admin/team-schedule"
+          className="bg-blue-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage teams schedule
+        </Link>
         <Link
           href="/admin/matches"
           className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
@@ -47,31 +58,31 @@ export default function Dashboard() {
 
         <Link
           href="/admin/schedule"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-yellow-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage Schedule
         </Link>
         <Link
           href="/admin/game-stats"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-yellow-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage schedule stats
         </Link>
         <Link
           href="/admin/standings"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-purple-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage standings
         </Link>
         <Link
           href="/admin/statistics"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage statistics
         </Link>
         <Link
           href="/admin/ranking"
-          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+          className="bg-gray-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage ranking
         </Link>

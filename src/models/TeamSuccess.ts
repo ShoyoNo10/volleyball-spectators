@@ -1,6 +1,25 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-const BestResultSchema = new mongoose.Schema(
+interface BestResult {
+  title: string;
+  year: number;
+}
+
+interface CompetitionBlock {
+  competitionName: string;
+  appearances: number;
+  firstYear: number;
+  bestResults: BestResult[];
+}
+
+export interface TeamSuccessDoc {
+  teamId: Types.ObjectId;
+  competitions: CompetitionBlock[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const BestResultSchema = new Schema<BestResult>(
   {
     title: { type: String, required: true },
     year: { type: Number, required: true },
@@ -8,34 +27,31 @@ const BestResultSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const TeamSuccessSchema = new mongoose.Schema({
-  teamId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Team",
-    required: true,
-    unique: true, // 🔥 1 team = 1 success profile
+const CompetitionSchema = new Schema<CompetitionBlock>(
+  {
+    competitionName: { type: String, required: true },
+    appearances: { type: Number, default: 0 },
+    firstYear: { type: Number, default: 0 },
+    bestResults: { type: [BestResultSchema], default: [] },
   },
-  competitions: {
-    type: [String],
-    default: [],
+  { _id: true }
+);
+
+const TeamSuccessSchema = new Schema<TeamSuccessDoc>(
+  {
+    teamId: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+      required: true,
+      unique: true, // 🔥 нэг team → нэг document
+    },
+    competitions: {
+      type: [CompetitionSchema],
+      default: [],
+    },
   },
-  appearances: {
-    type: Number,
-    default: 0,
-  },
-  firstYear: {
-    type: Number,
-    default: 0,
-  },
-  bestResults: {
-    type: [BestResultSchema], // 🔥 array of results
-    default: [],
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
 export default mongoose.models.TeamSuccess ||
-  mongoose.model("TeamSuccess", TeamSuccessSchema);
+  mongoose.model<TeamSuccessDoc>("TeamSuccess", TeamSuccessSchema);

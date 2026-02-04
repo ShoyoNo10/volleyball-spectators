@@ -17,22 +17,40 @@ interface BestResult {
   year: number;
 }
 
-interface TeamSuccess {
+interface CompetitionBlock {
   _id: string;
-  teamId: string;
-  competitions: string[];
+  competitionName: string;
   appearances: number;
   firstYear: number;
   bestResults: BestResult[];
 }
 
+interface TeamSuccess {
+  _id: string;
+  teamId: string;
+  competitions: CompetitionBlock[];
+}
+
+interface SetScore {
+  teamA: number;
+  teamB: number;
+}
+
 interface TeamSchedule {
   _id: string;
   teamId: string;
-  opponent: string;
-  opponentLogo: string;
+  teamA: string;
+  teamB: string;
+  logoA: string;
+  logoB: string;
+  gender: "men" | "women";
+  week: string;
   matchDate: string;
   matchTime: string;
+  finished: boolean;
+  finalA: number;
+  finalB: number;
+  sets: SetScore[];
 }
 
 /* ================= PAGE ================= */
@@ -45,16 +63,17 @@ export default function TeamPage() {
     typeof teamIdRaw === "string"
       ? teamIdRaw
       : Array.isArray(teamIdRaw)
-        ? teamIdRaw[0]
-        : null;
+      ? teamIdRaw[0]
+      : null;
 
   const [tab, setTab] = useState<"players" | "success" | "schedule">("players");
 
   const [players, setPlayers] = useState<Player[]>([]);
-  const [successList, setSuccessList] = useState<TeamSuccess[]>([]);
-
+  const [success, setSuccess] = useState<TeamSuccess | null>(null);
   const [schedule, setSchedule] = useState<TeamSchedule[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const [loadingPlayers, setLoadingPlayers] = useState<boolean>(false);
+  const [loadingTab, setLoadingTab] = useState<boolean>(false);
 
   /* ================= LOAD PLAYERS ================= */
 
@@ -62,10 +81,12 @@ export default function TeamPage() {
     if (!teamId) return;
 
     const loadPlayers = async (): Promise<void> => {
+      setLoadingPlayers(true);
       try {
         const res = await fetch(`/api/players?teamId=${teamId}`, {
           cache: "no-store",
         });
+
         const data: unknown = await res.json();
 
         if (Array.isArray(data)) {
@@ -76,34 +97,63 @@ export default function TeamPage() {
       } catch {
         setPlayers([]);
       } finally {
-        setLoading(false);
+        setLoadingPlayers(false);
       }
     };
 
     loadPlayers();
   }, [teamId]);
 
-  /* ================= LOAD TAB DATA ================= */
+  /* ================= LOAD SUCCESS / SCHEDULE ================= */
 
   useEffect(() => {
     if (!teamId) return;
 
-    if (tab === "success") {
-      fetch(`/api/team-success?teamId=${teamId}`)
-        .then((r) => r.json())
-        .then((d: TeamSuccess[]) => {
-          setSuccessList(Array.isArray(d) ? d : []);
-        });
-    }
+    const loadTabData = async (): Promise<void> => {
+      setLoadingTab(true);
 
-    if (tab === "schedule") {
-      fetch(`/api/team-schedule?teamId=${teamId}`)
-        .then((r) => r.json())
-        .then((d: TeamSchedule[]) => {
-          setSchedule(Array.isArray(d) ? d : []);
-        });
-    }
+      try {
+        if (tab === "success") {
+          const res = await fetch(
+            `/api/team-success?teamId=${teamId}`,
+            { cache: "no-store" }
+          );
+
+          const data: unknown = await res.json();
+
+          if (data && typeof data === "object") {
+            setSuccess(data as TeamSuccess);
+          } else {
+            setSuccess(null);
+          }
+        }
+
+        if (tab === "schedule") {
+          const res = await fetch(
+            `/api/team-schedule?teamId=${teamId}`,
+            { cache: "no-store" }
+          );
+
+          const data: unknown = await res.json();
+
+          if (Array.isArray(data)) {
+            setSchedule(data as TeamSchedule[]);
+          } else {
+            setSchedule([]);
+          }
+        }
+      } catch {
+        if (tab === "success") setSuccess(null);
+        if (tab === "schedule") setSchedule([]);
+      } finally {
+        setLoadingTab(false);
+      }
+    };
+
+    loadTabData();
   }, [tab, teamId]);
+
+  /* ================= GUARD ================= */
 
   if (!teamId) {
     return (
@@ -112,6 +162,8 @@ export default function TeamPage() {
       </div>
     );
   }
+
+  /* ================= RENDER ================= */
 
   return (
     <div className="min-h-screen bg-black px-4 py-6">
@@ -144,14 +196,16 @@ export default function TeamPage() {
         {/* ================= PLAYERS ================= */}
         {tab === "players" && (
           <>
-            {loading && (
+            {loadingPlayers && (
               <div className="text-gray-500 text-center">
                 Loading players...
               </div>
             )}
 
-            {!loading && players.length === 0 && (
-              <div className="text-gray-500 text-center">No players found</div>
+            {!loadingPlayers && players.length === 0 && (
+              <div className="text-gray-500 text-center">
+                No players found
+              </div>
             )}
 
             {players.length > 0 && (
@@ -189,7 +243,9 @@ export default function TeamPage() {
                         <td className="p-3 font-semibold text-white">
                           {p.name}
                         </td>
-                        <td className="p-3 text-gray-400">{p.position}</td>
+                        <td className="p-3 text-gray-400">
+                          {p.position}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -201,34 +257,60 @@ export default function TeamPage() {
 
         {/* ================= SUCCESS ================= */}
         {tab === "success" && (
-          <div className="space-y-3">
-            {successList.length === 0 && (
-              <div className="text-gray-400 text-center">No success data</div>
+          <div className="space-y-4">
+            {loadingTab && (
+              <div className="text-gray-500 text-center">
+                Loading success...
+              </div>
             )}
 
-            {successList.map((s) => (
+            {!loadingTab &&
+              (!success ||
+                !Array.isArray(success.competitions) ||
+                success.competitions.length === 0) && (
+                <div className="text-gray-400 text-center">
+                  No success data
+                </div>
+              )}
+
+            {success?.competitions.map((c) => (
               <div
-                key={s._id}
-                className="bg-gray-950 border border-gray-800 rounded-xl p-4 text-white space-y-1"
+                key={c._id}
+                className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden"
               >
-                <div className="text-red-400 font-bold text-sm">
-                  {s.competitions.join(", ")}
+                {/* HEADER */}
+                <div className="bg-gray-900 text-center py-2 font-bold text-cyan-300">
+                  {c.competitionName}
                 </div>
 
-                <div className="text-gray-300 text-sm">
-                  Appearances: {s.appearances}
-                </div>
+                {/* BODY */}
+                <div className="p-3 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">
+                      Appearances
+                    </span>
+                    <span className="text-white">
+                      {c.appearances} (First in{" "}
+                      {c.firstYear || "—"})
+                    </span>
+                  </div>
 
-                <div className="text-gray-300 text-sm">
-                  First Year: {s.firstYear}
-                </div>
-
-                <div className="text-gray-400 text-xs mt-1">
-                  {s.bestResults.map((r, i) => (
-                    <div key={i}>
-                      🏆 {r.title} — {r.year}
-                    </div>
-                  ))}
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">
+                      Best result
+                    </span>
+                    <span className="text-white">
+                      {Array.isArray(c.bestResults) &&
+                      c.bestResults.length > 0
+                        ? c.bestResults
+                            .map(
+                              (r) =>
+                                `${r.title} (${r.year})`
+                            )
+                            .join(", ")
+                        : "—"}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -237,31 +319,135 @@ export default function TeamPage() {
 
         {/* ================= SCHEDULE ================= */}
         {tab === "schedule" && (
-          <div className="space-y-3">
-            {schedule.length === 0 && (
-              <div className="text-gray-400 text-center">No matches</div>
+          <div className="space-y-4">
+            {loadingTab && (
+              <div className="text-gray-500 text-center">
+                Loading schedule...
+              </div>
+            )}
+
+            {!loadingTab && schedule.length === 0 && (
+              <div className="text-gray-400 text-center">
+                No matches
+              </div>
             )}
 
             {schedule.map((m) => (
               <div
                 key={m._id}
-                className="flex justify-between items-center bg-gray-950 border border-gray-800 rounded-xl p-3 text-white"
+                className="
+                  bg-gradient-to-r from-gray-950 to-black
+                  border border-gray-800
+                  rounded-2xl
+                  overflow-hidden
+                  shadow-lg
+                "
               >
-                <div className="flex items-center gap-2">
-                  {m.opponentLogo && (
-                    <img
-                      src={m.opponentLogo}
-                      className="w-8 h-8 object-contain"
-                      alt=""
-                    />
-                  )}
-                  <b>{m.opponent}</b>
+                {/* HEADER */}
+                <div className="flex justify-between items-center px-3 py-2 bg-gray-900">
+                  <span className="text-xs text-cyan-400 font-bold tracking-widest">
+                    {m.week}
+                  </span>
+
+                  <span
+                    className={`text-xs font-bold tracking-widest ${
+                      m.gender === "men"
+                        ? "text-blue-400"
+                        : "text-pink-400"
+                    }`}
+                  >
+                    {m.gender.toUpperCase()}
+                  </span>
                 </div>
 
-                <div className="text-right text-sm">
-                  <div>{m.matchDate}</div>
-                  <div className="text-red-400">{m.matchTime}</div>
+                {/* BODY */}
+                <div className="p-4">
+                  <div className="flex justify-between items-center">
+                    {/* TEAM A */}
+                    <div className="flex items-center gap-2 min-w-0">
+                      {m.logoA && (
+                        <img
+                          src={m.logoA}
+                          className="w-10 h-10 object-contain"
+                          alt=""
+                        />
+                      )}
+                      <span className="font-bold text-white truncate">
+                        {m.teamA}
+                      </span>
+                    </div>
+
+                    <div className="text-gray-400 font-bold text-sm">
+                      VS
+                    </div>
+
+                    {/* TEAM B */}
+                    <div className="flex items-center gap-2 justify-end min-w-0">
+                      <span className="font-bold text-white truncate">
+                        {m.teamB}
+                      </span>
+                      {m.logoB && (
+                        <img
+                          src={m.logoB}
+                          className="w-10 h-10 object-contain"
+                          alt=""
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* UPCOMING */}
+                  {!m.finished && (
+                    <div className="text-center mt-3 text-sm text-gray-400">
+                      🗓 {m.matchDate} — ⏰ {m.matchTime}
+                    </div>
+                  )}
+
+                  {/* FINAL */}
+                  {m.finished && (
+                    <>
+                      <div className="text-center mt-3">
+                        <span className="text-3xl font-extrabold text-white">
+                          {m.finalA}
+                        </span>
+                        <span className="mx-3 text-gray-400 text-xl">
+                          :
+                        </span>
+                        <span className="text-3xl font-extrabold text-white">
+                          {m.finalB}
+                        </span>
+                      </div>
+
+                      {/* SETS */}
+                      {Array.isArray(m.sets) &&
+                        m.sets.length > 0 && (
+                          <div className="flex justify-center gap-2 mt-3">
+                            {m.sets.map((s, i) => (
+                              <div
+                                key={i}
+                                className="
+                                  bg-gray-900
+                                  border border-gray-700
+                                  rounded-lg
+                                  px-2 py-1
+                                  text-xs
+                                  text-white
+                                  font-bold
+                                "
+                              >
+                                {s.teamA}–{s.teamB}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                    </>
+                  )}
                 </div>
+
+                {/* FOOTER */}
+                  {/* <div className="text-center py-1 bg-gray-950 text-[10px] tracking-widest text-gray-500">
+                    {m.finished ? "FINAL" : "UPCOMING"}
+                  </div> */}
               </div>
             ))}
           </div>
