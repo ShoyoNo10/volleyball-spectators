@@ -17,11 +17,7 @@ const MatchSchema = new mongoose.Schema({
 
   liveUrl: { type: String, default: "" },
 
-  // 🔥 NEW — ТЭМЦЭЭНИЙ НЭР
-  competition: {
-    type: String,
-    default: "VNL",
-  },
+  competition: { type: String, default: "VNL" },
 
   createdAt: { type: Date, default: Date.now },
 });

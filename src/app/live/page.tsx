@@ -82,16 +82,19 @@ export default function LivePage() {
     <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8">
       <div className="w-full max-w-md">
         {/* 🔐 PRO NOTICE */}
-        <div className="mb-6">
-          <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
-            Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
-          </div>
-        </div>
+            <div className="mb-6">
+              <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
+                Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
+              </div>
+            </div>
         {/* ================= GLOW CARD ================= */}
         <div className="relative">
           <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60 animate-pulseGlow" />
 
           <div className="relative bg-[#020617] rounded-3xl border border-white/10 p-4 text-white">
+
+    
+
             {/* ================= TABS (INSIDE GLOW BOX TOP) ================= */}
             <div className="flex gap-2 mb-3">
               <button
@@ -214,6 +217,7 @@ export default function LivePage() {
                 )}
               </div>
             )}
+
           </div>
         </div>
       </div>
