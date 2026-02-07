@@ -6,36 +6,44 @@ import { getQpayToken } from "@/src/lib/qpay";
 export async function GET(req: Request) {
   try {
     console.log("🔥 CALLBACK HIT");
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const payment_id = searchParams.get("payment_id");
-    console.log("payment_id:", payment_id);
 
-    if (!payment_id) return new NextResponse("SUCCESS", { status: 200 });
+    // 🔴 ЭНЭ Л ГОЛ ЗАСВАР
+    const payment_id =
+      searchParams.get("payment_id") ||
+      searchParams.get("qpay_payment_id");
+
+    console.log("PAYMENT ID:", payment_id);
+
+    if (!payment_id) {
+      return new NextResponse("SUCCESS");
+    }
 
     const token = await getQpayToken();
 
-    // Төлбөр шалгах
-    const checkRes = await fetch("https://merchant.qpay.mn/v2/payment/check", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ payment_id }),
-    });
+    const checkRes = await fetch(
+      "https://merchant.qpay.mn/v2/payment/check",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ payment_id }),
+      }
+    );
 
     const data = await checkRes.json();
     console.log("CHECK:", data);
 
     if (data.payment_status !== "PAID") {
-      console.log("Not paid yet");
-      return new NextResponse("SUCCESS", { status: 200 });
+      return new NextResponse("SUCCESS");
     }
 
-    // sender_invoice_no = deviceId_months_timestamp
-    const invoiceNo: string = data.sender_invoice_no || "";
+    const invoiceNo: string = data.sender_invoice_no;
     const [deviceId, monthsStr] = invoiceNo.split("_");
     const months = Number(monthsStr || 1);
 
@@ -48,11 +56,11 @@ export async function GET(req: Request) {
       { upsert: true }
     );
 
-    console.log("✅ ACCESS UNLOCKED for", deviceId);
-    return new NextResponse("SUCCESS", { status: 200 });
-  } catch (e) {
-    console.log("❌ CALLBACK ERROR:", e);
-    // QPay-д заавал 200 + SUCCESS буцаана
-    return new NextResponse("SUCCESS", { status: 200 });
+    console.log("✅ ACCESS UNLOCKED");
+
+    return new NextResponse("SUCCESS");
+  } catch (err) {
+    console.log("❌ CALLBACK ERROR:", err);
+    return new NextResponse("SUCCESS");
   }
 }
