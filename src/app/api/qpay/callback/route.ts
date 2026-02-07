@@ -21,8 +21,35 @@ export async function GET(req: Request) {
 
     const token = await getQpayToken();
 
-    // 🔴 ХАМГИЙН ЧУХАЛ ЗӨВ ENDPOINT
-    const res = await fetch(
+    // 🔴 1. payment detail → invoice_id авах
+    const paymentRes = await fetch(
+      `https://merchant.qpay.mn/v2/payment?payment_id=${payment_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const paymentText = await paymentRes.text();
+    console.log("PAYMENT RAW:", paymentText);
+
+    let paymentData;
+    try {
+      paymentData = JSON.parse(paymentText);
+    } catch {
+      console.log("❌ PAYMENT JSON ERROR");
+      return new NextResponse("SUCCESS");
+    }
+
+    const invoice_id = paymentData.rows?.[0]?.invoice_id;
+
+    console.log("INVOICE ID:", invoice_id);
+
+    if (!invoice_id) return new NextResponse("SUCCESS");
+
+    // 🔴 2. payment/check → invoice_id
+    const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
         method: "POST",
@@ -31,31 +58,21 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          object_type: "PAYMENT",
-          object_id: payment_id,
+          object_type: "INVOICE",
+          object_id: invoice_id,
         }),
       }
     );
 
-    const text = await res.text();
-    console.log("RAW RESPONSE:", text);
+    const checkData = await checkRes.json();
+    console.log("CHECK:", checkData);
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      console.log("❌ NOT JSON RESPONSE");
-      return new NextResponse("SUCCESS");
-    }
+    if (!checkData.rows?.length) return new NextResponse("SUCCESS");
 
-    console.log("CHECK:", data);
-
-    if (!data.rows?.length) return new NextResponse("SUCCESS");
-
-    const row = data.rows[0];
+    const row = checkData.rows[0];
 
     if (row.payment_status !== "PAID") {
-      console.log("NOT PAID YET");
+      console.log("NOT PAID");
       return new NextResponse("SUCCESS");
     }
 
