@@ -20,9 +20,9 @@ export async function GET(req: Request) {
 
     const token = await getQpayToken();
 
-    // 1️⃣ payment detail авах
+    // 🔴 1. payment detail авах (ЗӨВ)
     const paymentRes = await fetch(
-      "https://merchant.qpay.mn/v2/payment",
+      `https://merchant.qpay.mn/v2/payment?payment_id=${payment_id}`,
       {
         method: "GET",
         headers: {
@@ -32,18 +32,16 @@ export async function GET(req: Request) {
     );
 
     const paymentData = await paymentRes.json();
-
     console.log("PAYMENT DATA:", paymentData);
 
-    // 2️⃣ invoice_id олох
     const invoice_id = paymentData.rows?.[0]?.invoice_id;
 
     if (!invoice_id) {
-      console.log("NO INVOICE ID");
+      console.log("NO INVOICE");
       return new NextResponse("SUCCESS");
     }
 
-    // 3️⃣ check хийх
+    // 🔴 2. check invoice
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
