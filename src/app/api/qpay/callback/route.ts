@@ -20,7 +20,30 @@ export async function GET(req: Request) {
 
     const token = await getQpayToken();
 
-    // 🔴 ЭНЭ ХЭСЭГ ШИНЭ
+    // 1️⃣ payment detail авах
+    const paymentRes = await fetch(
+      "https://merchant.qpay.mn/v2/payment",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const paymentData = await paymentRes.json();
+
+    console.log("PAYMENT DATA:", paymentData);
+
+    // 2️⃣ invoice_id олох
+    const invoice_id = paymentData.rows?.[0]?.invoice_id;
+
+    if (!invoice_id) {
+      console.log("NO INVOICE ID");
+      return new NextResponse("SUCCESS");
+    }
+
+    // 3️⃣ check хийх
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
@@ -31,7 +54,7 @@ export async function GET(req: Request) {
         },
         body: JSON.stringify({
           object_type: "INVOICE",
-          object_id: payment_id,
+          object_id: invoice_id,
         }),
       }
     );
@@ -39,11 +62,11 @@ export async function GET(req: Request) {
     const data = await checkRes.json();
     console.log("CHECK:", data);
 
-    if (data.payment_status !== "PAID") {
+    if (!data.rows?.length) {
       return new NextResponse("SUCCESS");
     }
 
-    const invoiceNo: string = data.sender_invoice_no;
+    const invoiceNo: string = data.rows[0].sender_invoice_no;
     const [deviceId, monthsStr] = invoiceNo.split("_");
     const months = Number(monthsStr || 1);
 
