@@ -5,56 +5,40 @@ import { getQpayToken } from "@/src/lib/qpay";
 
 export async function GET(req: Request) {
   try {
+    console.log("🔥 CALLBACK HIT");
     await connectDB();
-
-    console.log("🔥 QPAY CALLBACK HIT");
 
     const { searchParams } = new URL(req.url);
     const payment_id = searchParams.get("payment_id");
+    console.log("payment_id:", payment_id);
 
-    console.log("PAYMENT ID:", payment_id);
+    if (!payment_id) return new NextResponse("SUCCESS", { status: 200 });
 
-    if (!payment_id) {
-      return new NextResponse("SUCCESS");
-    }
-
-    // 🔐 QPay token
     const token = await getQpayToken();
 
-    // 💰 төлбөр шалгах
-    const checkRes = await fetch(
-      "https://merchant.qpay.mn/v2/payment/check",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          payment_id,
-        }),
-      }
-    );
+    // Төлбөр шалгах
+    const checkRes = await fetch("https://merchant.qpay.mn/v2/payment/check", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ payment_id }),
+    });
 
     const data = await checkRes.json();
-
-    console.log("CHECK RESPONSE:", data);
+    console.log("CHECK:", data);
 
     if (data.payment_status !== "PAID") {
-      console.log("NOT PAID");
-      return new NextResponse("SUCCESS");
+      console.log("Not paid yet");
+      return new NextResponse("SUCCESS", { status: 200 });
     }
 
-    // 🧠 sender_invoice_no = deviceId_months_timestamp
-    const invoiceNo: string = data.sender_invoice_no;
-    const parts = invoiceNo.split("_");
+    // sender_invoice_no = deviceId_months_timestamp
+    const invoiceNo: string = data.sender_invoice_no || "";
+    const [deviceId, monthsStr] = invoiceNo.split("_");
+    const months = Number(monthsStr || 1);
 
-    const deviceId = parts[0];
-    const months = Number(parts[1] || 1);
-
-    console.log("DEVICE:", deviceId, "MONTHS:", months);
-
-    // 📅 хугацаа тооцох
     const expires = new Date();
     expires.setMonth(expires.getMonth() + months);
 
@@ -64,13 +48,11 @@ export async function GET(req: Request) {
       { upsert: true }
     );
 
-    console.log("✅ ACCESS UNLOCKED");
-
-    // QPay-д заавал
-    return new NextResponse("SUCCESS");
-
-  } catch (err) {
-    console.log("❌ CALLBACK ERROR:", err);
-    return new NextResponse("SUCCESS");
+    console.log("✅ ACCESS UNLOCKED for", deviceId);
+    return new NextResponse("SUCCESS", { status: 200 });
+  } catch (e) {
+    console.log("❌ CALLBACK ERROR:", e);
+    // QPay-д заавал 200 + SUCCESS буцаана
+    return new NextResponse("SUCCESS", { status: 200 });
   }
 }
