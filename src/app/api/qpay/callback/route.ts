@@ -6,24 +6,21 @@ import { getQpayToken } from "@/src/lib/qpay";
 export async function GET(req: Request) {
   try {
     console.log("🔥 CALLBACK HIT");
-
     await connectDB();
 
     const { searchParams } = new URL(req.url);
 
-    // 🔴 ЭНЭ Л ГОЛ ЗАСВАР
     const payment_id =
       searchParams.get("payment_id") ||
       searchParams.get("qpay_payment_id");
 
     console.log("PAYMENT ID:", payment_id);
 
-    if (!payment_id) {
-      return new NextResponse("SUCCESS");
-    }
+    if (!payment_id) return new NextResponse("SUCCESS");
 
     const token = await getQpayToken();
 
+    // 🔴 ЭНЭ ХЭСЭГ ШИНЭ
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
@@ -32,7 +29,10 @@ export async function GET(req: Request) {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ payment_id }),
+        body: JSON.stringify({
+          object_type: "INVOICE",
+          object_id: payment_id,
+        }),
       }
     );
 
