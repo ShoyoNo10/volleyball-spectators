@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongodb";
 import Access from "@/src/models/Access";
+import Invoice from "@/src/models/Invoice";
 import { getQpayToken } from "@/src/lib/qpay";
 
 export async function GET(req: Request) {
@@ -10,10 +11,7 @@ export async function GET(req: Request) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-
-    const payment_id =
-      searchParams.get("qpay_payment_id") ||
-      searchParams.get("payment_id");
+    const payment_id = searchParams.get("qpay_payment_id");
 
     console.log("PAYMENT ID:", payment_id);
 
@@ -21,34 +19,6 @@ export async function GET(req: Request) {
 
     const token = await getQpayToken();
 
-    // 🔴 1. payment detail → invoice_id авах
-    const paymentRes = await fetch(
-      `https://merchant.qpay.mn/v2/payment?payment_id=${payment_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const paymentText = await paymentRes.text();
-    console.log("PAYMENT RAW:", paymentText);
-
-    let paymentData;
-    try {
-      paymentData = JSON.parse(paymentText);
-    } catch {
-      console.log("❌ PAYMENT JSON ERROR");
-      return new NextResponse("SUCCESS");
-    }
-
-    const invoice_id = paymentData.rows?.[0]?.invoice_id;
-
-    console.log("INVOICE ID:", invoice_id);
-
-    if (!invoice_id) return new NextResponse("SUCCESS");
-
-    // 🔴 2. payment/check → invoice_id
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
@@ -58,33 +28,37 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          object_type: "INVOICE",
-          object_id: invoice_id,
+          object_type: "PAYMENT",
+          object_id: payment_id,
         }),
       }
     );
 
-    const checkData = await checkRes.json();
-    console.log("CHECK:", checkData);
+    const data = await checkRes.json();
+    console.log("CHECK:", data);
 
-    if (!checkData.rows?.length) return new NextResponse("SUCCESS");
+    if (!data.rows?.length) return new NextResponse("SUCCESS");
 
-    const row = checkData.rows[0];
+    const row = data.rows[0];
 
     if (row.payment_status !== "PAID") {
-      console.log("NOT PAID");
       return new NextResponse("SUCCESS");
     }
 
-    const invoiceNo: string = row.sender_invoice_no;
-    const [deviceId, monthsStr] = invoiceNo.split("_");
-    const months = Number(monthsStr || 1);
+    const invoice = await Invoice.findOne({
+      invoiceId: row.invoice_id,
+    });
+
+    if (!invoice) {
+      console.log("NO INVOICE IN DB");
+      return new NextResponse("SUCCESS");
+    }
 
     const expires = new Date();
-    expires.setMonth(expires.getMonth() + months);
+    expires.setMonth(expires.getMonth() + invoice.months);
 
     await Access.findOneAndUpdate(
-      { deviceId },
+      { deviceId: invoice.deviceId },
       { expiresAt: expires },
       { upsert: true }
     );

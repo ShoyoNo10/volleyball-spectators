@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { getQpayToken } from "@/src/lib/qpay";
+import { connectDB } from "@/src/lib/mongodb";
+import Invoice from "@/src/models/Invoice";
 
 export async function POST(req: Request) {
   try {
     const { deviceId, months } = await req.json();
+
+    await connectDB();
 
     console.log("DEVICE:", deviceId);
 
@@ -21,7 +25,7 @@ export async function POST(req: Request) {
         sender_invoice_no: deviceId + "_" + months,
         invoice_receiver_code: "terminal",
         invoice_description: "VolleyLive",
-        amount: 10000,
+        amount: months === 1 ? 10000 : months === 6 ? 20000 : 30000,
         callback_url: process.env.BASE_URL + "/api/qpay/callback",
       }),
     });
@@ -30,8 +34,15 @@ export async function POST(req: Request) {
 
     console.log("🔥 QPAY RESPONSE:", data);
 
+    // 🔴 ЭНЭ Л НЭМЭГДСЭН
+    await Invoice.create({
+      invoiceId: data.invoice_id,
+      deviceId,
+      months,
+    });
+
     return NextResponse.json({
-      url: data.qPay_shortUrl || null
+      url: data.qPay_shortUrl || null,
     });
 
   } catch (err: unknown) {
@@ -39,4 +50,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "server error" });
   }
 }
-
