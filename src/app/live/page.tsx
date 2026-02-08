@@ -67,16 +67,36 @@ export default function LivePage() {
   }, []);
 
   /* ================= CHECK ACCESS ================= */
-  useEffect(() => {
-    const check = async () => {
-      const deviceId = getDeviceId();
-      const res = await fetch(`/api/access/check?deviceId=${deviceId}`);
-      const data = await res.json();
-      setIsPro(data.ok);
-      setLoadingAccess(false);
-    };
-    check();
-  }, []);
+  // useEffect(() => {
+  //   const check = async () => {
+  //     const deviceId = getDeviceId();
+  //     const res = await fetch(`/api/access/check?deviceId=${deviceId}`);
+  //     const data = await res.json();
+  //     setIsPro(data.ok);
+  //     setLoadingAccess(false);
+  //   };
+  //   check();
+  // }, []);
+
+/* ================= CHECK ACCESS ================= */
+useEffect(() => {
+  const check = async () => {
+    const deviceId = getDeviceId();
+
+    const res = await fetch("/api/access/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deviceId }),
+    });
+
+    const data = await res.json();
+    setIsPro(data.allowed);
+    setLoadingAccess(false);
+  };
+  check();
+}, []);
+
+
 
   /* ================= REPLAY ================= */
   useEffect(() => {
