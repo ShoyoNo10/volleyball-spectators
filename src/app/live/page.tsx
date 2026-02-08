@@ -66,7 +66,6 @@
 //     setTodayLabel(label);
 //   }, []);
 
-
 // /* ================= CHECK ACCESS ================= */
 // useEffect(() => {
 //   const check = async () => {
@@ -84,8 +83,6 @@
 //   };
 //   check();
 // }, []);
-
-
 
 //   /* ================= REPLAY ================= */
 //   useEffect(() => {
@@ -305,9 +302,6 @@
 //   );
 // }
 
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -376,12 +370,24 @@ export default function LivePage() {
     setTodayLabel(label);
   }, []);
 
-
-/* ================= CHECK ACCESS ================= */
+  /* ================= CHECK ACCESS ================= */
 useEffect(() => {
   const check = async () => {
-    const res = await fetch("/api/auth/me");
+    const deviceId = getDeviceId();
+
+    const res = await fetch("/api/auth/me", {
+      headers: {
+        "x-device-id": deviceId,
+      },
+    });
+
     const data = await res.json();
+
+    if (data.forceLogout) {
+      alert("Өөр төхөөрөмж дээр нэвтэрсэн байна");
+      location.href = "/login";
+      return;
+    }
 
     setIsPro(data.isPro);
     setLoadingAccess(false);
@@ -389,8 +395,6 @@ useEffect(() => {
 
   check();
 }, []);
-
-
 
 
   /* ================= REPLAY ================= */
@@ -411,7 +415,6 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8">
       <div className="w-full max-w-md">
-
         {/* 🔐 PRO NOTICE */}
         {!isPro && !loadingAccess && (
           <div className="mb-6">
@@ -425,7 +428,6 @@ useEffect(() => {
           <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60 animate-pulseGlow" />
 
           <div className="relative bg-[#020617] rounded-3xl border border-white/10 p-4 text-white">
-
             {/* ================= TABS ================= */}
             <div className="flex gap-2 mb-3">
               <button
@@ -542,7 +544,6 @@ useEffect(() => {
                 )}
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -575,8 +576,8 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
         isLive
           ? "bg-linear-to-r from-red-900/40 to-red-600/20 border border-red-500/40 cursor-pointer"
           : isUpcoming
-          ? "bg-linear-to-r from-yellow-900/30 to-yellow-600/10 border border-yellow-400/30 cursor-pointer"
-          : "bg-linear-to-r from-gray-800/40 to-gray-700/20 border border-gray-500/30 opacity-60 cursor-not-allowed"
+            ? "bg-linear-to-r from-yellow-900/30 to-yellow-600/10 border border-yellow-400/30 cursor-pointer"
+            : "bg-linear-to-r from-gray-800/40 to-gray-700/20 border border-gray-500/30 opacity-60 cursor-not-allowed"
       } ${!isFinished ? "hover:scale-[1.02]" : ""}`}
     >
       {match.competition && (

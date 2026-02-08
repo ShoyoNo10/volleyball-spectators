@@ -32,6 +32,18 @@ export async function GET(req: Request) {
       return NextResponse.json({ user: null, isPro: false });
     }
 
+    // 🔥 CLIENT deviceId
+    const deviceId = req.headers.get("x-device-id");
+
+    // 🔥 Хэрвээ өөр device бол → logout
+    if (user.activeDeviceId && user.activeDeviceId !== deviceId) {
+      return NextResponse.json({
+        user: null,
+        isPro: false,
+        forceLogout: true,
+      });
+    }
+
     const isPro =
       user.proExpires &&
       new Date(user.proExpires).getTime() > Date.now();

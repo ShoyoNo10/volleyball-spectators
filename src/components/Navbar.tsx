@@ -3,6 +3,13 @@ import Link from "next/link";
 import { useState } from "react";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+
+const logout = async () => {
+  await fetch("/api/auth/logout", { method: "POST" });
+  location.href = "/login";
+};
+
+
   return (
     <nav className="bg-vnl text-white px-4 py-3">
       <div className="flex justify-between items-center">
@@ -32,6 +39,10 @@ export default function Navbar() {
            <Link href="/signup" onClick={() => setOpen(false)}>
             Бүртгүүлэх
           </Link>
+          <button onClick={logout} className="text-left">
+            Гарах
+          </button>
+          
         </div>
       )}
     </nav>
