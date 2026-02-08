@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getDeviceId } from "@/src/lib/device";
 
 /* ================= TYPES ================= */
 
@@ -38,7 +39,6 @@ interface ReplayVideo {
 
 export default function LivePage() {
   const [tab, setTab] = useState<"live" | "replay">("live");
-
   const [matches, setMatches] = useState<Match[]>([]);
   const [todayLabel, setTodayLabel] = useState<string>("");
 
@@ -46,6 +46,10 @@ export default function LivePage() {
   const [videos, setVideos] = useState<ReplayVideo[]>([]);
   const [selectedCompetition, setSelectedCompetition] = useState<string>("");
 
+  const [isPro, setIsPro] = useState<boolean>(false);
+  const [loadingAccess, setLoadingAccess] = useState(true);
+
+  /* ================= LOAD MATCHES ================= */
   useEffect(() => {
     const load = async () => {
       const res = await fetch("/api/matches");
@@ -62,9 +66,21 @@ export default function LivePage() {
     setTodayLabel(label);
   }, []);
 
+  /* ================= CHECK ACCESS ================= */
+  useEffect(() => {
+    const check = async () => {
+      const deviceId = getDeviceId();
+      const res = await fetch(`/api/access/check?deviceId=${deviceId}`);
+      const data = await res.json();
+      setIsPro(data.ok);
+      setLoadingAccess(false);
+    };
+    check();
+  }, []);
+
+  /* ================= REPLAY ================= */
   useEffect(() => {
     if (tab !== "replay") return;
-
     fetch("/api/competitions")
       .then((r) => r.json())
       .then((data: Competition[]) => setCompetitions(data));
@@ -72,7 +88,6 @@ export default function LivePage() {
 
   useEffect(() => {
     if (!selectedCompetition) return;
-
     fetch(`/api/replay?competitionId=${selectedCompetition}`)
       .then((r) => r.json())
       .then((data: ReplayVideo[]) => setVideos(data));
@@ -81,49 +96,44 @@ export default function LivePage() {
   return (
     <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8">
       <div className="w-full max-w-md">
+
         {/* 🔐 PRO NOTICE */}
-            <div className="mb-6">
-              <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
-                Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
-              </div>
+        {!isPro && !loadingAccess && (
+          <div className="mb-6">
+            <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
+              Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
             </div>
-        {/* ================= GLOW CARD ================= */}
+          </div>
+        )}
+
         <div className="relative">
           <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60 animate-pulseGlow" />
 
           <div className="relative bg-[#020617] rounded-3xl border border-white/10 p-4 text-white">
 
-    
-
-            {/* ================= TABS (INSIDE GLOW BOX TOP) ================= */}
+            {/* ================= TABS ================= */}
             <div className="flex gap-2 mb-3">
               <button
                 onClick={() => {
                   setTab("live");
                   setSelectedCompetition("");
                 }}
-                className={`
-                  flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition
-                  ${
-                    tab === "live"
-                      ? "bg-red-600 text-white shadow-md"
-                      : "bg-[#121726] text-gray-400 hover:text-white"
-                  }
-                `}
+                className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition ${
+                  tab === "live"
+                    ? "bg-red-600 text-white shadow-md"
+                    : "bg-[#121726] text-gray-400 hover:text-white"
+                }`}
               >
                 LIVE
               </button>
 
               <button
                 onClick={() => setTab("replay")}
-                className={`
-                  flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition
-                  ${
-                    tab === "replay"
-                      ? "bg-cyan-600 text-white shadow-md"
-                      : "bg-[#121726] text-gray-400 hover:text-white"
-                  }
-                `}
+                className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition ${
+                  tab === "replay"
+                    ? "bg-cyan-600 text-white shadow-md"
+                    : "bg-[#121726] text-gray-400 hover:text-white"
+                }`}
               >
                 REPLAY
               </button>
@@ -154,7 +164,7 @@ export default function LivePage() {
                     return toMin(a.time) - toMin(b.time);
                   })
                   .map((m) => (
-                    <MatchRow key={m._id} match={m} />
+                    <MatchRow key={m._id} match={m} isPro={isPro} />
                   ))}
               </div>
             )}
@@ -227,27 +237,32 @@ export default function LivePage() {
 
 /* ================= MATCH ROW ================= */
 
-function MatchRow({ match }: { match: Match }) {
+function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
   const isLive = match.status === "live";
   const isUpcoming = match.status === "upcoming";
   const isFinished = match.status === "finished";
 
+  const handleClick = () => {
+    if (!isPro) {
+      alert("Pro эрх идэвхгүй байна");
+      return;
+    }
+
+    if (!isFinished && match.liveUrl) {
+      window.open(match.liveUrl, "_blank");
+    }
+  };
+
   return (
     <div
-      onClick={() =>
-        !isFinished && match.liveUrl && window.open(match.liveUrl, "_blank")
-      }
-      className={`
-        relative rounded-2xl p-3 transition
-        ${
-          isLive
-            ? "bg-linear-to-r from-red-900/40 to-red-600/20 border border-red-500/40 cursor-pointer"
-            : isUpcoming
-              ? "bg-linear-to-r from-yellow-900/30 to-yellow-600/10 border border-yellow-400/30 cursor-pointer"
-              : "bg-linear-to-r from-gray-800/40 to-gray-700/20 border border-gray-500/30 opacity-60 cursor-not-allowed"
-        }
-        ${!isFinished ? "hover:scale-[1.02]" : ""}
-      `}
+      onClick={handleClick}
+      className={`relative rounded-2xl p-3 transition ${
+        isLive
+          ? "bg-linear-to-r from-red-900/40 to-red-600/20 border border-red-500/40 cursor-pointer"
+          : isUpcoming
+          ? "bg-linear-to-r from-yellow-900/30 to-yellow-600/10 border border-yellow-400/30 cursor-pointer"
+          : "bg-linear-to-r from-gray-800/40 to-gray-700/20 border border-gray-500/30 opacity-60 cursor-not-allowed"
+      } ${!isFinished ? "hover:scale-[1.02]" : ""}`}
     >
       {match.competition && (
         <div className="text-center text-[10px] font-bold tracking-widest text-cyan-300 mb-1">

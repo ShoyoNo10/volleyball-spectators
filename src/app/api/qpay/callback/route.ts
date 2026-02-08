@@ -19,7 +19,8 @@ export async function GET(req: Request) {
 
     const token = await getQpayToken();
 
-    const checkRes = await fetch(
+    // 🔥 payment_id-р check хийнэ
+    const res = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
         method: "POST",
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
       }
     );
 
-    const data = await checkRes.json();
+    const data = await res.json();
     console.log("CHECK:", data);
 
     if (!data.rows?.length) return new NextResponse("SUCCESS");
@@ -45,12 +46,13 @@ export async function GET(req: Request) {
       return new NextResponse("SUCCESS");
     }
 
+    // 🔥 энд invoice_id ирдэг
     const invoice = await Invoice.findOne({
       invoiceId: row.invoice_id,
     });
 
     if (!invoice) {
-      console.log("NO INVOICE IN DB");
+      console.log("NO INVOICE FOUND");
       return new NextResponse("SUCCESS");
     }
 

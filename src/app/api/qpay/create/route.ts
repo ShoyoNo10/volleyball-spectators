@@ -34,7 +34,6 @@ export async function POST(req: Request) {
 
     console.log("🔥 QPAY RESPONSE:", data);
 
-    // 🔴 ЭНЭ Л НЭМЭГДСЭН
     await Invoice.create({
       invoiceId: data.invoice_id,
       deviceId,
