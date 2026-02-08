@@ -14,33 +14,16 @@ export async function GET(req: Request) {
     const payment_id = searchParams.get("qpay_payment_id");
 
     console.log("PAYMENT ID:", payment_id);
+
     if (!payment_id) return new NextResponse("SUCCESS");
 
     const token = await getQpayToken();
 
-    // 🟢 1. payment → invoice олно
-    const paymentRes = await fetch(
-      "https://merchant.qpay.mn/v2/payment/check",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          object_type: "PAYMENT",
-          object_id: payment_id,
-        }),
-      }
-    );
+    // 🔥 ЧУХАЛ: invoice_id-аар шалгана
+    const invoice = await Invoice.findOne().sort({ _id: -1 });
 
-    const paymentData = await paymentRes.json();
-    console.log("PAYMENT DATA:", paymentData);
+    if (!invoice) return new NextResponse("SUCCESS");
 
-    const invoiceId = paymentData.rows?.[0]?.invoice_id;
-    if (!invoiceId) return new NextResponse("SUCCESS");
-
-    // 🟢 2. invoice шалгана
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
       {
@@ -51,25 +34,19 @@ export async function GET(req: Request) {
         },
         body: JSON.stringify({
           object_type: "INVOICE",
-          object_id: invoiceId,
+          object_id: invoice.invoiceId,
         }),
       }
     );
 
     const data = await checkRes.json();
-    console.log("INVOICE CHECK:", data);
+    console.log("PAYMENT DATA:", data);
 
     if (!data.rows?.length) return new NextResponse("SUCCESS");
 
     const row = data.rows[0];
-    if (row.payment_status !== "PAID") return new NextResponse("SUCCESS");
 
-    const invoice = await Invoice.findOne({
-      invoiceId: invoiceId,
-    });
-
-    if (!invoice) {
-      console.log("NO INVOICE IN DB");
+    if (row.payment_status !== "PAID") {
       return new NextResponse("SUCCESS");
     }
 
@@ -83,8 +60,8 @@ export async function GET(req: Request) {
     );
 
     console.log("✅ ACCESS UNLOCKED");
-    return new NextResponse("SUCCESS");
 
+    return new NextResponse("SUCCESS");
   } catch (err) {
     console.log("❌ CALLBACK ERROR:", err);
     return new NextResponse("SUCCESS");
