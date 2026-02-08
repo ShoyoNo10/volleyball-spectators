@@ -26,6 +26,12 @@ export default function Navbar() {
           <Link href="/ranking" onClick={() => setOpen(false)}>
             Дэлхийн чансаа
           </Link>
+           <Link href="/login" onClick={() => setOpen(false)}>
+            Нэвтрэх
+          </Link>
+           <Link href="/signup" onClick={() => setOpen(false)}>
+            Бүртгүүлэх
+          </Link>
         </div>
       )}
     </nav>
