@@ -70,20 +70,26 @@
 
 import { NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongodb";
-import User from "@/src/models/User";
 import Invoice from "@/src/models/Invoice";
+import User from "@/src/models/User";
 import { getQpayToken } from "@/src/lib/qpay";
 
 export async function GET(req: Request) {
   try {
     console.log("🔥 CALLBACK HIT");
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
     const payment_id = searchParams.get("qpay_payment_id");
-    if (!payment_id) return new NextResponse("OK");
+
+    if (!payment_id) return new NextResponse("SUCCESS");
 
     const token = await getQpayToken();
+
+    // 🔥 сүүлд үүссэн invoice
+    const invoice = await Invoice.findOne().sort({ _id: -1 });
+    if (!invoice) return new NextResponse("SUCCESS");
 
     const checkRes = await fetch(
       "https://merchant.qpay.mn/v2/payment/check",
@@ -94,8 +100,8 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          object_type: "PAYMENT",
-          object_id: payment_id,
+          object_type: "INVOICE",
+          object_id: invoice.invoiceId,
         }),
       }
     );
@@ -103,29 +109,33 @@ export async function GET(req: Request) {
     const data = await checkRes.json();
     console.log("PAYMENT DATA:", data);
 
-    if (!data.rows?.length) return new NextResponse("OK");
+    if (!data.rows?.length) return new NextResponse("SUCCESS");
+
     const row = data.rows[0];
 
-    if (row.payment_status !== "PAID") return new NextResponse("OK");
+    if (row.payment_status !== "PAID") {
+      return new NextResponse("SUCCESS");
+    }
 
-    const invoice = await Invoice.findOne({ invoiceId: row.invoice_id });
-    if (!invoice) return new NextResponse("OK");
+    // 🔥 USER unlock
+    const user = await User.findById(invoice.userId);
+    if (!user) return new NextResponse("SUCCESS");
 
-    // 🔥 USER олно
-    const user = await User.findOne({ activeDeviceId: invoice.deviceId });
-    if (!user) return new NextResponse("OK");
+    const now = new Date();
+    const base = user.proExpires && user.proExpires > now
+      ? user.proExpires
+      : now;
 
-    const expires = new Date();
-    expires.setMonth(expires.getMonth() + invoice.months);
+    base.setMonth(base.getMonth() + invoice.months);
 
-    user.proExpires = expires;
+    user.proExpires = base;
     await user.save();
 
-    console.log("✅ PRO UNLOCKED:", user.username);
+    console.log("✅ PRO UNLOCKED FOR USER:", user.username);
 
-    return new NextResponse("OK");
+    return new NextResponse("SUCCESS");
   } catch (err) {
     console.log("❌ CALLBACK ERROR:", err);
-    return new NextResponse("OK");
+    return new NextResponse("SUCCESS");
   }
 }
