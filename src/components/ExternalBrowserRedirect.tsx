@@ -1,7 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function ExternalBrowserRedirect() {
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
     const ua = navigator.userAgent || "";
 
@@ -11,25 +13,37 @@ export default function ExternalBrowserRedirect() {
       ua.includes("Instagram") ||
       ua.includes("Messenger");
 
-    if (!isInApp) return;
-
-    const url = window.location.href;
-
-    // iOS → Safari/Chrome руу
-    if (/iPhone|iPad|iPod/.test(ua)) {
-      window.location.href =
-        "googlechrome://" + url.replace(/^https?:\/\//, "");
-      return;
-    }
-
-    // Android → Chrome руу
-    if (/Android/.test(ua)) {
-      window.location.href =
-        "intent://" +
-        url.replace(/^https?:\/\//, "") +
-        "#Intent;scheme=https;package=com.android.chrome;end";
-    }
+    if (isInApp) setShow(true);
   }, []);
 
-  return null;
+  if (!show) return null;
+
+  const openBrowser = () => {
+    const url = window.location.href;
+
+    // iOS
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      window.location.href = "https://" + url.replace(/^https?:\/\//, "");
+    }
+
+    // Android
+    else {
+      window.open(url, "_blank");
+    }
+  };
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 z-50 bg-black text-white p-4 rounded-xl shadow-lg text-center">
+      <div className="text-sm mb-2">
+        Сайтыг Safari эсвэл Chrome дээр нээвэл илүү сайн ажиллана
+      </div>
+
+      <button
+        onClick={openBrowser}
+        className="bg-blue-600 px-4 py-2 rounded-lg text-sm font-bold"
+      >
+        Browser дээр нээх
+      </button>
+    </div>
+  );
 }
