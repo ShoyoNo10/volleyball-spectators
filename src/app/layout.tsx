@@ -2,7 +2,6 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import Navbar2Wrapper from "../components/Navbar2Wrapper";
 import FooterWrapper from "../components/FooterWrapper";
-import ExternalBrowserRedirect from "../components/ExternalBrowserRedirect";
 
 export const metadata = {
   title: "VolleyLive – VNL Live Stream & Volleyball Schedule Mongolia",
@@ -18,7 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ExternalBrowserRedirect />
         <Navbar />
         <Navbar2Wrapper />
         {children}
