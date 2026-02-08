@@ -72,11 +72,15 @@ html, body {
   animation: pulseGlow 3s ease-in-out infinite;
 }
 
-@keyframes blinkLive {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
+@keyframes liveBlink {
+  0%,100% { opacity: 1 }
+  50% { opacity: 0.2 }
 }
+
+.live-blink {
+  animation: liveBlink 1s infinite;
+}
+
 
 .animate-blinkLive {
   animation: blinkLive 1.2s infinite;

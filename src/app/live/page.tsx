@@ -371,31 +371,29 @@ export default function LivePage() {
   }, []);
 
   /* ================= CHECK ACCESS ================= */
-useEffect(() => {
-  const check = async () => {
-    const deviceId = getDeviceId();
+  useEffect(() => {
+    const check = async () => {
+      const deviceId = getDeviceId();
 
-    const res = await fetch("/api/auth/me", {
-      headers: {
-        "x-device-id": deviceId,
-      },
-    });
+      const res = await fetch("/api/auth/me", {
+        headers: {
+          "x-device-id": deviceId,
+        },
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.forceLogout) {
-      alert("Өөр төхөөрөмж дээр нэвтэрсэн байна");
-      location.href = "/login";
-      return;
-    }
+      if (data.forceLogout) {
+        window.location.href = "/login";
+        return;
+      }
 
-    setIsPro(data.isPro);
-    setLoadingAccess(false);
-  };
+      setIsPro(data.isPro);
+      setLoadingAccess(false);
+    };
 
-  check();
-}, []);
-
+    check();
+  }, []);
 
   /* ================= REPLAY ================= */
   useEffect(() => {
@@ -415,7 +413,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8">
       <div className="w-full max-w-md">
-        {/* 🔐 PRO NOTICE */}
+
         {!isPro && !loadingAccess && (
           <div className="mb-6">
             <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
@@ -428,7 +426,8 @@ useEffect(() => {
           <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60 animate-pulseGlow" />
 
           <div className="relative bg-[#020617] rounded-3xl border border-white/10 p-4 text-white">
-            {/* ================= TABS ================= */}
+
+            {/* TABS */}
             <div className="flex gap-2 mb-3">
               <button
                 onClick={() => {
@@ -456,14 +455,14 @@ useEffect(() => {
               </button>
             </div>
 
-            {/* 🔴 LIVE HEADER */}
+            {/* HEADER */}
             {tab === "live" && (
               <div className="text-center font-bold text-sm tracking-wide mb-3 text-cyan-300">
                 {todayLabel || " "} өдрийн тоглолтууд
               </div>
             )}
 
-            {/* ================= LIVE ================= */}
+            {/* LIVE LIST */}
             {tab === "live" && (
               <div className="space-y-4">
                 {matches.length === 0 && (
@@ -486,7 +485,7 @@ useEffect(() => {
               </div>
             )}
 
-            {/* ================= REPLAY ================= */}
+            {/* REPLAY */}
             {tab === "replay" && (
               <div className="space-y-4">
                 {!selectedCompetition && (
@@ -554,13 +553,15 @@ useEffect(() => {
 /* ================= MATCH ROW ================= */
 
 function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
+  const [popup, setPopup] = useState(false);
+
   const isLive = match.status === "live";
   const isUpcoming = match.status === "upcoming";
   const isFinished = match.status === "finished";
 
   const handleClick = () => {
     if (!isPro) {
-      alert("Pro эрх идэвхгүй байна");
+      setPopup(true);
       return;
     }
 
@@ -570,44 +571,100 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className={`relative rounded-2xl p-3 transition ${
-        isLive
-          ? "bg-linear-to-r from-red-900/40 to-red-600/20 border border-red-500/40 cursor-pointer"
-          : isUpcoming
+    <>
+      <div
+        onClick={handleClick}
+        className={`relative rounded-2xl p-3 transition ${
+          isLive
+            ? "bg-linear-to-r from-red-900/40 to-red-600/20 border border-red-500/40 cursor-pointer"
+            : isUpcoming
             ? "bg-linear-to-r from-yellow-900/30 to-yellow-600/10 border border-yellow-400/30 cursor-pointer"
             : "bg-linear-to-r from-gray-800/40 to-gray-700/20 border border-gray-500/30 opacity-60 cursor-not-allowed"
-      } ${!isFinished ? "hover:scale-[1.02]" : ""}`}
-    >
-      {match.competition && (
-        <div className="text-center text-[10px] font-bold tracking-widest text-cyan-300 mb-1">
-          {match.competition}
+        } ${!isFinished ? "hover:scale-[1.02]" : ""}`}
+      >
+
+        {/* 🏆 COMPETITION (TOP CENTER) */}
+        {match.competition && (
+          <div className="text-center text-[10px] font-bold tracking-widest text-cyan-300 mb-1">
+            {match.competition}
+          </div>
+        )}
+
+        {/* 👤 GENDER (ABOVE LOGOS) */}
+        {/* <div className="text-center text-[10px] font-bold tracking-widest text-purple-300 mb-2">
+          {match.gender}
+        </div> */}
+
+        {/* ⏱ TIME */}
+        <div className="flex justify-between text-xs mb-2">
+          <span>{match.gender}</span>
+          <span className="font-bold">{match.time}</span>
+        </div>
+
+        {/* 🆚 TEAMS */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2 min-w-0">
+            {match.logoA && (
+              <img src={match.logoA} className="w-8 h-8 object-contain" />
+            )}
+            <span className="font-semibold text-sm truncate">
+              {match.teamA}
+            </span>
+          </div>
+
+          <span className="text-xs text-gray-400 font-bold">VS</span>
+
+          <div className="flex items-center gap-2 justify-end min-w-0">
+            <span className="font-semibold text-sm truncate">
+              {match.teamB}
+            </span>
+            {match.logoB && (
+              <img src={match.logoB} className="w-8 h-8 object-contain" />
+            )}
+          </div>
+        </div>
+
+        {/* 🔥 STATUS (UNDER LOGOS) */}
+        <div className="text-center mt-2 text-[10px] font-bold tracking-widest">
+          {isLive && <span className="text-red-400 live-blink">● LIVE</span>}
+          {isUpcoming && <span className="text-yellow-400">UPCOMING</span>}
+          {isFinished && <span className="text-gray-400">FINISHED</span>}
+        </div>
+      </div>
+
+      {/* 🔒 POPUP */}
+      {popup && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="relative w-[300px]">
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+
+            <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
+              <div className="text-lg font-bold mb-2">
+                Pro эрх шаардлагатай
+              </div>
+
+              <div className="text-xs text-gray-400 mb-4">
+                Тоглолт үзэхийн тулд эрх сунгана уу
+              </div>
+
+              <button
+                onClick={() => (window.location.href = "/packages")}
+                className="w-full py-2 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 mb-2"
+              >
+                Эрх сунгах
+              </button>
+
+              <button
+                onClick={() => setPopup(false)}
+                className="text-xs text-gray-400"
+              >
+                Хаах
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="flex justify-between text-xs mb-2">
-        <span className="text-gray-400">{match.gender}</span>
-        <span className="font-bold">{match.time}</span>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2 min-w-0">
-          {match.logoA && (
-            <img src={match.logoA} className="w-8 h-8 object-contain" />
-          )}
-          <span className="font-semibold text-sm truncate">{match.teamA}</span>
-        </div>
-
-        <span className="text-xs text-gray-400 font-bold">VS</span>
-
-        <div className="flex items-center gap-2 justify-end min-w-0">
-          <span className="font-semibold text-sm truncate">{match.teamB}</span>
-          {match.logoB && (
-            <img src={match.logoB} className="w-8 h-8 object-contain" />
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
+
