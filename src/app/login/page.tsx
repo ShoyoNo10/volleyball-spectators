@@ -38,7 +38,7 @@ export default function LoginPage() {
     setSuccess(true);
 
     setTimeout(() => {
-      router.push("/live");
+      router.push("/packages");
     }, 1000);
   };
 
