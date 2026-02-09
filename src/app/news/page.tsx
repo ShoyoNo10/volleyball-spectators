@@ -18,13 +18,16 @@ type News = {
 
 /* ================= HELPERS ================= */
 
-function formatDate(dateStr: string) {
+// ✅ "February" биш: "2026 оны 2-р сарын 8" гэж гаргана
+function formatDateMN(dateStr: string) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString("mn-MN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  if (Number.isNaN(d.getTime())) return "";
+
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+
+  return `${y} оны ${m}-р сарын ${day}`;
 }
 
 /* ================= PAGE ================= */
@@ -36,11 +39,8 @@ export default function NewsPage() {
 
   // 🔒 BODY SCROLL LOCK
   useEffect(() => {
-    if (activePost) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (activePost) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
 
     return () => {
       document.body.style.overflow = "";
@@ -66,37 +66,24 @@ export default function NewsPage() {
   const handleLike = async (id: string) => {
     if (likedMap[id]) return;
 
-    setLikedMap((prev) => ({
-      ...prev,
-      [id]: true,
-    }));
-
+    setLikedMap((prev) => ({ ...prev, [id]: true }));
     localStorage.setItem(`liked_${id}`, "true");
 
     try {
       const res = await fetch("/api/news/like", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
 
       const data = await res.json();
 
       setNews((prev) =>
-        prev.map((n) =>
-          n._id === id
-            ? {
-                ...n,
-                likes: data.likes,
-              }
-            : n,
-        ),
+        prev.map((n) => (n._id === id ? { ...n, likes: data.likes } : n))
       );
 
       setActivePost((prev) =>
-        prev && prev._id === id ? { ...prev, likes: data.likes } : prev,
+        prev && prev._id === id ? { ...prev, likes: data.likes } : prev
       );
     } catch (err) {
       console.error("Like failed", err);
@@ -108,12 +95,13 @@ export default function NewsPage() {
       {/* GRID */}
       <div
         className="
-          p-4 md:p-10
-          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-          gap-6 pb-16
           bg-black min-h-screen
-
+          p-3 sm:p-4 md:p-8
+          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+          gap-4 md:gap-6 pb-16
           lg:max-w-7xl lg:mx-auto
+
+          items-start
         "
       >
         {news.length === 0 && (
@@ -130,10 +118,12 @@ export default function NewsPage() {
               className="
                 bg-[#0b0f1a] text-white rounded-2xl
                 border border-white/10 overflow-hidden
-                hover:scale-[1.02] hover:shadow-2xl
                 transition cursor-pointer
+                hover:shadow-2xl hover:scale-[1.02]
+                lg:hover:scale-[1.03]
 
-                lg:hover:scale-[1.04]
+                flex flex-col
+                self-start
               "
             >
               {/* TOP BAR */}
@@ -148,31 +138,27 @@ export default function NewsPage() {
                 </div>
 
                 <span className="text-[10px] text-gray-400">
-                  {formatDate(n.createdAt)}
+                  {formatDateMN(n.createdAt)}
                 </span>
               </div>
 
-              {/* IMAGE */}
-              <div className="relative w-full h-44 lg:h-56">
-                <Image
-                  src={n.image}
-                  alt={n.title}
-                  fill
-                  className="object-cover"
-                />
+              {/* IMAGE (✅ mobile дээр жаахан намхан) */}
+              <div className="relative w-full h-36 sm:h-40 lg:h-48">
+                <Image src={n.image} alt={n.title} fill className="object-cover" />
               </div>
 
-              {/* CONTENT */}
-              <div className="p-4 space-y-2">
-                <h2 className="font-bold text-base lg:text-lg line-clamp-2">
+              {/* CONTENT (✅ mobile дээр жижиг padding/font) */}
+              <div className="p-3 sm:p-4 space-y-2 flex-1">
+                <h2 className="font-bold text-[15px] sm:text-base lg:text-lg line-clamp-2">
                   {n.title}
                 </h2>
-                <p className="text-sm text-gray-400 line-clamp-3 break-words">
+
+                <p className="text-[13px] sm:text-sm text-gray-400 line-clamp-3 break-words">
                   {n.desc}
                 </p>
 
                 {/* LIKE BAR */}
-                <div className="flex items-center gap-3 pt-2 relative z-20">
+                <div className="flex items-center gap-2 pt-1 relative z-20">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -181,18 +167,14 @@ export default function NewsPage() {
                       handleLike(String(n._id));
                     }}
                     className={`
-                      text-xl transition
-                      ${
-                        liked
-                          ? "text-red-500 scale-110"
-                          : "text-gray-400 hover:text-red-500"
-                      }
+                      transition
+                      ${liked ? "text-red-500 scale-110" : "text-gray-400 hover:text-red-500"}
                     `}
                   >
-                    <Heart fill={liked ? "currentColor" : "none"} />
+                    <Heart size={20} fill={liked ? "currentColor" : "none"} />
                   </button>
 
-                  <span className="text-sm text-gray-400">
+                  <span className="text-xs sm:text-sm text-gray-400">
                     {n.likes || 0} likes
                   </span>
                 </div>
@@ -204,7 +186,7 @@ export default function NewsPage() {
 
       {/* ================= MODAL FULL VIEW ================= */}
       {activePost && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur flex items-center justify-center p-3 sm:p-4">
           <div
             className="
               bg-[#0b0f1a] text-white
@@ -225,9 +207,14 @@ export default function NewsPage() {
                 <div className="w-8 h-8 rounded-full bg-black border border-white/20 flex items-center justify-center font-bold text-xs">
                   {activePost.author?.charAt(0)?.toUpperCase() || "A"}
                 </div>
-                <span className="text-sm font-semibold">
-                  {activePost.author}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold">
+                    {activePost.author || "VNL Admin"}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {formatDateMN(activePost.createdAt)}
+                  </span>
+                </div>
               </div>
 
               <button
@@ -238,9 +225,8 @@ export default function NewsPage() {
               </button>
             </div>
 
-            {/* SCROLLABLE CONTENT */}
-            {/* IMAGE — FIXED HEIGHT, NEVER SHRINKS */}
-            <div className="relative w-full bg-black shrink-0 aspect-[16/9] max-h-[360px]">
+            {/* IMAGE — ✅ desktop дээр хэт өндөр болохоос хамгаалж max-h багасгав */}
+            <div className="relative w-full bg-black shrink-0 aspect-[16/9] max-h-[320px] sm:max-h-[360px]">
               <img
                 src={activePost.image}
                 className="w-full h-full object-contain"
@@ -249,23 +235,25 @@ export default function NewsPage() {
             </div>
 
             {/* TEXT — ONLY THIS SCROLLS */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-15">
-              <h2 className="font-bold text-lg">{activePost.title}</h2>
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 pb-14">
+              <h2 className="font-bold text-base sm:text-lg">
+                {activePost.title}
+              </h2>
 
-              <p className="text-sm text-gray-300 whitespace-pre-line break-words">
+              <p className="text-[13px] sm:text-sm text-gray-300 whitespace-pre-line break-words">
                 {activePost.desc}
               </p>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => handleLike(String(activePost._id))}
-                  className="text-xl text-red-500 hover:scale-110 transition"
+                  className="text-red-500 hover:scale-110 transition"
                 >
-                  <Heart fill="currentColor" />
+                  <Heart size={20} fill="currentColor" />
                 </button>
 
-                <span className="text-sm text-gray-400">
+                <span className="text-xs sm:text-sm text-gray-400">
                   {activePost.likes || 0} likes
                 </span>
               </div>
