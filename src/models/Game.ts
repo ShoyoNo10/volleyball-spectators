@@ -15,8 +15,8 @@ const TeamSchema = new mongoose.Schema<TeamMini>(
 
 const GameSchema = new mongoose.Schema(
   {
-    date: { type: String, required: true },
-    time: { type: String, required: true },
+    date: { type: String, required: true }, // "2026-02-09" гэх мэт
+    time: { type: String, required: true }, // "18:00"
 
     teamA: { type: TeamSchema, required: true },
     teamB: { type: TeamSchema, required: true },
@@ -24,11 +24,13 @@ const GameSchema = new mongoose.Schema(
     finished: { type: Boolean, default: false },
     liveUrl: { type: String, default: "" },
 
+    // ✅ match score (sets won): 3:1 гэх мэт
     score: {
       a: { type: Number, default: 0 },
       b: { type: Number, default: 0 },
     },
 
+    // ✅ each set score: ["25:14","25:23"]
     sets: { type: [String], default: [] },
 
     createdAt: { type: Date, default: Date.now },
@@ -36,5 +38,4 @@ const GameSchema = new mongoose.Schema(
   { strict: true }
 );
 
-export default mongoose.models.Game ||
-  mongoose.model("Game", GameSchema);
+export default mongoose.models.Game || mongoose.model("Game", GameSchema);

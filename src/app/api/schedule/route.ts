@@ -35,9 +35,11 @@ export async function POST(req: Request) {
     date: body.date,
     time: body.time,
     liveUrl: body.liveUrl || "",
-    finished: false,
+    finished: body.finished ?? false,
     teamA: body.teamA,
     teamB: body.teamB,
+    score: body.score ?? { a: 0, b: 0 },
+    sets: Array.isArray(body.sets) ? body.sets : [],
   });
 
   return NextResponse.json(created, { status: 201 });

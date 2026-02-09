@@ -10,29 +10,21 @@ interface Game {
   _id: string;
   date: string;
   time: string;
-  teamA: {
-    name: string;
-    logo: string;
-  };
-  teamB: {
-    name: string;
-    logo: string;
-  };
+  finished?: boolean;
+  liveUrl?: string;
+  score?: { a: number; b: number };
+  sets?: string[];
+  teamA: { name: string; logo: string };
+  teamB: { name: string; logo: string };
 }
 
 function getMonthLabel(dateStr: string) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString("mn-MN", {
-    year: "numeric",
-    month: "long",
-  });
+  return d.toLocaleDateString("mn-MN", { year: "numeric", month: "long" });
 }
-
 function getWeekLabel(dateStr: string) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-  });
+  return d.toLocaleDateString("en-US", { weekday: "short" });
 }
 
 export default function SchedulePage() {
@@ -48,38 +40,30 @@ export default function SchedulePage() {
       .then((r) => r.json())
       .then((data: Game[]) => {
         setGames(data);
-        if (data.length > 0) {
-          setSelectedDate(data[0].date);
-        }
+        if (data.length > 0) setSelectedDate(data[0].date);
       });
   }, []);
 
   const days = useMemo(() => {
     const map = new Map<string, Game>();
     games.forEach((g) => {
-      if (!map.has(g.date)) {
-        map.set(g.date, g);
-      }
+      if (!map.has(g.date)) map.set(g.date, g);
     });
 
     return Array.from(map.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   }, [games]);
 
   const filteredGames = useMemo(
     () => games.filter((g) => g.date === selectedDate),
-    [games, selectedDate],
+    [games, selectedDate]
   );
 
   useEffect(() => {
     const el = dayRefs.current[selectedDate];
     if (el) {
-      el.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
+      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     }
   }, [selectedDate]);
 
@@ -93,9 +77,7 @@ export default function SchedulePage() {
       {/* HEADER */}
       <div className="px-4 pt-4 pb-2 sticky top-0 bg-black z-10 ">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white tracking-wide">
-            {monthTitle}
-          </h1>
+          <h1 className="text-xl font-bold text-white tracking-wide">{monthTitle}</h1>
           <button
             onClick={() => router.back()}
             className="
@@ -139,9 +121,7 @@ export default function SchedulePage() {
                   }
                 `}
               >
-                <div className="text-sm font-bold">
-                  {new Date(d.date).getDate()}
-                </div>
+                <div className="text-sm font-bold">{new Date(d.date).getDate()}</div>
                 <div className="text-xs">{getWeekLabel(d.date)}</div>
               </button>
             );
@@ -152,79 +132,78 @@ export default function SchedulePage() {
       {/* MATCH LIST */}
       <div className="px-4 mt-4 space-y-3 pb-16">
         {filteredGames.length === 0 && (
-          <div className="text-center text-sm text-gray-500 mt-10">
-            Энэ өдөр тоглолт байхгүй
-          </div>
+          <div className="text-center text-sm text-gray-500 mt-10">Энэ өдөр тоглолт байхгүй</div>
         )}
 
-        {filteredGames.map((m) => (
-          <Link
-            key={m._id}
-            href={`/games/${m._id}`}
-            className="
-              block
-              bg-gradient-to-b from-gray-900 to-black
-              border border-gray-800
-              rounded-xl
-              p-3
-              shadow-lg
-              hover:shadow-red-500/30
-              hover:-translate-y-0.5
-              transition
-            "
-          >
-            {/* TIME */}
-            <div className="text-xs font-semibold text-gray-400 mb-2">
-              {m.time}
-            </div>
+        {filteredGames.map((m) => {
+          const isFinished = !!m.finished;
+          const scoreText = `${m.score?.a ?? 0}:${m.score?.b ?? 0}`;
+          const setsText = (m.sets ?? []).join("  ");
 
-            {/* MATCH ROW */}
-            <div className="grid grid-cols-[2fr_auto_2fr] items-center gap-2">
-              {/* TEAM A */}
-              <div className="flex items-center gap-2 min-w-0">
-                <Image
-                  src={m.teamA.logo}
-                  alt={m.teamA.name}
-                  width={45}
-                  height={45}
-                  className="
-                    rounded-full
-                    border border-gray-700
-                    bg-black
-                  "
-                />
-                <span className="text-sm font-semibold line-clamp-2 text-white">
-                  {m.teamA.name}
-                </span>
-              </div>
+          return (
+            <Link
+              key={m._id}
+              href={`/games/${m._id}`}
+              className="
+                block
+                bg-gradient-to-b from-gray-900 to-black
+                border border-gray-800
+                rounded-xl
+                p-3
+                shadow-lg
+                hover:shadow-red-500/30
+                hover:-translate-y-0.5
+                transition
+              "
+            >
+              {/* TIME */}
+              <div className="text-xs font-semibold text-gray-400 mb-2">{m.time}</div>
 
-              {/* VS */}
-              <div className="flex items-center justify-center">
-                <div className="bg-black border border-gray-700 text-white px-2 py-1 rounded-md font-bold text-sm">
-                  VS
+              {/* MATCH ROW */}
+              <div className="grid grid-cols-[2fr_auto_2fr] items-center gap-2">
+                {/* TEAM A */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <Image
+                    src={m.teamA.logo}
+                    alt={m.teamA.name}
+                    width={45}
+                    height={45}
+                    className="rounded-full border border-gray-700 bg-black"
+                  />
+                  <span className="text-sm font-semibold line-clamp-2 text-white">{m.teamA.name}</span>
+                </div>
+
+                {/* CENTER: VS or SCORE */}
+                <div className="flex items-center justify-center">
+                  <div className="bg-black border border-gray-700 text-white px-2 py-1 rounded-md font-bold text-sm">
+                    {isFinished ? scoreText : "VS"}
+                  </div>
+                </div>
+
+                {/* TEAM B */}
+                <div className="flex items-center gap-2 justify-end min-w-0">
+                  <span className="text-sm font-semibold line-clamp-2 text-white text-right">
+                    {m.teamB.name}
+                  </span>
+                  <Image
+                    src={m.teamB.logo}
+                    alt={m.teamB.name}
+                    width={45}
+                    height={45}
+                    className="rounded-full border border-gray-700 bg-black"
+                  />
                 </div>
               </div>
 
-              {/* TEAM B */}
-              <div className="flex items-center gap-2 justify-end min-w-0">
-                <span className="text-sm font-semibold line-clamp-2 text-white text-right">
-                  {m.teamB.name}
-                </span>
-                <Image
-                  src={m.teamB.logo}
-                  alt={m.teamB.name}
-                  width={45}
-                  height={45}
-                  className="
-                    rounded-full
-                    border border-gray-700
-                    bg-black
-                  "
-                />
-              </div>
-            </div>
-          </Link>
-        ))}
+              {/* ✅ SETS (only when finished) */}
+              {isFinished && (m.sets?.length ?? 0) > 0 && (
+                <div className="mt-2 text-xs text-center text-gray-400 font-semibold">
+                  {setsText}
+                </div>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
