@@ -29,9 +29,9 @@ export default function TeamsPage() {
     <div className="p-4 max-w-6xl mx-auto">
       {/* GENDER TOGGLE */}
       <div className="flex justify-center gap-3 mb-6">
-<button
-  onClick={() => setGender("men")}
-  className={`
+        <button
+          onClick={() => setGender("men")}
+          className={`
     px-6 py-2 rounded-full text-sm font-semibold transition
     border
     ${
@@ -49,13 +49,13 @@ export default function TeamsPage() {
         `
     }
   `}
->
-  Эрэгтэй
-</button>
+        >
+          Эрэгтэй
+        </button>
 
-       <button
-  onClick={() => setGender("women")}
-  className={`
+        <button
+          onClick={() => setGender("women")}
+          className={`
     px-6 py-2 rounded-full text-sm font-semibold transition
     border
     ${
@@ -73,10 +73,9 @@ export default function TeamsPage() {
         `
     }
   `}
->
-  Эмэгтэй
-</button>
-
+        >
+          Эмэгтэй
+        </button>
       </div>
 
       {/* TEAMS GRID */}

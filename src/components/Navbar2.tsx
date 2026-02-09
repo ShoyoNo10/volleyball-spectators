@@ -48,29 +48,39 @@ export default function Navbar2() {
             const active = pathname === item.href;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  text-center
-                  px-1.5
-                  py-1.5
-                  rounded-full
-                  text-[11px]
-                  md:text-base
-                  font-medium
-                  transition
-                  truncate
-                  ${
-                    active
-                      ? "bg-blue-500 text-white shadow"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }
-                `}
-                title={item.label}
-              >
-                {item.label}
-              </Link>
+<Link
+  key={item.href}
+  href={item.href}
+  className={`
+    text-center
+    px-1.5
+    py-1.5
+    rounded-full
+    text-[11px]
+    md:text-base
+    font-medium
+    transition
+    truncate
+    ${
+      active
+        ? `
+            text-white
+            bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+            border border-white/20
+            shadow-[0_0_18px_rgba(80,120,255,0.25)]
+          `
+        : `
+            bg-gray-900 text-gray-300
+            border border-white/10
+            hover:bg-gray-800 hover:text-white hover:border-white/20
+          `
+    }
+  `}
+  title={item.label}
+>
+  {item.label}
+</Link>
+
             );
           })}
         </div>

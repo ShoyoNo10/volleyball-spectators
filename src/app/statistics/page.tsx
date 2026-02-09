@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 
 type Gender = "men" | "women";
 
-interface Stat {
+type PointsStat = {
   _id: string;
   gender: Gender;
   playerName: string;
@@ -14,94 +15,261 @@ interface Stat {
   attackPts: number;
   blockPts: number;
   servePts: number;
+};
+
+type GenericStat = {
+  _id: string;
+  gender: Gender;
+  playerNumber: number;
+  playerName: string;
+  avatar?: string;
+  teamCode: string;
+  score: number;
+};
+
+type CategoryKey = "points" | "block" | "serve" | "set" | "defense" | "receive";
+
+const CATEGORIES: { key: CategoryKey; label: string; api: string }[] = [
+  { key: "points", label: "ОНОО", api: "/api/statistics" },
+  { key: "block", label: "ХААЛТ", api: "/api/stats-block" },
+  { key: "serve", label: "ДАВУУЛАЛТ", api: "/api/stats-serve" },
+  { key: "set", label: "ХОЛБОЛТ", api: "/api/stats-set" },
+  { key: "defense", label: "ХАМГААЛАЛТ", api: "/api/stats-defense" },
+  { key: "receive", label: "БӨМБӨГ АВАЛТ", api: "/api/stats-receive" },
+];
+
+function isGender(x: unknown): x is Gender {
+  return x === "men" || x === "women";
 }
 
 export default function StatisticsPage() {
-  const [data, setData] = useState<Stat[]>([]);
-  const [tab, setTab] = useState<Gender>("men");
+  const [gender, setGender] = useState<Gender>("men");
+  const [cat, setCat] = useState<CategoryKey>("points");
+
+  const [pointsData, setPointsData] = useState<PointsStat[]>([]);
+  const [genericData, setGenericData] = useState<GenericStat[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
   useEffect(() => {
-    fetch("/api/statistics")
-      .then((r) => r.json())
-      .then((d) => setData(d));
-  }, []);
+    const load = async () => {
+      setLoading(true);
+      try {
+        const url =
+          cat === "points"
+            ? current.api
+            : `${current.api}?gender=${gender}`;
 
-  const filtered = data
-    .filter((p) => p.gender === tab)
-    .sort((a, b) => {
-      if (b.points !== a.points)
-        return b.points - a.points;
-      if (b.attackPts !== a.attackPts)
-        return b.attackPts - a.attackPts;
-      return a.played - b.played;
-    });
+        const res = await fetch(url);
+        const data: unknown = await res.json();
+
+        if (cat === "points") {
+          const safe = Array.isArray(data)
+            ? data.filter((x): x is PointsStat => {
+                if (!x || typeof x !== "object") return false;
+                const o = x as Record<string, unknown>;
+                return (
+                  typeof o._id === "string" &&
+                  isGender(o.gender) &&
+                  typeof o.playerName === "string" &&
+                  typeof o.teamCode === "string" &&
+                  typeof o.played === "number" &&
+                  typeof o.points === "number" &&
+                  typeof o.attackPts === "number" &&
+                  typeof o.blockPts === "number" &&
+                  typeof o.servePts === "number"
+                );
+              })
+            : [];
+          setPointsData(safe);
+          setGenericData([]);
+        } else {
+          const safe = Array.isArray(data)
+            ? data.filter((x): x is GenericStat => {
+                if (!x || typeof x !== "object") return false;
+                const o = x as Record<string, unknown>;
+                return (
+                  typeof o._id === "string" &&
+                  isGender(o.gender) &&
+                  typeof o.playerNumber === "number" &&
+                  typeof o.playerName === "string" &&
+                  typeof o.teamCode === "string" &&
+                  typeof o.score === "number"
+                );
+              })
+            : [];
+          setGenericData(safe);
+          setPointsData([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [cat, gender, current.api]);
+
+  const pointsFiltered = useMemo(() => {
+    return pointsData
+      .filter((p) => p.gender === gender)
+      .sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.attackPts !== a.attackPts) return b.attackPts - a.attackPts;
+        return a.played - b.played;
+      });
+  }, [pointsData, gender]);
+
+  const genericFiltered = useMemo(() => {
+    return genericData
+      .filter((p) => p.gender === gender)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.playerNumber - b.playerNumber;
+      });
+  }, [genericData, gender]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      {/* TABS */}
-      <div className="flex gap-2 mb-4 max-w-md mx-auto">
-        {["men", "women"].map((g) => (
-          <button
-            key={g}
-            onClick={() => setTab(g as Gender)}
-            className={`flex-1 py-2 rounded-xl font-bold ${
-              tab === g
-                ? "bg-white text-black"
-                : "bg-gray-800"
-            }`}
-          >
-            {g.toUpperCase()}
-          </button>
-        ))}
+    <div className="min-h-screen bg-black text-white">
+      {/* top header */}
+      <div className="sticky top-0 z-10 bg-black/80 backdrop-blur border-b border-white/10">
+        <div className="max-w-md mx-auto px-4 pt-4 pb-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-gray-400">STATISTICS</div>
+              <div className="text-lg font-extrabold tracking-wide">
+                {current.label}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {(["men", "women"] as const).map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setGender(g)}
+                  className={`px-3 py-2 rounded-xl text-sm font-bold border border-white/10 ${
+                    gender === g ? "bg-white text-black" : "bg-gray-900"
+                  }`}
+                >
+                  {g.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* category tabs */}
+          <div className="grid grid-cols-3 gap-2">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.key}
+                onClick={() => setCat(c.key)}
+                className={`py-2 rounded-xl text-xs font-bold border border-white/10 ${
+                  cat === c.key ? "bg-white text-black" : "bg-gray-900"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* TABLE */}
-      <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
-        {/* HEADER */}
-        <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-xs font-bold text-gray-400 border-b border-white/10">
-          <span>#</span>
-          <span>PLAYER</span>
-          <span>TEAM</span>
-          <span className="text-center">PTS</span>
-          <span className="text-center">A PTS</span>
-          <span className="text-center">B PTS</span>
-          <span className="text-center">S PTS</span>
-        </div>
-
-        {filtered.map((p, i) => (
-          <div
-            key={p._id}
-            className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition"
-          >
-            <span className="font-bold text-yellow-400">
-              {i + 1}
-            </span>
-
-            <span className="truncate font-semibold">
-              {p.playerName}
-            </span>
-
-            <span className="font-bold text-cyan-400">
-              {p.teamCode}
-            </span>
-
-            <span className="text-center font-bold">
-              {p.points}
-            </span>
-
-            <span className="text-center">
-              {p.attackPts}
-            </span>
-
-            <span className="text-center">
-              {p.blockPts}
-            </span>
-
-            <span className="text-center">
-              {p.servePts}
-            </span>
+      <div className="p-4">
+        {loading ? (
+          <div className="max-w-md mx-auto bg-[#020617] border border-white/10 rounded-2xl p-6 text-center text-gray-400">
+            Уншиж байна...
           </div>
-        ))}
+        ) : cat === "points" ? (
+          <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
+            {/* header */}
+            <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
+              <span>#</span>
+              <span>PLAYER</span>
+              <span>TEAM</span>
+              <span className="text-center">PTS</span>
+              <span className="text-center">A</span>
+              <span className="text-center">B</span>
+              <span className="text-center">S</span>
+            </div>
+
+            {pointsFiltered.length === 0 ? (
+              <div className="p-6 text-center text-gray-400">Мэдээлэл алга</div>
+            ) : (
+              pointsFiltered.map((p, i) => (
+                <div
+                  key={p._id}
+                  className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
+                >
+                  <span className="font-extrabold text-yellow-400">
+                    {i + 1}
+                  </span>
+
+                  <span className="truncate font-semibold">{p.playerName}</span>
+
+                  <span className="font-bold text-cyan-400">{p.teamCode}</span>
+
+                  <span className="text-center font-extrabold">{p.points}</span>
+                  <span className="text-center text-gray-200">{p.attackPts}</span>
+                  <span className="text-center text-gray-200">{p.blockPts}</span>
+                  <span className="text-center text-gray-200">{p.servePts}</span>
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
+            {/* header */}
+            <div className="grid grid-cols-[0.6fr_1.6fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
+              <span>#</span>
+              <span>PLAYER</span>
+              <span>TEAM</span>
+              <span className="text-center">SCORE</span>
+            </div>
+
+            {genericFiltered.length === 0 ? (
+              <div className="p-6 text-center text-gray-400">Мэдээлэл алга</div>
+            ) : (
+              genericFiltered.map((p, i) => (
+                <div
+                  key={p._id}
+                  className="grid grid-cols-[0.6fr_1.6fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
+                >
+                  <span className="font-extrabold text-yellow-400">{i + 1}</span>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-white/5 border border-white/10 shrink-0">
+                      <Image
+                        src={p.avatar || "/user.png"}
+                        alt={p.playerName}
+                        width={36}
+                        height={36}
+                        className="w-9 h-9 object-cover"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold">{p.playerName}</div>
+                      <div className="text-xs text-gray-400 font-bold">
+                        #{p.playerNumber}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="font-bold text-cyan-400">{p.teamCode}</span>
+
+                  <span className="text-center font-extrabold">{p.score}</span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* small footer */}
+        <div className="max-w-md mx-auto mt-4 text-center text-xs text-gray-500">
+          {cat === "points"
+            ? "A = Attack, B = Block, S = Serve"
+            : "Дараалал нь SCORE-оор буурна"}
+        </div>
       </div>
     </div>
   );

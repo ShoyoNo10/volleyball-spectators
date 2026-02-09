@@ -71,12 +71,12 @@ export default function SchedulePage() {
   useEffect(() => {
     if (!selectedDate || days.length === 0) return;
     const idx = days.findIndex((d) => d.date === selectedDate);
-    if (idx >= 0) setPage(Math.floor(idx / 7));
+    if (idx >= 0) setPage(Math.floor(idx / 5));
   }, [selectedDate, days]);
 
   const pageDays = useMemo(() => {
-    const start = page * 7;
-    return days.slice(start, start + 7);
+    const start = page * 5
+    return days.slice(start, start + 5)
   }, [days, page]);
 
   const filteredGames = useMemo(
@@ -133,11 +133,21 @@ export default function SchedulePage() {
             rounded-lg
             text-center
             transition
-            ${
-              isSelected
-                ? "bg-red-700 text-white shadow-md shadow-red-500/20"
-                : "bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-800 hover:text-white"
-            }
+      ${
+  isSelected
+    ? `
+        text-white
+        bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+        border border-white/20
+        shadow-[0_0_18px_rgba(80,120,255,0.25)]
+      `
+    : `
+        bg-gray-900 text-gray-400
+        border border-white/10
+        hover:bg-gray-800 hover:text-white hover:border-white/20
+      `
+}
+
           `}
                 >
                   <div className="text-[12px] font-bold leading-none">
