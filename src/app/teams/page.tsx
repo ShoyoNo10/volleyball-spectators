@@ -76,20 +76,23 @@ export default function TeamsPage() {
             "
           >
             {/* FLAG / LOGO AREA */}
-           <div className="h-16 sm:h-20 md:h-24 w-full flex items-center justify-center bg-black relative overflow-hidden">
-
-              <Image
-                src={t.flagUrl}
-                alt={t.name}
-                fill
-                sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
-                className="object-contain transition group-hover:scale-110"
-              />
+            <div className="h-16 sm:h-20 md:h-24 w-full flex items-center justify-center bg-black relative overflow-hidden">
+              {/* bigger logo box */}
+              <div className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20">
+                <Image
+                  src={t.flagUrl}
+                  alt={t.name}
+                  width={100}
+                  height={100}
+                  sizes="80px"
+                  className="object-contain w-full h-full transition group-hover:scale-110"
+                />
+              </div>
             </div>
 
             {/* TEAM NAME */}
-            <div className="py-2 text-center bg-black/80">
-              <div className="text-sm font-bold tracking-wide text-white">
+            <div className=" text-center bg-black/80">
+              <div className="text-[12px] font-bold tracking-wide text-white">
                 {t.code}
               </div>
               {/* <div className="text-[11px] text-gray-400 truncate px-2">
