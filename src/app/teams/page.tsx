@@ -29,32 +29,54 @@ export default function TeamsPage() {
     <div className="p-4 max-w-6xl mx-auto">
       {/* GENDER TOGGLE */}
       <div className="flex justify-center gap-3 mb-6">
-        <button
-          onClick={() => setGender("men")}
-          className={`
-            px-6 py-2 rounded-full text-sm font-semibold transition
-            ${
-              gender === "men"
-                ? "bg-red-500 text-white"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-            }
-          `}
-        >
-          Эрэгтэй
-        </button>
-        <button
-          onClick={() => setGender("women")}
-          className={`
-            px-6 py-2 rounded-full text-sm font-semibold transition
-            ${
-              gender === "women"
-                ? "bg-red-500 text-white "
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-            }
-          `}
-        >
-          Эмэгтэй
-        </button>
+<button
+  onClick={() => setGender("men")}
+  className={`
+    px-6 py-2 rounded-full text-sm font-semibold transition
+    border
+    ${
+      gender === "men"
+        ? `
+          text-white
+          bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+          border-white/20
+          shadow-[0_0_18px_rgba(80,120,255,0.25)]
+        `
+        : `
+          bg-gray-900 text-gray-300
+          border-white/10
+          hover:bg-gray-800 hover:border-white/20
+        `
+    }
+  `}
+>
+  Эрэгтэй
+</button>
+
+       <button
+  onClick={() => setGender("women")}
+  className={`
+    px-6 py-2 rounded-full text-sm font-semibold transition
+    border
+    ${
+      gender === "women"
+        ? `
+          text-white
+          bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+          border-white/20
+          shadow-[0_0_18px_rgba(80,120,255,0.25)]
+        `
+        : `
+          bg-gray-900 text-gray-300
+          border-white/10
+          hover:bg-gray-800 hover:border-white/20
+        `
+    }
+  `}
+>
+  Эмэгтэй
+</button>
+
       </div>
 
       {/* TEAMS GRID */}

@@ -171,9 +171,9 @@ export default function PlayerPage() {
           lg:shadow-xl
         "
       >
-        <h2 className="font-bold my-4 text-center lg:text-left">
+        <div className="font-bold my-4 text-center text-[13px] lg:text-left">
           2025 оны Үндэстнүүдийн лигийн үзүүлэлт
-        </h2>
+        </div>
 
         <div className="space-y-1">
           <Stat label="Оноо" value={s.totalPoints} />

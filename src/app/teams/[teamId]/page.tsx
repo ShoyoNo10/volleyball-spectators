@@ -114,10 +114,9 @@ export default function TeamPage() {
 
       try {
         if (tab === "success") {
-          const res = await fetch(
-            `/api/team-success?teamId=${teamId}`,
-            { cache: "no-store" }
-          );
+          const res = await fetch(`/api/team-success?teamId=${teamId}`, {
+            cache: "no-store",
+          });
 
           const data: unknown = await res.json();
 
@@ -129,10 +128,9 @@ export default function TeamPage() {
         }
 
         if (tab === "schedule") {
-          const res = await fetch(
-            `/api/team-schedule?teamId=${teamId}`,
-            { cache: "no-store" }
-          );
+          const res = await fetch(`/api/team-schedule?teamId=${teamId}`, {
+            cache: "no-store",
+          });
 
           const data: unknown = await res.json();
 
@@ -203,9 +201,7 @@ export default function TeamPage() {
             )}
 
             {!loadingPlayers && players.length === 0 && (
-              <div className="text-gray-500 text-center">
-                No players found
-              </div>
+              <div className="text-gray-500 text-center">No players found</div>
             )}
 
             {players.length > 0 && (
@@ -213,17 +209,19 @@ export default function TeamPage() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-gradient-to-r from-gray-900 to-black">
-                      <th className="p-3 text-left text-xs text-gray-400">
+                      {/* ✅ header жижиг */}
+                      <th className="p-2 text-left text-[10px] text-gray-400">
                         No.
                       </th>
-                      <th className="p-3 text-left text-xs text-gray-400">
+                      <th className="p-2 text-left text-[10px] text-gray-400">
                         Player
                       </th>
-                      <th className="p-3 text-left text-xs text-gray-400">
+                      <th className="p-2 text-left text-[10px] text-gray-400">
                         Position
                       </th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {players.map((p, i) => (
                       <tr
@@ -237,13 +235,16 @@ export default function TeamPage() {
                           hover:bg-gray-800
                         `}
                       >
-                        <td className="p-3 font-bold text-red-500">
+                        {/* ✅ padding + font жижиг */}
+                        <td className="p-2 font-bold text-red-500 text-xs w-12">
                           {p.number}
                         </td>
-                        <td className="p-3 font-semibold text-white">
+
+                        <td className="p-2 font-semibold text-white text-[13px]">
                           {p.name}
                         </td>
-                        <td className="p-3 text-gray-400">
+
+                        <td className="p-2 text-gray-400 text-[12px]">
                           {p.position}
                         </td>
                       </tr>
@@ -259,18 +260,14 @@ export default function TeamPage() {
         {tab === "success" && (
           <div className="space-y-4">
             {loadingTab && (
-              <div className="text-gray-500 text-center">
-                Loading success...
-              </div>
+              <div className="text-gray-500 text-center">Loading success...</div>
             )}
 
             {!loadingTab &&
               (!success ||
                 !Array.isArray(success.competitions) ||
                 success.competitions.length === 0) && (
-                <div className="text-gray-400 text-center">
-                  No success data
-                </div>
+                <div className="text-gray-400 text-center">No success data</div>
               )}
 
             {success?.competitions.map((c) => (
@@ -278,35 +275,24 @@ export default function TeamPage() {
                 key={c._id}
                 className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden"
               >
-                {/* HEADER */}
                 <div className="bg-gray-900 text-center py-2 font-bold text-cyan-300">
                   {c.competitionName}
                 </div>
 
-                {/* BODY */}
                 <div className="p-3 space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">
-                      Appearances
-                    </span>
+                    <span className="text-gray-400">Appearances</span>
                     <span className="text-white">
-                      {c.appearances} (First in{" "}
-                      {c.firstYear || "—"})
+                      {c.appearances} (First in {c.firstYear || "—"})
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-gray-400">
-                      Best result
-                    </span>
+                    <span className="text-gray-400">Best result</span>
                     <span className="text-white">
-                      {Array.isArray(c.bestResults) &&
-                      c.bestResults.length > 0
+                      {Array.isArray(c.bestResults) && c.bestResults.length > 0
                         ? c.bestResults
-                            .map(
-                              (r) =>
-                                `${r.title} (${r.year})`
-                            )
+                            .map((r) => `${r.title} (${r.year})`)
                             .join(", ")
                         : "—"}
                     </span>
@@ -327,9 +313,7 @@ export default function TeamPage() {
             )}
 
             {!loadingTab && schedule.length === 0 && (
-              <div className="text-gray-400 text-center">
-                No matches
-              </div>
+              <div className="text-gray-400 text-center">No matches</div>
             )}
 
             {schedule.map((m) => (
@@ -343,7 +327,6 @@ export default function TeamPage() {
                   shadow-lg
                 "
               >
-                {/* HEADER */}
                 <div className="flex justify-between items-center px-3 py-2 bg-gray-900">
                   <span className="text-xs text-cyan-400 font-bold tracking-widest">
                     {m.week}
@@ -351,19 +334,15 @@ export default function TeamPage() {
 
                   <span
                     className={`text-xs font-bold tracking-widest ${
-                      m.gender === "men"
-                        ? "text-blue-400"
-                        : "text-pink-400"
+                      m.gender === "men" ? "text-blue-400" : "text-pink-400"
                     }`}
                   >
                     {m.gender.toUpperCase()}
                   </span>
                 </div>
 
-                {/* BODY */}
                 <div className="p-4">
                   <div className="flex justify-between items-center">
-                    {/* TEAM A */}
                     <div className="flex items-center gap-2 min-w-0">
                       {m.logoA && (
                         <img
@@ -377,11 +356,8 @@ export default function TeamPage() {
                       </span>
                     </div>
 
-                    <div className="text-gray-400 font-bold text-sm">
-                      VS
-                    </div>
+                    <div className="text-gray-400 font-bold text-sm">VS</div>
 
-                    {/* TEAM B */}
                     <div className="flex items-center gap-2 justify-end min-w-0">
                       <span className="font-bold text-white truncate">
                         {m.teamB}
@@ -396,58 +372,47 @@ export default function TeamPage() {
                     </div>
                   </div>
 
-                  {/* UPCOMING */}
                   {!m.finished && (
                     <div className="text-center mt-3 text-sm text-gray-400">
                       🗓 {m.matchDate} — ⏰ {m.matchTime}
                     </div>
                   )}
 
-                  {/* FINAL */}
                   {m.finished && (
                     <>
                       <div className="text-center mt-3">
                         <span className="text-3xl font-extrabold text-white">
                           {m.finalA}
                         </span>
-                        <span className="mx-3 text-gray-400 text-xl">
-                          :
-                        </span>
+                        <span className="mx-3 text-gray-400 text-xl">:</span>
                         <span className="text-3xl font-extrabold text-white">
                           {m.finalB}
                         </span>
                       </div>
 
-                      {/* SETS */}
-                      {Array.isArray(m.sets) &&
-                        m.sets.length > 0 && (
-                          <div className="flex justify-center gap-2 mt-3">
-                            {m.sets.map((s, i) => (
-                              <div
-                                key={i}
-                                className="
-                                  bg-gray-900
-                                  border border-gray-700
-                                  rounded-lg
-                                  px-2 py-1
-                                  text-xs
-                                  text-white
-                                  font-bold
-                                "
-                              >
-                                {s.teamA}–{s.teamB}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      {Array.isArray(m.sets) && m.sets.length > 0 && (
+                        <div className="flex justify-center gap-2 mt-3">
+                          {m.sets.map((s, i) => (
+                            <div
+                              key={i}
+                              className="
+                                bg-gray-900
+                                border border-gray-700
+                                rounded-lg
+                                px-2 py-1
+                                text-xs
+                                text-white
+                                font-bold
+                              "
+                            >
+                              {s.teamA}–{s.teamB}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
-
-                {/* FOOTER */}
-                  {/* <div className="text-center py-1 bg-gray-950 text-[10px] tracking-widest text-gray-500">
-                    {m.finished ? "FINAL" : "UPCOMING"}
-                  </div> */}
               </div>
             ))}
           </div>
