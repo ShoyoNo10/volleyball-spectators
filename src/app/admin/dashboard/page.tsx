@@ -81,6 +81,36 @@ export default function Dashboard() {
           Manage statistics
         </Link>
         <Link
+          href="/admin/stats-block"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage block stats
+        </Link>
+                <Link
+          href="/admin/stats-serve"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage serve stats
+        </Link>
+                <Link
+          href="/admin/stats-set"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage set stats
+        </Link>
+                <Link
+          href="/admin/stats-defense"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage defense stats
+        </Link>
+                <Link
+          href="/admin/stats-receive"
+          className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage receive stats
+        </Link>
+        <Link
           href="/admin/ranking"
           className="bg-gray-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >

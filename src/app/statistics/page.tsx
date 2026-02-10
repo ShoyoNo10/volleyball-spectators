@@ -52,14 +52,21 @@ export default function StatisticsPage() {
 
   const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
+  const CATEGORY_IMG: Record<CategoryKey, string> = {
+    points: "/icons/attack.png",
+    block: "/icons/block.png",
+    serve: "/icons/serve.png",
+    set: "/icons/set.png",
+    defense: "/icons/defense.png",  
+    receive: "/icons/recive.png",
+  };
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         const url =
-          cat === "points"
-            ? current.api
-            : `${current.api}?gender=${gender}`;
+          cat === "points" ? current.api : `${current.api}?gender=${gender}`;
 
         const res = await fetch(url);
         const data: unknown = await res.json();
@@ -135,10 +142,21 @@ export default function StatisticsPage() {
       <div className="sticky top-0 z-10 bg-black/80 backdrop-blur border-b border-white/10">
         <div className="max-w-md mx-auto px-4 pt-4 pb-3 space-y-3">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-gray-400">STATISTICS</div>
-              <div className="text-lg font-extrabold tracking-wide">
-                {current.label}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 relative">
+                <Image
+                  src={CATEGORY_IMG[current.key]}
+                  alt="icon"
+                  fill
+                  className="object-contain"       
+                />
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-400">STATISTICS</div>
+                <div className="text-lg font-extrabold tracking-wide">
+                  {current.label}
+                </div>
               </div>
             </div>
 
@@ -209,9 +227,15 @@ export default function StatisticsPage() {
                   <span className="font-bold text-cyan-400">{p.teamCode}</span>
 
                   <span className="text-center font-extrabold">{p.points}</span>
-                  <span className="text-center text-gray-200">{p.attackPts}</span>
-                  <span className="text-center text-gray-200">{p.blockPts}</span>
-                  <span className="text-center text-gray-200">{p.servePts}</span>
+                  <span className="text-center text-gray-200">
+                    {p.attackPts}
+                  </span>
+                  <span className="text-center text-gray-200">
+                    {p.blockPts}
+                  </span>
+                  <span className="text-center text-gray-200">
+                    {p.servePts}
+                  </span>
                 </div>
               ))
             )}
@@ -234,7 +258,9 @@ export default function StatisticsPage() {
                   key={p._id}
                   className="grid grid-cols-[0.6fr_1.6fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
                 >
-                  <span className="font-extrabold text-yellow-400">{i + 1}</span>
+                  <span className="font-extrabold text-yellow-400">
+                    {i + 1}
+                  </span>
 
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-white/5 border border-white/10 shrink-0">
@@ -248,7 +274,9 @@ export default function StatisticsPage() {
                     </div>
 
                     <div className="min-w-0">
-                      <div className="truncate font-semibold">{p.playerName}</div>
+                      <div className="truncate font-semibold">
+                        {p.playerName}
+                      </div>
                       <div className="text-xs text-gray-400 font-bold">
                         #{p.playerNumber}
                       </div>
