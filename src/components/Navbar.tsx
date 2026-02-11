@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Gem, User2, Globe, Phone } from "lucide-react";
+import { Gem, User2, Globe, Phone, LogOut } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getDeviceId } from "@/src/lib/device";
 
@@ -34,7 +34,6 @@ export default function Navbar() {
       });
 
       const data: MeResponse = await res.json();
-
       const onAuthPage = pathname === "/login" || pathname === "/signup";
 
       if (data.forceLogout) {
@@ -114,27 +113,51 @@ export default function Navbar() {
             ☰
           </button>
 
-          {/* Desktop menu */}
-          <div className="hidden md:flex space-x-6 items-center ml-3">
-            <Link href="/contact">
-              <Phone />
-              Холбогдох
-            </Link>
-            <Link href="/ranking">Дэлхийн чансаа</Link>
+          {/* ✅ Desktop menu — GOY BOLGOSON (mobile-д огт нөлөөгүй) */}
+          <div className="hidden md:flex items-center gap-3 ml-4">
+            {/* Links group */}
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1">
+              <Link
+                href="/contact"
+                className="group flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 transition"
+              >
+                <Phone className="w-4 h-4 opacity-80 group-hover:opacity-100" />
+                <span className="relative">
+                  Холбогдох
+                  <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white/70 group-hover:w-full transition-all" />
+                </span>
+              </Link>
 
-            {/* Desktop auth block */}
-            <div className="ml-6 flex gap-2 items-center">
+              <Link
+                href="/ranking"
+                className="group flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 transition"
+              >
+                <Globe className="w-4 h-4 opacity-80 group-hover:opacity-100" />
+                <span className="relative">
+                  Дэлхийн чансаа
+                  <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white/70 group-hover:w-full transition-all" />
+                </span>
+              </Link>
+            </div>
+
+            {/* Auth group */}
+            <div className="flex items-center gap-2 pl-2">
               {!me.user ? (
                 <>
                   <Link
                     href="/login"
-                    className="px-3 py-1 rounded-md border border-white/20 hover:bg-white/10"
+                    className="px-4 py-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-sm font-semibold transition"
                   >
                     Нэвтрэх
                   </Link>
+
                   <Link
                     href="/signup"
-                    className="px-3 py-1 rounded-md bg-white text-black font-bold"
+                    className="
+                      px-4 py-2 rounded-full text-sm font-bold text-black
+                      bg-white hover:bg-white/90 transition
+                      shadow-[0_0_0_1px_rgba(255,255,255,0.25)]
+                    "
                   >
                     Бүртгүүлэх
                   </Link>
@@ -142,8 +165,14 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={logout}
-                  className="px-3 py-1 rounded-md bg-red-500/20 border border-red-400/40 hover:bg-red-500/30 text-sm"
+                  className="
+                    group flex items-center gap-2 px-4 py-2 rounded-full
+                    bg-red-500/15 border border-red-400/30
+                    hover:bg-red-500/25 hover:border-red-300/40 transition
+                    text-sm font-semibold
+                  "
                 >
+                  <LogOut className="w-4 h-4 opacity-80 group-hover:opacity-100" />
                   Гарах
                 </button>
               )}
@@ -152,7 +181,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu (өөрчлөхгүй) */}
       {open && (
         <div className="flex flex-col mt-3 md:hidden">
           <div className="flex flex-col space-y-2">
@@ -177,7 +206,6 @@ export default function Navbar() {
 
           <div className="border-t border-white/20 my-3" />
 
-          {/* ✅ Mobile menu дотор username давхар харуулахгүй */}
           {!me.user ? (
             <div className="flex flex-col space-y-2">
               <Link

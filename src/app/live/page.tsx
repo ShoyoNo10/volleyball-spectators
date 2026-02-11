@@ -47,6 +47,8 @@ export default function LivePage() {
   const [selectedCompetition, setSelectedCompetition] = useState<string>("");
 
   const [isPro, setIsPro] = useState<boolean>(false);
+  const [proPopup, setProPopup] = useState(false);
+
   const [loadingAccess, setLoadingAccess] = useState(true);
 
   /* ================= LOAD MATCHES ================= */
@@ -118,7 +120,7 @@ export default function LivePage() {
         )}
 
         <div className="relative">
-          <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60 animate-pulseGlow" />
+          <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-purple-600 via-purple-600 to-purple-600 blur opacity-60 animate-pulseGlow" />
 
           <div className="relative bg-[#020617] rounded-3xl border border-white/10 p-4 text-white">
             {/* TABS */}
@@ -138,7 +140,13 @@ export default function LivePage() {
               </button>
 
               <button
-                onClick={() => setTab("replay")}
+                onClick={() => {
+                  if (!isPro && !loadingAccess) {
+                    setProPopup(true);
+                    return;
+                  }
+                  setTab("replay");
+                }}
                 className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition ${
                   tab === "replay"
                     ? "bg-cyan-600 text-white shadow-md"
@@ -181,65 +189,103 @@ export default function LivePage() {
 
             {/* REPLAY */}
             {tab === "replay" && (
-              <div className="space-y-4">
-                {!selectedCompetition && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {competitions.map((c) => (
-                      <div
-                        key={c._id}
-                        onClick={() => setSelectedCompetition(c._id)}
-                        className="bg-[#121726] rounded-2xl p-3 cursor-pointer transition hover:scale-[1.05] border border-white/10"
-                      >
-                        <img
-                          src={c.logo}
-                          alt={c.name}
-                          className="w-14 h-14 mx-auto object-contain mb-2"
-                        />
-                        <div className="text-center text-xs font-bold">
-                          {c.name}
-                        </div>
+              <>
+                {!isPro ? (
+                  <div className="text-center text-sm text-gray-400 py-8">
+                    Нөхөж үзэхийн тулд Pro эрх шаардлагатай
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* existing replay UI чинь эндээ хэвээр */}
+                    {!selectedCompetition && (
+                      <div className="grid grid-cols-2 gap-3">
+                        {competitions.map((c) => (
+                          <div
+                            key={c._id}
+                            onClick={() => setSelectedCompetition(c._id)}
+                            className="bg-[#121726] rounded-2xl p-3 cursor-pointer transition hover:scale-[1.05] border border-white/10"
+                          >
+                            <img
+                              src={c.logo}
+                              alt={c.name}
+                              className="w-14 h-14 mx-auto object-contain mb-2"
+                            />
+                            <div className="text-center text-xs font-bold">
+                              {c.name}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {selectedCompetition && (
+                      <>
+                        <button
+                          onClick={() => {
+                            setSelectedCompetition("");
+                            setVideos([]);
+                          }}
+                          className="text-xs text-cyan-400 mb-2"
+                        >
+                          ← Буцах
+                        </button>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          {videos.map((v) => (
+                            <div
+                              key={v._id}
+                              onClick={() => window.open(v.videoUrl, "_blank")}
+                              className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.05] border border-white/10"
+                            >
+                              <img
+                                src={v.thumbnail}
+                                alt={v.title}
+                                className="h-28 w-full object-cover"
+                              />
+                              <div className="p-2 text-xs font-semibold line-clamp-2">
+                                {v.title}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
-
-                {selectedCompetition && (
-                  <>
-                    <button
-                      onClick={() => {
-                        setSelectedCompetition("");
-                        setVideos([]);
-                      }}
-                      className="text-xs text-cyan-400 mb-2"
-                    >
-                      ← Буцах
-                    </button>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      {videos.map((v) => (
-                        <div
-                          key={v._id}
-                          onClick={() => window.open(v.videoUrl, "_blank")}
-                          className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.05] border border-white/10"
-                        >
-                          <img
-                            src={v.thumbnail}
-                            alt={v.title}
-                            className="h-28 w-full object-cover"
-                          />
-                          <div className="p-2 text-xs font-semibold line-clamp-2">
-                            {v.title}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              </>
             )}
           </div>
         </div>
       </div>
+      {proPopup && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="relative w-75">
+            <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+
+            <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
+              <div className="text-lg font-bold mb-2">Pro эрх шаардлагатай</div>
+
+              <div className="text-xs text-gray-400 mb-4">
+                Нөхөж үзэхийн тулд эрх сунгана уу
+              </div>
+
+              <button
+                onClick={() => (window.location.href = "/packages")}
+                className="w-full py-2 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 mb-2"
+              >
+                Эрх сунгах
+              </button>
+
+              <button
+                onClick={() => setProPopup(false)}
+                className="text-xs text-gray-400"
+              >
+                Хаах
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -285,8 +331,16 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
                 ● LIVE
               </span>
             )}
-            {isUpcoming && <span className="text-yellow-400 border rounded-full p-1">UPCOMING</span>}
-            {isFinished && <span className="text-gray-400 border rounded-full p-1">FINISHED</span>}
+            {isUpcoming && (
+              <span className="text-yellow-400 border rounded-full p-1">
+                UPCOMING
+              </span>
+            )}
+            {isFinished && (
+              <span className="text-gray-400 border rounded-full p-1">
+                FINISHED
+              </span>
+            )}
           </div>
 
           {/* competition center */}
