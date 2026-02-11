@@ -37,15 +37,19 @@ interface Game {
   _id: string;
   date: string;
   time: string;
-  teamA: {
-    name: string;
-    logo: string; // Cloudinary URL
-  };
-  teamB: {
-    name: string;
-    logo: string; // Cloudinary URL
-  };
+
+  week?: string;
+  description?: string;
+  gender?: "men" | "women";
+
+  finished?: boolean;
+  score?: { a: number; b: number };
+  sets?: string[];
+
+  teamA: { name: string; logo: string };
+  teamB: { name: string; logo: string };
 }
+
 
 /* ================= HELPERS ================= */
 
@@ -112,40 +116,86 @@ export default function GamePage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-gradient-to-b from-[#0b0f1a] to-black text-white">
 
-{/* ALWAYS VISIBLE — TEAM VS TEAM */}
-<div className="mt-3 bg-[#121726] rounded-xl p-3 border border-white/10">
-  <div className="flex items-center justify-center gap-4">
-    <div className="flex items-center gap-2">
-      <Image
-        src={gameInfo.teamA.logo}
-        alt={gameInfo.teamA.name}
-        width={28}
-        height={28}
-        className="rounded-full bg-black border border-white/10"
-      />
-      <span className="font-bold text-sm tracking-wide">
-        {gameInfo.teamA.name}
+{/* SCHEDULE CARD */}
+<div className="mt-3 px-3">
+  <div className="
+    rounded-2xl p-3
+    bg-gradient-to-b from-[#0b1220] to-black
+    border border-white/10
+  ">
+    
+    {/* week + gender */}
+    <div className="flex justify-between text-xs">
+      <span className="text-cyan-300 font-bold">
+        {gameInfo.week}
+      </span>
+      <span className="text-gray-400">
+        {gameInfo.gender?.toUpperCase()}
       </span>
     </div>
 
-    <span className="text-gray-400 text-xs font-bold">
-      VS
-    </span>
-
-    <div className="flex items-center gap-2">
-      <span className="font-bold text-sm tracking-wide">
-        {gameInfo.teamB.name}
-      </span>
-      <Image
-        src={gameInfo.teamB.logo}
-        alt={gameInfo.teamB.name}
-        width={28}
-        height={28}
-        className="rounded-full bg-black border border-white/10"
-      />
+    {/* description */}
+    <div className="text-[11px] text-gray-400">
+      {gameInfo.description}
     </div>
+
+    {/* teams */}
+    <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center">
+      <div className="flex items-center gap-2">
+        <Image
+          src={gameInfo.teamA.logo}
+          alt=""
+          width={40}
+          height={40}
+        />
+        <span className="font-bold text-white">
+          {gameInfo.teamA.name}
+        </span>
+      </div>
+
+      <div className="text-center">
+        {!gameInfo.finished ? (
+          <div className="text-white font-bold">VS</div>
+        ) : (
+          <div className="text-2xl font-bold text-white">
+            {gameInfo.score?.a}:{gameInfo.score?.b}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 justify-end">
+        <span className="font-bold text-white">
+          {gameInfo.teamB.name}
+        </span>
+        <Image
+          src={gameInfo.teamB.logo}
+          alt=""
+          width={40}
+          height={40}
+        />
+      </div>
+    </div>
+
+    {/* time */}
+    {!gameInfo.finished && (
+      <div className="text-center text-xs text-gray-400 mt-2">
+        {gameInfo.date} — {gameInfo.time}
+      </div>
+    )}
+
+    {/* sets */}
+    {gameInfo.finished && (
+      <div className="flex gap-2 justify-center mt-2">
+        {gameInfo.sets?.map((s, i) => (
+          <div key={i} className="px-2 py-1 bg-black border text-xs">
+            {s}
+          </div>
+        ))}
+      </div>
+    )}
   </div>
 </div>
+
 
 
       {/* HEADER */}

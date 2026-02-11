@@ -9,11 +9,11 @@ type Item = {
 };
 
 const items: Item[] = [
-  { href: "/news", label: "News" },
+  { href: "/news", label: "Мэдээ" },
   { href: "/teams", label: "Багууд" },
   { href: "/schedule", label: "Хуваарь" },
   { href: "/statistics", label: "Статистик" },
-  { href: "/standings", label: "Standings" },
+  { href: "/standings", label: "Хүснэгт" },
 ];
 
 export default function Navbar2() {
@@ -48,10 +48,10 @@ export default function Navbar2() {
             const active = pathname === item.href;
 
             return (
-<Link
-  key={item.href}
-  href={item.href}
-  className={`
+              <Link
+                key={item.href}
+                href={item.href}
+      className={`
     text-center
     px-1.5
     py-1.5
@@ -70,17 +70,17 @@ export default function Navbar2() {
             shadow-[0_0_18px_rgba(80,120,255,0.25)]
           `
         : `
-            bg-gray-900 text-gray-300
-            border border-white/10
-            hover:bg-gray-800 hover:text-white hover:border-white/20
+            text-gray-300
+            bg-transparent
+            border-transparent
+            hover:text-white
           `
     }
   `}
-  title={item.label}
->
-  {item.label}
-</Link>
-
+                title={item.label}
+              >
+                {item.label}
+              </Link>
             );
           })}
         </div>

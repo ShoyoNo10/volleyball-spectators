@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+type Gender = "men" | "women";
+
 interface TeamMini {
   name: string;
   logo: string;
@@ -15,7 +17,12 @@ const TeamSchema = new mongoose.Schema<TeamMini>(
 
 const GameSchema = new mongoose.Schema(
   {
-    date: { type: String, required: true }, // "2026-02-09" гэх мэт
+    // ✅ NEW
+    week: { type: String, default: "" },         // "Week2" / "testnii week"
+    description: { type: String, default: "" },  // optional
+    gender: { type: String, enum: ["men", "women"], default: "men" },
+
+    date: { type: String, required: true }, // "2026-02-09"
     time: { type: String, required: true }, // "18:00"
 
     teamA: { type: TeamSchema, required: true },
@@ -24,13 +31,11 @@ const GameSchema = new mongoose.Schema(
     finished: { type: Boolean, default: false },
     liveUrl: { type: String, default: "" },
 
-    // ✅ match score (sets won): 3:1 гэх мэт
     score: {
       a: { type: Number, default: 0 },
       b: { type: Number, default: 0 },
     },
 
-    // ✅ each set score: ["25:14","25:23"]
     sets: { type: [String], default: [] },
 
     createdAt: { type: Date, default: Date.now },
