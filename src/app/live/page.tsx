@@ -111,7 +111,7 @@ export default function LivePage() {
       <div className="w-full max-w-md">
         {!isPro && !loadingAccess && (
           <div className="mb-6">
-            <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-semibold text-center py-2 tracking-wide">
+            <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-blue-400 text-[11px] font-semibold text-center py-2 tracking-wide">
               Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function LivePage() {
 
             {/* HEADER */}
             {tab === "live" && (
-              <div className="text-center font-bold text-sm tracking-wide mb-3 text-cyan-300">
+              <div className="text-center font-bold text-sm tracking-wide mb-3 text-blue-400">
                 {todayLabel || " "} өдрийн тоглолтууд
               </div>
             )}
@@ -291,7 +291,7 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
 
           {/* competition center */}
           {match.competition && (
-            <div className="text-center text-[10px] font-bold tracking-widest text-cyan-300">
+            <div className="text-center text-[10px] font-bold tracking-widest text-blue-400">
               {match.competition}
             </div>
           )}
