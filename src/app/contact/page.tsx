@@ -93,7 +93,7 @@ export default function ContactPage() {
 
           {/* FOOTER */}
           <div className="text-center text-[10px] text-gray-500 mt-6">
-            © 2026 ClutchSports 
+            © 2026 ClutchSports Mongolia • All Rights Reserved
           </div>
         </div>
       </div>

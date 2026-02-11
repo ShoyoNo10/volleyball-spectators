@@ -113,8 +113,24 @@ export default function LivePage() {
       <div className="w-full max-w-md">
         {!isPro && !loadingAccess && (
           <div className="mb-6">
-            <div className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-blue-400 text-[11px] font-semibold text-center py-2 tracking-wide">
-              Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
+            <div
+              className="
+      relative overflow-hidden
+      rounded-2xl
+      border border-violet-400/40
+      bg-gradient-to-r from-[#12071f] via-[#1a0d2e] to-[#0b0617]
+      text-violet-200
+      text-[11px] font-bold tracking-wider
+      text-center py-3
+      shadow-[0_0_25px_rgba(168,85,247,0.25)]
+    "
+            >
+              {/* subtle glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_60%)]" />
+
+              <span className="relative">
+                🔒 Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
+              </span>
             </div>
           </div>
         )}
@@ -258,27 +274,46 @@ export default function LivePage() {
         </div>
       </div>
       {proPopup && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="relative w-75">
-            <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50">
+          <div className="relative w-[320px]">
+            {/* outer glow */}
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-purple-600 blur opacity-70" />
 
-            <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
-              <div className="text-lg font-bold mb-2">Pro эрх шаардлагатай</div>
+            {/* card */}
+            <div className="relative bg-[#05010b] border border-violet-400/30 rounded-3xl p-6 text-center overflow-hidden">
+              {/* subtle glow overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_60%)]" />
 
-              <div className="text-xs text-gray-400 mb-4">
+              {/* title */}
+              <div className="relative text-xl font-extrabold mb-2 text-white">
+                Pro эрх шаардлагатай
+              </div>
+
+              {/* subtitle */}
+              <div className="relative text-xs text-violet-200/80 mb-5">
                 Нөхөж үзэхийн тулд эрх сунгана уу
               </div>
 
+              {/* button */}
               <button
                 onClick={() => (window.location.href = "/packages")}
-                className="w-full py-2 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 mb-2"
+                className="
+            relative w-full py-2.5 rounded-xl font-bold
+            bg-gradient-to-r from-violet-600 to-fuchsia-600
+            hover:from-violet-500 hover:to-fuchsia-500
+            transition-all duration-300
+            shadow-[0_0_25px_rgba(168,85,247,0.5)]
+            active:scale-95
+            mb-2
+          "
               >
-                Эрх сунгах
+                Pro авах
               </button>
 
+              {/* close */}
               <button
                 onClick={() => setProPopup(false)}
-                className="text-xs text-gray-400"
+                className="relative text-xs text-gray-400 hover:text-white"
               >
                 Хаах
               </button>
@@ -382,35 +417,57 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
       </div>
 
       {/* 🔒 POPUP */}
-      {popup && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="relative w-75">
-            <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+{popup && (
+  <div className="fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50">
+    <div className="relative w-[320px]">
 
-            <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
-              <div className="text-lg font-bold mb-2">Pro эрх шаардлагатай</div>
+      {/* glow */}
+      <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-purple-600 blur opacity-70" />
 
-              <div className="text-xs text-gray-400 mb-4">
-                Тоглолт үзэхийн тулд эрх сунгана уу
-              </div>
+      {/* card */}
+      <div className="relative bg-[#05010b] border border-violet-400/30 rounded-3xl p-6 text-center overflow-hidden">
 
-              <button
-                onClick={() => (window.location.href = "/packages")}
-                className="w-full py-2 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 mb-2"
-              >
-                Эрх сунгах
-              </button>
+        {/* radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_60%)]" />
 
-              <button
-                onClick={() => setPopup(false)}
-                className="text-xs text-gray-400"
-              >
-                Хаах
-              </button>
-            </div>
-          </div>
+        {/* title */}
+        <div className="relative text-xl font-extrabold mb-2 text-white">
+          Pro эрх шаардлагатай
         </div>
-      )}
+
+        {/* desc */}
+        <div className="relative text-xs text-violet-200/80 mb-5">
+          Тоглолт үзэхийн тулд эрх сунгана уу
+        </div>
+
+        {/* button */}
+        <button
+          onClick={() => (window.location.href = "/packages")}
+          className="
+            relative w-full py-2.5 rounded-xl font-bold
+            bg-gradient-to-r from-violet-600 to-fuchsia-600
+            hover:from-violet-500 hover:to-fuchsia-500
+            transition-all duration-300
+            shadow-[0_0_25px_rgba(168,85,247,0.5)]
+            active:scale-95
+            mb-2
+          "
+        >
+          Эрх сунгах
+        </button>
+
+        {/* close */}
+        <button
+          onClick={() => setPopup(false)}
+          className="relative text-xs text-gray-400 hover:text-white"
+        >
+          Хаах
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </>
   );
 }
