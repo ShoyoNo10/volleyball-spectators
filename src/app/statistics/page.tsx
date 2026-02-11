@@ -57,7 +57,7 @@ export default function StatisticsPage() {
     block: "/icons/block.png",
     serve: "/icons/serve.png",
     set: "/icons/set.png",
-    defense: "/icons/defense.png",  
+    defense: "/icons/defense.png",
     receive: "/icons/attack.png",
   };
 
@@ -148,7 +148,7 @@ export default function StatisticsPage() {
                   src={CATEGORY_IMG[current.key]}
                   alt="icon"
                   fill
-                  className="object-contain"       
+                  className="object-contain"
                 />
               </div>
 
@@ -160,18 +160,35 @@ export default function StatisticsPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              {(["men", "women"] as const).map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGender(g)}
-                  className={`px-3 py-2 rounded-xl text-sm font-bold border border-white/10 ${
-                    gender === g ? "bg-white text-black" : "bg-gray-900"
-                  }`}
-                >
-                  {g.toUpperCase()}
-                </button>
-              ))}
+            <div className="flex justify-center px-3">
+              <div className="flex w-full max-w-[320px] bg-black border border-white/10 rounded-full p-1">
+                {(["men", "women"] as const).map((g) => {
+                  const active = gender === g;
+
+                  return (
+                    <button
+                      key={g}
+                      onClick={() => setGender(g)}
+                      className={`flex-1 py-2 rounded-full text-[10px] font-bold transition-all px-1 ${
+                        active
+                          ? `
+        text-white
+        bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+        border border-white/20
+        shadow-[0_0_18px_rgba(80,120,255,0.25)]
+      `
+                          : `
+     text-gray-400
+                  bg-transparent
+                  border-transparent
+      `
+                      }`}
+                    >
+                      {g === "men" ? "ЭРЭГТЭЙ" : "ЭМЭГТЭЙ"}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

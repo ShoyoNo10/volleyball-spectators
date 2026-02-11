@@ -134,7 +134,7 @@ export default function LivePage() {
                     : "bg-[#121726] text-gray-400 hover:text-white"
                 }`}
               >
-                LIVE
+                Шууд
               </button>
 
               <button
@@ -145,7 +145,7 @@ export default function LivePage() {
                     : "bg-[#121726] text-gray-400 hover:text-white"
                 }`}
               >
-                REPLAY
+                Нөхөж үзэх
               </button>
             </div>
 
