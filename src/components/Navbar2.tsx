@@ -65,7 +65,7 @@ export default function Navbar2() {
       active
         ? `
             text-white
-            bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+            bg-linear-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
             border border-white/20
             shadow-[0_0_18px_rgba(80,120,255,0.25)]
           `

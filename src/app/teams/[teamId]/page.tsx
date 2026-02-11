@@ -208,7 +208,7 @@ export default function TeamPage() {
               <div className="overflow-hidden rounded-xl border border-gray-800 shadow-lg">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-900 to-black">
+                    <tr className="bg-linear-to-r from-gray-900 to-black">
                       {/* ✅ header жижиг */}
                       <th className="p-2 text-left text-[10px] text-gray-400">
                         No.
@@ -320,7 +320,7 @@ export default function TeamPage() {
               <div
                 key={m._id}
                 className="
-                  bg-gradient-to-r from-gray-950 to-black
+                  bg-linear-to-r from-gray-950 to-black
                   border border-gray-800
                   rounded-2xl
                   overflow-hidden

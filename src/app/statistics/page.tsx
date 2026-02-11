@@ -35,7 +35,7 @@ const CATEGORIES: { key: CategoryKey; label: string; api: string }[] = [
   { key: "serve", label: "ДАВУУЛАЛТ", api: "/api/stats-serve" },
   { key: "set", label: "ХОЛБОЛТ", api: "/api/stats-set" },
   { key: "defense", label: "ХАМГААЛАЛТ", api: "/api/stats-defense" },
-  { key: "receive", label: "БӨМБӨГ АВАЛТ", api: "/api/stats-receive" },
+  { key: "receive", label: "Довтолгоо", api: "/api/stats-receive" },
 ];
 
 function isGender(x: unknown): x is Gender {
@@ -53,12 +53,12 @@ export default function StatisticsPage() {
   const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
   const CATEGORY_IMG: Record<CategoryKey, string> = {
-    points: "/icons/attack.png",
+    points: "/icons/recive.png",
     block: "/icons/block.png",
     serve: "/icons/serve.png",
     set: "/icons/set.png",
     defense: "/icons/defense.png",  
-    receive: "/icons/recive.png",
+    receive: "/icons/attack.png",
   };
 
   useEffect(() => {

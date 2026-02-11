@@ -128,7 +128,7 @@ export default function SchedulePage() {
                       isSelected
                         ? `
                           text-white
-                          bg-gradient-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
+                          bg-linear-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
                           border border-white/20
                           shadow-[0_0_18px_rgba(80,120,255,0.25)]
                         `
@@ -191,7 +191,7 @@ export default function SchedulePage() {
               href={`/games/${m._id}`}
               className="
                 block rounded-2xl p-3
-                bg-gradient-to-b from-[#0b1220] to-black
+                bg-linear-to-b from-[#0b1220] to-black
                 border border-white/10
                 shadow-[0_10px_40px_rgba(0,0,0,0.6)]
                 hover:border-white/20 hover:-translate-y-0.5 transition

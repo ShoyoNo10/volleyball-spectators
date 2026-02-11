@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useParams,
-  useRouter,
-} from "next/navigation";
-import { ArrowBigLeft } from "lucide-react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 
 /* ================= TYPES ================= */
@@ -50,7 +46,6 @@ interface Game {
   teamB: { name: string; logo: string };
 }
 
-
 /* ================= HELPERS ================= */
 
 function total(p: Player) {
@@ -61,31 +56,19 @@ function total(p: Player) {
 
 export default function GamePage() {
   const { gameId } = useParams<{ gameId: string }>();
-  const router = useRouter();
+  const [stats, setStats] = useState<GameStats | null>(null);
 
-  const [stats, setStats] =
-    useState<GameStats | null>(null);
+  const [gameInfo, setGameInfo] = useState<Game | null>(null);
 
-  const [gameInfo, setGameInfo] =
-    useState<Game | null>(null);
+  const [activeTeam, setActiveTeam] = useState<"A" | "B">("A");
 
-  const [activeTeam, setActiveTeam] =
-    useState<"A" | "B">("A");
-
-  const [activeTab, setActiveTab] =
-    useState<"general" | "players">(
-      "players"
-    );
+  const [activeTab, setActiveTab] = useState<"general" | "players">("players");
 
   // 🔹 Fetch STATS (existing API)
   useEffect(() => {
-    fetch(
-      `/api/game-stats?gameId=${gameId}`
-    )
+    fetch(`/api/game-stats?gameId=${gameId}`)
       .then((r) => r.json())
-      .then((d: GameStats) =>
-        setStats(d)
-      );
+      .then((d: GameStats) => setStats(d));
   }, [gameId]);
 
   // 🔹 Fetch ALL GAMES, find this game (frontend-only trick)
@@ -93,9 +76,7 @@ export default function GamePage() {
     fetch("/api/schedule")
       .then((r) => r.json())
       .then((games: Game[]) => {
-        const found = games.find(
-          (g) => g._id === gameId
-        );
+        const found = games.find((g) => g._id === gameId);
         setGameInfo(found || null);
       });
   }, [gameId]);
@@ -108,95 +89,78 @@ export default function GamePage() {
     );
   }
 
-  const team =
-    activeTeam === "A"
-      ? stats.teamA
-      : stats.teamB;
+  const team = activeTeam === "A" ? stats.teamA : stats.teamB;
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-gradient-to-b from-[#0b0f1a] to-black text-white">
-
-{/* SCHEDULE CARD */}
-<div className="mt-3 px-3">
-  <div className="
+    <div className="max-w-md mx-auto min-h-screen bg-linear-to-b from-[#0b0f1a] to-black text-white">
+      {/* SCHEDULE CARD */}
+      <div className="mt-3 px-3">
+        <div
+          className="
     rounded-2xl p-3
-    bg-gradient-to-b from-[#0b1220] to-black
+    bg-linear-to-b from-[#0b1220] to-black
     border border-white/10
-  ">
-    
-    {/* week + gender */}
-    <div className="flex justify-between text-xs">
-      <span className="text-cyan-300 font-bold">
-        {gameInfo.week}
-      </span>
-      <span className="text-gray-400">
-        {gameInfo.gender?.toUpperCase()}
-      </span>
-    </div>
-
-    {/* description */}
-    <div className="text-[11px] text-gray-400">
-      {gameInfo.description}
-    </div>
-
-    {/* teams */}
-    <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center">
-      <div className="flex items-center gap-2">
-        <Image
-          src={gameInfo.teamA.logo}
-          alt=""
-          width={40}
-          height={40}
-        />
-        <span className="font-bold text-white">
-          {gameInfo.teamA.name}
-        </span>
-      </div>
-
-      <div className="text-center">
-        {!gameInfo.finished ? (
-          <div className="text-white font-bold">VS</div>
-        ) : (
-          <div className="text-2xl font-bold text-white">
-            {gameInfo.score?.a}:{gameInfo.score?.b}
+  "
+        >
+          {/* week + gender */}
+          <div className="flex justify-between text-xs">
+            <span className="text-cyan-300 font-bold">{gameInfo.week}</span>
+            <span className="text-gray-400">
+              {gameInfo.gender?.toUpperCase()}
+            </span>
           </div>
-        )}
-      </div>
 
-      <div className="flex items-center gap-2 justify-end">
-        <span className="font-bold text-white">
-          {gameInfo.teamB.name}
-        </span>
-        <Image
-          src={gameInfo.teamB.logo}
-          alt=""
-          width={40}
-          height={40}
-        />
-      </div>
-    </div>
-
-    {/* time */}
-    {!gameInfo.finished && (
-      <div className="text-center text-xs text-gray-400 mt-2">
-        {gameInfo.date} — {gameInfo.time}
-      </div>
-    )}
-
-    {/* sets */}
-    {gameInfo.finished && (
-      <div className="flex gap-2 justify-center mt-2">
-        {gameInfo.sets?.map((s, i) => (
-          <div key={i} className="px-2 py-1 bg-black border text-xs">
-            {s}
+          {/* description */}
+          <div className="text-[11px] text-gray-400">
+            {gameInfo.description}
           </div>
-        ))}
+
+          {/* teams */}
+          <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center">
+            <div className="flex items-center gap-2">
+              <Image src={gameInfo.teamA.logo} alt="" width={40} height={40} />
+              <span className="font-bold text-white">
+                {gameInfo.teamA.name}
+              </span>
+            </div>
+
+            <div className="text-center">
+              {!gameInfo.finished ? (
+                <div className="text-white font-bold">VS</div>
+              ) : (
+                <div className="text-2xl font-bold text-white">
+                  {gameInfo.score?.a}:{gameInfo.score?.b}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 justify-end">
+              <span className="font-bold text-white">
+                {gameInfo.teamB.name}
+              </span>
+              <Image src={gameInfo.teamB.logo} alt="" width={40} height={40} />
+            </div>
+          </div>
+
+          {/* time */}
+          {!gameInfo.finished && (
+            <div className="text-center text-xs text-gray-400 mt-2">
+              {gameInfo.date} — {gameInfo.time}
+            </div>
+          )}
+
+          {/* sets */}
+          {gameInfo.finished && (
+            <div className="flex gap-2 justify-center mt-2">
+              {gameInfo.sets?.map((s, i) => (
+                <div key={i} className="px-2 py-1 bg-black border text-xs">
+                  {s}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
-
-
 
       {/* HEADER */}
       <div className="sticky top-0 z-10 px-4 pt-4 pb-3 bg-[#0b0f1a]/95 backdrop-blur border-b border-white/10">
@@ -219,18 +183,11 @@ export default function GamePage() {
 
         {/* TOP TABS */}
         <div className="mt-3 flex bg-[#121726] rounded-xl p-1">
-          {["general", "players"].map(
-            (t) => (
-              <button
-                key={t}
-                onClick={() =>
-                  setActiveTab(
-                    t as
-                      | "general"
-                      | "players"
-                  )
-                }
-                className={`
+          {["general", "players"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setActiveTab(t as "general" | "players")}
+              className={`
                   flex-1 py-2 rounded-lg text-xs font-bold tracking-wide transition
                   ${
                     activeTab === t
@@ -238,21 +195,16 @@ export default function GamePage() {
                       : "text-gray-400 hover:text-white"
                   }
                 `}
-              >
-                {t === "general"
-                  ? "ЕРӨНХИЙ"
-                  : "ТОГЛОГЧИД"}
-              </button>
-            )
-          )}
+            >
+              {t === "general" ? "ЕРӨНХИЙ" : "ТОГЛОГЧИД"}
+            </button>
+          ))}
         </div>
 
         {/* TEAM SWITCH */}
         <div className="mt-2 flex gap-2">
           <button
-            onClick={() =>
-              setActiveTeam("A")
-            }
+            onClick={() => setActiveTeam("A")}
             className={`
               flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
               ${
@@ -265,9 +217,7 @@ export default function GamePage() {
             {gameInfo.teamA.name}
           </button>
           <button
-            onClick={() =>
-              setActiveTeam("B")
-            }
+            onClick={() => setActiveTeam("B")}
             className={`
               flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
               ${
@@ -302,9 +252,7 @@ export default function GamePage() {
                 </span>
               </div>
 
-              <span className="text-gray-400 text-xs font-bold">
-                VS
-              </span>
+              <span className="text-gray-400 text-xs font-bold">VS</span>
 
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm tracking-wide">
@@ -326,32 +274,24 @@ export default function GamePage() {
                 {
                   key: "attack",
                   label: "ДОВТОЛГОО",
-                  a: stats.teamA.stats
-                    .attack,
-                  b: stats.teamB.stats
-                    .attack,
+                  a: stats.teamA.stats.attack,
+                  b: stats.teamB.stats.attack,
                 },
                 {
                   key: "block",
                   label: "ХААЛТ",
-                  a: stats.teamA.stats
-                    .block,
-                  b: stats.teamB.stats
-                    .block,
+                  a: stats.teamA.stats.block,
+                  b: stats.teamB.stats.block,
                 },
                 {
                   key: "serve",
                   label: "ДАВУУЛАЛТ",
-                  a: stats.teamA.stats
-                    .serve,
-                  b: stats.teamB.stats
-                    .serve,
+                  a: stats.teamA.stats.serve,
+                  b: stats.teamB.stats.serve,
                 },
               ].map((row) => {
-                const aWin =
-                  row.a > row.b;
-                const bWin =
-                  row.b > row.a;
+                const aWin = row.a > row.b;
+                const bWin = row.b > row.a;
 
                 return (
                   <div
@@ -360,9 +300,7 @@ export default function GamePage() {
                   >
                     <div
                       className={`text-center font-bold ${
-                        aWin
-                          ? "text-yellow-400"
-                          : "text-gray-300"
+                        aWin ? "text-yellow-400" : "text-gray-300"
                       }`}
                     >
                       {row.a}
@@ -374,9 +312,7 @@ export default function GamePage() {
 
                     <div
                       className={`text-center font-bold ${
-                        bWin
-                          ? "text-yellow-400"
-                          : "text-gray-300"
+                        bWin ? "text-yellow-400" : "text-gray-300"
                       }`}
                     >
                       {row.b}
@@ -388,32 +324,22 @@ export default function GamePage() {
               {/* TOTAL */}
               {(() => {
                 const aTotal =
-                  stats.teamA.stats
-                    .attack +
-                  stats.teamA.stats
-                    .block +
-                  stats.teamA.stats
-                    .serve;
+                  stats.teamA.stats.attack +
+                  stats.teamA.stats.block +
+                  stats.teamA.stats.serve;
                 const bTotal =
-                  stats.teamB.stats
-                    .attack +
-                  stats.teamB.stats
-                    .block +
-                  stats.teamB.stats
-                    .serve;
+                  stats.teamB.stats.attack +
+                  stats.teamB.stats.block +
+                  stats.teamB.stats.serve;
 
-                const aWin =
-                  aTotal > bTotal;
-                const bWin =
-                  bTotal > aTotal;
+                const aWin = aTotal > bTotal;
+                const bWin = bTotal > aTotal;
 
                 return (
                   <div className="grid grid-cols-[1fr_2fr_1fr] items-center bg-black rounded-lg border border-yellow-400/40 px-3 py-2">
                     <div
                       className={`text-center font-bold ${
-                        aWin
-                          ? "text-yellow-400"
-                          : "text-gray-300"
+                        aWin ? "text-yellow-400" : "text-gray-300"
                       }`}
                     >
                       {aTotal}
@@ -425,9 +351,7 @@ export default function GamePage() {
 
                     <div
                       className={`text-center font-bold ${
-                        bWin
-                          ? "text-yellow-400"
-                          : "text-gray-300"
+                        bWin ? "text-yellow-400" : "text-gray-300"
                       }`}
                     >
                       {bTotal}
@@ -444,33 +368,17 @@ export default function GamePage() {
           <div className="bg-[#121726] rounded-xl overflow-hidden border border-white/10">
             {/* HEADER */}
             <div className="grid grid-cols-[0.6fr_0.8fr_2fr_1fr_1fr_1fr_1fr] px-3 py-2 text-[10px] font-bold text-gray-400 border-b border-white/10 tracking-wide">
-              <span className="text-center">
-                БАЙР
-              </span>
-              <span className="text-center">
-                #
-              </span>
+              <span className="text-center">БАЙР</span>
+              <span className="text-center">#</span>
               <span>ТОГЛОГЧ</span>
-              <span className="text-center">
-                НИЙТ
-              </span>
-              <span className="text-center">
-                ДОВ
-              </span>
-              <span className="text-center">
-                ХААЛТ
-              </span>
-              <span className="text-center">
-                ДАВ
-              </span>
+              <span className="text-center">НИЙТ</span>
+              <span className="text-center">ДОВ</span>
+              <span className="text-center">ХААЛТ</span>
+              <span className="text-center">ДАВ</span>
             </div>
 
             {[...team.players]
-              .sort(
-                (a, b) =>
-                  total(b) -
-                  total(a)
-              )
+              .sort((a, b) => total(b) - total(a))
               .map((p, i) => (
                 <div
                   key={i}
@@ -485,29 +393,17 @@ export default function GamePage() {
                     {i + 1}
                   </div>
 
-                  <div className="text-center text-gray-400">
-                    {p.number}
-                  </div>
+                  <div className="text-center text-gray-400">{p.number}</div>
 
-                  <div className="font-semibold truncate">
-                    {p.name}
-                  </div>
+                  <div className="font-semibold truncate">{p.name}</div>
 
-                  <div className="text-center font-bold">
-                    {total(p)}
-                  </div>
+                  <div className="text-center font-bold">{total(p)}</div>
 
-                  <div className="text-center">
-                    {p.attack}
-                  </div>
+                  <div className="text-center">{p.attack}</div>
 
-                  <div className="text-center">
-                    {p.block}
-                  </div>
+                  <div className="text-center">{p.block}</div>
 
-                  <div className="text-center">
-                    {p.serve}
-                  </div>
+                  <div className="text-center">{p.serve}</div>
                 </div>
               ))}
           </div>

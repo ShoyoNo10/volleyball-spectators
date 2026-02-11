@@ -91,7 +91,7 @@ export default function Navbar() {
           {loadingMe ? (
             <div className="w-20 h-9 rounded-full bg-white/10 animate-pulse" />
           ) : me.user ? (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/10 max-w-[160px]">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/10 max-w-40">
               <User2 className="w-4 h-4 opacity-80 shrink-0" />
               <span className="text-xs font-semibold truncate">{me.user}</span>
               {me.isPro && <Gem className="w-4 h-4 text-cyan-300 shrink-0" />}

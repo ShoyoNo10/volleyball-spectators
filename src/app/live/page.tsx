@@ -330,8 +330,8 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
       {/* 🔒 POPUP */}
       {popup && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="relative w-[300px]">
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+          <div className="relative w-75">
+            <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
 
             <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
               <div className="text-lg font-bold mb-2">Pro эрх шаардлагатай</div>
