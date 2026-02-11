@@ -2,9 +2,9 @@
 
 import { Phone, Facebook, Instagram } from "lucide-react";
 
-const PHONE_NUMBER = "+97699112233"; // 🔥 энд өөрийн дугаараа оруул
-const FACEBOOK_URL = "https://facebook.com/yourpage";
-const INSTAGRAM_URL = "https://instagram.com/yourpage";
+const PHONE_NUMBER = "+97689251998"; // 🔥 энд өөрийн дугаараа оруул
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61574986497630&mibextid=wwXIfr&rdid=uX0HztH4V2lLE6AF&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1DJ8E7gJN4%2F%3Fmibextid%3DwwXIfr#";
+const INSTAGRAM_URL = "https://www.instagram.com/clutchsports_mongolia?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
 
 export default function ContactPage() {
   const handlePhoneClick = () => {
@@ -93,7 +93,7 @@ export default function ContactPage() {
 
           {/* FOOTER */}
           <div className="text-center text-[10px] text-gray-500 mt-6">
-            © 2026 VNL Spectators • All rights reserved
+            © 2026 ClutchSports 
           </div>
         </div>
       </div>
