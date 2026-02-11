@@ -27,7 +27,7 @@ function formatDateMN(dateStr: string) {
   const m = d.getMonth() + 1;
   const day = d.getDate();
 
-  return `${y} оны ${m}-р сарын ${day}`;
+  return `${y} оны ${m} сарын ${day}`;
 }
 
 /* ================= PAGE ================= */

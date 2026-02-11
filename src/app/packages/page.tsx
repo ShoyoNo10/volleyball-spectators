@@ -91,35 +91,51 @@ export default function Page() {
       </div>
 
       {/* 🔥 LOGIN POPUP */}
-      {showLoginPopup && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="relative w-[320px]">
-            <div className="absolute -inset-1 rounded-3xl bg-linear-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-60" />
+{showLoginPopup && (
+  <div className="fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50">
+    <div className="relative w-[320px]">
+      {/* glow */}
+      <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-purple-600 blur opacity-70" />
 
-            <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6 text-center">
-              <div className="text-lg font-bold mb-2">Нэвтрэх шаардлагатай</div>
+      {/* card */}
+      <div className="relative bg-[#05010b] border border-violet-400/30 rounded-3xl p-6 text-center overflow-hidden">
+        {/* radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_60%)]" />
 
-              <div className="text-xs text-gray-400 mb-5">
-                Эрх сунгахын тулд эхлээд нэвтэрнэ үү
-              </div>
-
-              <button
-                onClick={() => router.push("/login")}
-                className="w-full py-2 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 mb-2"
-              >
-                Нэвтрэх
-              </button>
-
-              <button
-                onClick={() => setShowLoginPopup(false)}
-                className="text-xs text-gray-400"
-              >
-                Хаах
-              </button>
-            </div>
-          </div>
+        <div className="relative text-xl font-extrabold mb-2 text-white">
+          Нэвтрэх шаардлагатай
         </div>
-      )}
+
+        <div className="relative text-xs text-violet-200/80 mb-5">
+          Эрх сунгахын тулд эхлээд нэвтэрнэ үү
+        </div>
+
+        <button
+          onClick={() => router.push("/login")}
+          className="
+            relative w-full py-2.5 rounded-xl font-bold
+            bg-gradient-to-r from-violet-600 to-fuchsia-600
+            hover:from-violet-500 hover:to-fuchsia-500
+            transition-all duration-300
+            shadow-[0_0_25px_rgba(168,85,247,0.5)]
+            active:scale-95
+            mb-2
+          "
+        >
+          Нэвтрэх
+        </button>
+
+        <button
+          onClick={() => setShowLoginPopup(false)}
+          className="relative text-xs text-gray-400 hover:text-white"
+        >
+          Хаах
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -30,30 +30,36 @@ export default function RankingPage() {
   return (
     <div className="min-h-screen bg-black text-white p-4">
       {/* TABS */}
-      <div className="flex gap-2 mb-4 max-w-md mx-auto">
-        {["men", "women"].map((g) => (
-          <button
-            key={g}
-            onClick={() => setTab(g as Gender)}
-            className={`flex-1 py-2 rounded-xl font-bold ${
-              tab === g
-                ? "bg-white text-black"
-                : "bg-gray-800"
-            }`}
-          >
-            {g.toUpperCase()}
-          </button>
-        ))}
-      </div>
+{/* TABS */}
+<div className="flex gap-2 mb-4 max-w-md mx-auto">
+  {(["men", "women"] as const).map((g) => {
+    const active = tab === g;
+
+    return (
+      <button
+        key={g}
+        onClick={() => setTab(g)}
+        className={`
+          flex-1 py-2 rounded-xl font-extrabold text-sm transition
+          ${active 
+            ? "bg-white text-black" 
+            : "bg-gray-800 text-gray-400 hover:text-white"}
+        `}
+      >
+        {g === "men" ? "ЭРЭГТЭЙ" : "ЭМЭГТЭЙ"}
+      </button>
+    );
+  })}
+</div>
 
       {/* TABLE */}
       <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
         {/* HEADER */}
         <div className="grid grid-cols-[0.5fr_2fr_1fr] px-3 py-2 text-xs font-bold text-gray-400 border-b border-white/10">
           <span>#</span>
-          <span>TEAM</span>
+          <span>Баг</span>
           <span className="text-center">
-            SCORE
+            Оноо
           </span>
         </div>
 

@@ -169,7 +169,7 @@ export default function StatisticsPage() {
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-2 rounded-full text-[10px] font-bold transition-all px-1 ${
+                      className={`flex-1 py-2 rounded-full text-[10px] font-bold transition-all px-2 ${
                         active
                           ? `
         text-white

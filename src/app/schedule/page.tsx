@@ -25,6 +25,27 @@ interface Game {
   teamB: { name: string; logo: string };
 }
 
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function getMonthLabelMN(dateStr: string) {
+  const d = new Date(dateStr);
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1; // 1-12
+  return `${y} оны ${m} сар`;
+}
+
+// Хэрвээ өдөр дээрээ ч гэсэн дан монголоор форматлах бол:
+function getDateLabelMN(dateStr: string) {
+  const d = new Date(dateStr);
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${y}-${pad2(m)}-${pad2(day)}`; // эсвэл `${y} оны ${m} сарын ${day}`
+}
+
+
 function getMonthLabel(dateStr: string) {
   const d = new Date(dateStr);
   return d.toLocaleDateString("mn-MN", { year: "numeric", month: "long" });
@@ -81,10 +102,11 @@ export default function SchedulePage() {
     [games, selectedDate],
   );
 
-  const monthTitle = useMemo(() => {
-    if (!selectedDate) return "";
-    return getMonthLabel(selectedDate);
-  }, [selectedDate]);
+const monthTitle = useMemo(() => {
+  if (!selectedDate) return "";
+  return getMonthLabelMN(selectedDate);
+}, [selectedDate]);
+
 
   const canPrev = page > 0;
   const canNext = page < totalPages - 1;

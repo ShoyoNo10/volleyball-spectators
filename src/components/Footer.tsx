@@ -6,7 +6,7 @@ import { Newspaper, TvMinimalPlay, Gem } from "lucide-react";
 
 const items = [
   { href: "/news", label: "Нүүр", Icon: Newspaper },
-  { href: "/live", label: "Live", Icon: TvMinimalPlay },
+  { href: "/live", label: "Шууд үзэх", Icon: TvMinimalPlay },
   { href: "/packages", label: "Pro эрх", Icon: Gem },
 ];
 
