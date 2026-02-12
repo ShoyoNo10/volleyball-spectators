@@ -15,6 +15,27 @@ export async function POST(req: Request) {
   return NextResponse.json(created);
 }
 
+// ✅ NEW: EDIT
+export async function PUT(req: Request) {
+  await connectDB();
+  const body = await req.json();
+
+  const { id, update } = body as {
+    id: string;
+    update: Partial<{
+      name: string;
+      code: string;
+      gender: "men" | "women";
+      flagUrl: string;
+    }>;
+  };
+
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  const updated = await Team.findByIdAndUpdate(id, update, { new: true });
+  return NextResponse.json(updated);
+}
+
 export async function DELETE(req: Request) {
   await connectDB();
   const { id } = await req.json();

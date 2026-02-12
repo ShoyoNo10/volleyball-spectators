@@ -122,6 +122,34 @@ export async function PATCH(req: Request) {
   return NextResponse.json({ success: true });
 }
 
+export async function PUT(req: Request) {
+  await connectDB();
+  const { id, ...body }: { id: string } & PlayerPayload = (await req.json()) as {
+    id: string;
+  } & PlayerPayload;
+
+  if (!id) {
+    return NextResponse.json({ error: "id required" }, { status: 400 });
+  }
+
+  const stats = normalizeStats(body.stats);
+
+  await Player.findByIdAndUpdate(id, {
+    teamId: body.teamId,
+    number: body.number,
+    name: body.name,
+    position: body.position,
+    nationality: body.nationality,
+    birthDate: body.birthDate,
+    height: body.height,
+    avatarUrl: body.avatarUrl,
+    stats,
+  });
+
+  return NextResponse.json({ success: true });
+}
+
+
 export async function DELETE(req: Request) {
   await connectDB();
   const body: { id: string } =
