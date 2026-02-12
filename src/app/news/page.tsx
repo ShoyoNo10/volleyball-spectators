@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Heart } from "lucide-react";
+import CountdownBanner from "@/src/components/CountdownBanner";
 
 /* ================= TYPES ================= */
 
@@ -79,11 +80,11 @@ export default function NewsPage() {
       const data = await res.json();
 
       setNews((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, likes: data.likes } : n))
+        prev.map((n) => (n._id === id ? { ...n, likes: data.likes } : n)),
       );
 
       setActivePost((prev) =>
-        prev && prev._id === id ? { ...prev, likes: data.likes } : prev
+        prev && prev._id === id ? { ...prev, likes: data.likes } : prev,
       );
     } catch (err) {
       console.error("Like failed", err);
@@ -104,9 +105,14 @@ export default function NewsPage() {
           items-start
         "
       >
-        {news.length === 0 && (
-          <p className="text-gray-500">Уншиж байна...</p>
-        )}
+        <CountdownBanner
+          title="VNL 2026"
+          logoSrc="/vnlLOGO.svg" // эсвэл Cloudinary URL
+          startDateISO="2026-06-03T00:00:00+08:00"
+          endDateISO="2026-08-03T00:00:00+08:00"
+          locationText="Олон байршил"
+        />
+        {news.length === 0 && <p className="text-gray-500">Уншиж байна...</p>}
 
         {news.map((n) => {
           const liked = likedMap[n._id];
@@ -144,7 +150,12 @@ export default function NewsPage() {
 
               {/* IMAGE (✅ mobile дээр жаахан намхан) */}
               <div className="relative w-full h-36 sm:h-40 lg:h-48">
-                <Image src={n.image} alt={n.title} fill className="object-cover" />
+                <Image
+                  src={n.image}
+                  alt={n.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
               {/* CONTENT (✅ mobile дээр жижиг padding/font) */}
