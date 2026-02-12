@@ -5,18 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 type Gender = "men" | "women";
 
-type PointsStat = {
-  _id: string;
-  gender: Gender;
-  playerName: string;
-  teamCode: string;
-  played: number;
-  points: number;
-  attackPts: number;
-  blockPts: number;
-  servePts: number;
-};
-
 type GenericStat = {
   _id: string;
   gender: Gender;
@@ -31,11 +19,11 @@ type CategoryKey = "points" | "block" | "serve" | "set" | "defense" | "receive";
 
 const CATEGORIES: { key: CategoryKey; label: string; api: string }[] = [
   { key: "points", label: "ОНОО", api: "/api/statistics" },
+  { key: "receive", label: "Довтолгоо", api: "/api/stats-receive" },
   { key: "block", label: "ХААЛТ", api: "/api/stats-block" },
   { key: "serve", label: "ДАВУУЛАЛТ", api: "/api/stats-serve" },
   { key: "set", label: "ХОЛБОЛТ", api: "/api/stats-set" },
   { key: "defense", label: "ХАМГААЛАЛТ", api: "/api/stats-defense" },
-  { key: "receive", label: "Довтолгоо", api: "/api/stats-receive" },
 ];
 
 function isGender(x: unknown): x is Gender {
@@ -46,7 +34,6 @@ export default function StatisticsPage() {
   const [gender, setGender] = useState<Gender>("men");
   const [cat, setCat] = useState<CategoryKey>("points");
 
-  const [pointsData, setPointsData] = useState<PointsStat[]>([]);
   const [genericData, setGenericData] = useState<GenericStat[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -54,61 +41,39 @@ export default function StatisticsPage() {
 
   const CATEGORY_IMG: Record<CategoryKey, string> = {
     points: "/icons/recive.png",
+    receive: "/icons/attack.png",
     block: "/icons/block.png",
     serve: "/icons/serve.png",
     set: "/icons/set.png",
     defense: "/icons/defense.png",
-    receive: "/icons/attack.png",
   };
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const url =
-          cat === "points" ? current.api : `${current.api}?gender=${gender}`;
+        // ✅ бүгд адилхан gender query-тэй
+        const url = `${current.api}?gender=${gender}`;
 
         const res = await fetch(url);
         const data: unknown = await res.json();
 
-        if (cat === "points") {
-          const safe = Array.isArray(data)
-            ? data.filter((x): x is PointsStat => {
-                if (!x || typeof x !== "object") return false;
-                const o = x as Record<string, unknown>;
-                return (
-                  typeof o._id === "string" &&
-                  isGender(o.gender) &&
-                  typeof o.playerName === "string" &&
-                  typeof o.teamCode === "string" &&
-                  typeof o.played === "number" &&
-                  typeof o.points === "number" &&
-                  typeof o.attackPts === "number" &&
-                  typeof o.blockPts === "number" &&
-                  typeof o.servePts === "number"
-                );
-              })
-            : [];
-          setPointsData(safe);
-          setGenericData([]);
-        } else {
-          const safe = Array.isArray(data)
-            ? data.filter((x): x is GenericStat => {
-                if (!x || typeof x !== "object") return false;
-                const o = x as Record<string, unknown>;
-                return (
-                  typeof o._id === "string" &&
-                  isGender(o.gender) &&
-                  typeof o.playerNumber === "number" &&
-                  typeof o.playerName === "string" &&
-                  typeof o.teamCode === "string" &&
-                  typeof o.score === "number"
-                );
-              })
-            : [];
-          setGenericData(safe);
-          setPointsData([]);
-        }
+        const safe = Array.isArray(data)
+          ? data.filter((x): x is GenericStat => {
+              if (!x || typeof x !== "object") return false;
+              const o = x as Record<string, unknown>;
+              return (
+                typeof o._id === "string" &&
+                isGender(o.gender) &&
+                typeof o.playerNumber === "number" &&
+                typeof o.playerName === "string" &&
+                typeof o.teamCode === "string" &&
+                typeof o.score === "number"
+              );
+            })
+          : [];
+
+        setGenericData(safe);
       } finally {
         setLoading(false);
       }
@@ -116,16 +81,6 @@ export default function StatisticsPage() {
 
     load();
   }, [cat, gender, current.api]);
-
-  const pointsFiltered = useMemo(() => {
-    return pointsData
-      .filter((p) => p.gender === gender)
-      .sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (b.attackPts !== a.attackPts) return b.attackPts - a.attackPts;
-        return a.played - b.played;
-      });
-  }, [pointsData, gender]);
 
   const genericFiltered = useMemo(() => {
     return genericData
@@ -214,57 +169,14 @@ export default function StatisticsPage() {
           <div className="max-w-md mx-auto bg-[#020617] border border-white/10 rounded-2xl p-6 text-center text-gray-400">
             Уншиж байна...
           </div>
-        ) : cat === "points" ? (
-          <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
-            {/* header */}
-            <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
-              <span>#</span>
-              <span>PLAYER</span>
-              <span>TEAM</span>
-              <span className="text-center">PTS</span>
-              <span className="text-center">A</span>
-              <span className="text-center">B</span>
-              <span className="text-center">S</span>
-            </div>
-
-            {pointsFiltered.length === 0 ? (
-              <div className="p-6 text-center text-gray-400">Мэдээлэл алга</div>
-            ) : (
-              pointsFiltered.map((p, i) => (
-                <div
-                  key={p._id}
-                  className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
-                >
-                  <span className="font-extrabold text-yellow-400">
-                    {i + 1}
-                  </span>
-
-                  <span className="truncate font-semibold">{p.playerName}</span>
-
-                  <span className="font-bold text-cyan-400">{p.teamCode}</span>
-
-                  <span className="text-center font-extrabold">{p.points}</span>
-                  <span className="text-center text-gray-200">
-                    {p.attackPts}
-                  </span>
-                  <span className="text-center text-gray-200">
-                    {p.blockPts}
-                  </span>
-                  <span className="text-center text-gray-200">
-                    {p.servePts}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
         ) : (
           <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
             {/* header */}
-            <div className="grid grid-cols-[0.6fr_1.6fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
+            <div className="grid grid-cols-[0.5fr_5fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
               <span>#</span>
-              <span>PLAYER</span>
-              <span>TEAM</span>
-              <span className="text-center">SCORE</span>
+              <span>Тоглогч</span>
+              <span>Баг</span>
+              <span className="text-center">Оноо</span>
             </div>
 
             {genericFiltered.length === 0 ? (
@@ -273,12 +185,14 @@ export default function StatisticsPage() {
               genericFiltered.map((p, i) => (
                 <div
                   key={p._id}
-                  className="grid grid-cols-[0.6fr_1.6fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
+                  className="grid grid-cols-[0.5fr_3fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
                 >
+                  {/* RANK */}
                   <span className="font-extrabold text-yellow-400">
                     {i + 1}
                   </span>
 
+                  {/* PLAYER */}
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-white/5 border border-white/10 shrink-0">
                       <Image
@@ -291,18 +205,21 @@ export default function StatisticsPage() {
                     </div>
 
                     <div className="min-w-0">
-                      <div className="truncate font-semibold">
+                      <div className="truncate font-semibold text-white">
                         {p.playerName}
-                      </div>
-                      <div className="text-xs text-gray-400 font-bold">
-                        #{p.playerNumber}
                       </div>
                     </div>
                   </div>
 
-                  <span className="font-bold text-cyan-400">{p.teamCode}</span>
+                  {/* TEAM */}
+                  <span className="font-bold text-cyan-400 text-right">
+                    {p.teamCode}
+                  </span>
 
-                  <span className="text-center font-extrabold">{p.score}</span>
+                  {/* SCORE */}
+                  <span className="text-right font-extrabold text-white">
+                    {p.score}
+                  </span>
                 </div>
               ))
             )}
@@ -310,11 +227,6 @@ export default function StatisticsPage() {
         )}
 
         {/* small footer */}
-        <div className="max-w-md mx-auto mt-4 text-center text-xs text-gray-500">
-          {cat === "points"
-            ? "A = Attack, B = Block, S = Serve"
-            : "Дараалал нь SCORE-оор буурна"}
-        </div>
       </div>
     </div>
   );
