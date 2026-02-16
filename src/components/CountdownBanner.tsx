@@ -121,15 +121,28 @@ export default function CountdownBanner({
       </div>
 
       {/* RIGHT countdown */}
-      {!timeLeft.isStarted && (
-        <div className="flex items-center gap-1.5 font-mono ">
-          <Mini value={pad2(timeLeft.hours)} />
-          <Colon />
-          <Mini value={pad2(timeLeft.minutes)} />
-          <Colon />
-          <Mini value={pad2(timeLeft.seconds)} />
-        </div>
-      )}
+{!timeLeft.isStarted && (
+  <div className="flex flex-col items-end gap-0.5 font-mono shrink-0">
+    
+    {/* numbers */}
+    <div className="flex items-center gap-1.5">
+      <Mini value={pad2(timeLeft.hours)} />
+      <Colon />
+      <Mini value={pad2(timeLeft.minutes)} />
+      <Colon />
+      <Mini value={pad2(timeLeft.seconds)} />
+    </div>
+
+    {/* labels */}
+    <div className="flex items-center gap-[30px] pr-[2px] text-[10px] text-white/50 font-semibold">
+      <span>цаг</span>
+      <span>мин</span>
+      <span>сек</span>
+    </div>
+
+  </div>
+)}
+
     </div>
   );
 }
