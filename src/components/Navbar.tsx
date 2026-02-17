@@ -93,7 +93,15 @@ export default function Navbar() {
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/10 max-w-40">
               <User2 className="w-4 h-4 opacity-80 shrink-0" />
               <span className="text-xs font-semibold truncate">{me.user}</span>
-              {me.isPro && <Gem className="w-4 h-4 text-purple-400 shrink-0" />}
+              {me.isPro && (
+  <Gem
+    className="w-4 h-4 text-purple-400 shrink-0 drop-shadow-lg"
+    style={{
+      filter: "drop-shadow(0 0 8px rgba(168,85,247,1)) drop-shadow(0 0 16px rgba(192,132,252,0.9)) drop-shadow(0 0 24px rgba(168,85,247,0.7))"
+    }}
+  />
+)}
+
             </div>
           ) : (
             <Link
