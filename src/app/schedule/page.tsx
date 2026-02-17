@@ -45,7 +45,6 @@ function getDateLabelMN(dateStr: string) {
   return `${y}-${pad2(m)}-${pad2(day)}`; // эсвэл `${y} оны ${m} сарын ${day}`
 }
 
-
 function getMonthLabel(dateStr: string) {
   const d = new Date(dateStr);
   return d.toLocaleDateString("mn-MN", { year: "numeric", month: "long" });
@@ -102,11 +101,10 @@ export default function SchedulePage() {
     [games, selectedDate],
   );
 
-const monthTitle = useMemo(() => {
-  if (!selectedDate) return "";
-  return getMonthLabelMN(selectedDate);
-}, [selectedDate]);
-
+  const monthTitle = useMemo(() => {
+    if (!selectedDate) return "";
+    return getMonthLabelMN(selectedDate);
+  }, [selectedDate]);
 
   const canPrev = page > 0;
   const canNext = page < totalPages - 1;
@@ -203,147 +201,146 @@ const monthTitle = useMemo(() => {
         )}
 
         {filteredGames.map((m) => {
-          const isFinished = !!m.finished;
-          const scoreA = m.score?.a ?? 0;
-          const scoreB = m.score?.b ?? 0;
-
           return (
             <Link
               key={m._id}
               href={`/games/${m._id}`}
               className="
-                block rounded-2xl p-3
-                bg-linear-to-b from-[#0b1220] to-black
-                border border-white/10
-                shadow-[0_10px_40px_rgba(0,0,0,0.6)]
-                hover:border-white/20 hover:-translate-y-0.5 transition
-              "
+    block 
+    bg-linear-to-b from-[#0b1220] to-black
+    text-white
+    border border-white/10
+    shadow-[0_10px_40px_rgba(0,0,0,0.6)]
+    hover:border-white/15 hover:-translate-y-0.5 transition
+    active:scale-[0.995]
+  "
             >
-              {/* TOP BAR: week + gender */}
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-extrabold text-cyan-300">
-                  {m.week && m.week.trim().length > 0 ? m.week : "Week"}
-                </div>
-                <div className="text-xs font-bold text-gray-300">
-                  {(m.gender ?? "men").toUpperCase()}
-                </div>
-              </div>
+              <div className="p-4">
+                {/* TOP LINE */}
+                {/* TOP LINE */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 w-full">
+                    {/* GENDER (left) + WEEK (right) */}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="px-2 py-0.5 text-[11px] font-extrabold rounded bg-white/10 text-gray-100 border border-white/10">
+                        {(() => {
+                          const g = (m.gender ?? "men").toLowerCase();
+                          return g === "women" ? "ЭМЭГТЭЙ" : "ЭРЭГТЭЙ";
+                        })()}
+                      </span>
 
-              {/* DESCRIPTION */}
-              {m.description && m.description.trim().length > 0 ? (
-                <div className="text-[11px] text-gray-400 mt-1">
-                  {m.description}
-                </div>
-              ) : null}
-
-              {/* MAIN */}
-              <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-                {/* TEAM A */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <Image
-                    src={m.teamA.logo}
-                    alt={m.teamA.name}
-                    width={44}
-                    height={44}
-                    className="rounded-xl border border-white/10 bg-black"
-                  />
-                  <div className="min-w-0">
-                    <div className="text-sm font-extrabold text-white truncate">
-                      {m.teamA.name}
+                      <span className="text-sm font-semibold text-gray-100 truncate">
+                        {m.week && m.week.trim().length > 0 ? m.week : "Week"}
+                      </span>
                     </div>
+
+                    {m.description ? (
+                      <div className="mt-1 text-xs text-gray-400 line-clamp-1">
+                        {m.description}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
-                {/* CENTER: VS or SCORE */}
-                <div className="flex flex-col items-center justify-center">
-                  {!isFinished ? (
-                    <div className="text-sm font-extrabold text-gray-200">
-                      VS
+                {/* MAIN GRID */}
+                <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+                  {/* LEFT: 2 TEAMS */}
+                  <div className="relative space-y-3 min-w-0 pr-14 ">
+                    {/* TIME on the right empty space (upcoming only) */}
+                    {!m.finished ? (
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-semibold text-gray-200 tabular-nums">
+                        {m.time}
+                      </div>
+                    ) : null}
+
+                    {/* Team A row */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Image
+                        src={m.teamA.logo}
+                        alt={m.teamA.name}
+                        width={34}
+                        height={24}
+                        className="rounded border border-white/10 object-cover bg-black"
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-gray-100 truncate">
+                          {m.teamA.name}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Team B row */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Image
+                        src={m.teamB.logo}
+                        alt={m.teamB.name}
+                        width={34}
+                        height={24}
+                        className="rounded border border-white/10 object-cover bg-black"
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-gray-300 truncate">
+                          {m.teamB.name}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT: SETS first, SCORE after (finished only) */}
+                  {m.finished ? (
+                    <div className="shrink-0 flex items-center gap-3">
+                      {/* sets row (left) */}
+                      {(m.sets?.length ?? 0) > 0 ? (
+                        <div className="pt-1">
+                          {/* set A points */}
+                          <div className="flex justify-end gap-2 text-[12px] tabular-nums font-semibold text-gray-100">
+                            {m.sets!.map((s, i) => {
+                              const norm = String(s)
+                                .replace(":", "-")
+                                .replace("–", "-");
+                              const [aStr] = norm
+                                .split("-")
+                                .map((x) => x?.trim());
+                              return <span key={i}>{aStr}</span>;
+                            })}
+                          </div>
+
+                          {/* set B points */}
+                          <div className="mt-3 flex justify-end gap-2 text-[12px] tabular-nums font-semibold text-gray-400">
+                            {m.sets!.map((s, i) => {
+                              const norm = String(s)
+                                .replace(":", "-")
+                                .replace("–", "-");
+                              const [, bStr] = norm
+                                .split("-")
+                                .map((x) => x?.trim());
+                              return <span key={i}>{bStr}</span>;
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pt-1 text-sm text-gray-500"> </div>
+                      )}
+
+                      {/* big score column (right) */}
+                      <div className="text-right">
+                        <div className="text-3xl font-extrabold leading-none tabular-nums text-gray-100">
+                          {m.score?.a ?? 0}
+                        </div>
+                        <div className="mt-3 text-3xl font-extrabold leading-none tabular-nums text-gray-500">
+                          {m.score?.b ?? 0}
+                        </div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="text-3xl font-extrabold text-white tracking-wider ">
-                      {scoreA} <span className="text-gray-500">-</span> {scoreB}
+                    // UPCOMING: no sets/score (like screenshot)
+                    <div className="shrink-0 text-right">
+                      {/* (optional) if you still want date under time, uncomment */}
+                      {/* <div className="text-xs text-gray-400 tabular-nums">{m.date}</div> */}
                     </div>
                   )}
                 </div>
-
-                {/* TEAM B */}
-                <div className="flex items-center gap-2 justify-end min-w-0">
-                  <div className="min-w-0 text-right">
-                    <div className="text-sm font-extrabold text-white truncate">
-                      {m.teamB.name}
-                    </div>
-                  </div>
-                  <Image
-                    src={m.teamB.logo}
-                    alt={m.teamB.name}
-                    width={44}
-                    height={44}
-                    className="rounded-xl border border-white/10 bg-black"
-                  />
-                </div>
               </div>
-
-              {/* NOT FINISHED: date/time */}
-              {!isFinished ? (
-                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-300">
-                  <span>📅 {m.date}</span>
-                  <span className="text-gray-600">—</span>
-                  <span>⏰ {m.time}</span>
-                </div>
-              ) : null}
-
-              {/* FINISHED: sets */}
-              {/* FINISHED: sets */}
-              {isFinished && (m.sets?.length ?? 0) > 0 ? (
-                <div className="mt-3 flex justify-center">
-                  <div className="flex gap-1">
-                    {m.sets!.map((s, idx) => {
-                      const norm = s.replace(":", "-").replace("–", "-");
-                      const [aStr, bStr] = norm
-                        .split("-")
-                        .map((x) => x?.trim());
-                      const a = Number(aStr);
-                      const b = Number(bStr);
-
-                      const aWin =
-                        Number.isFinite(a) && Number.isFinite(b)
-                          ? a > b
-                          : false;
-                      const bWin =
-                        Number.isFinite(a) && Number.isFinite(b)
-                          ? b > a
-                          : false;
-
-                      return (
-                        <div
-                          key={idx}
-                          className="
-              flex items-center gap-1
-              px-2.5 py-1 rounded-lg
-              bg-black/40 border border-white/10
-              text-xs font-bold
-            "
-                        >
-                          <span
-                            className={aWin ? "text-white" : "text-gray-400"}
-                          >
-                            {aStr}
-                          </span>
-
-                          <span className="text-gray-500">–</span>
-
-                          <span
-                            className={bWin ? "text-white" : "text-gray-400"}
-                          >
-                            {bStr}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
             </Link>
           );
         })}

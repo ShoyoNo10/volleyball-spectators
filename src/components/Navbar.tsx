@@ -93,13 +93,33 @@ export default function Navbar() {
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/10 max-w-40">
               <User2 className="w-4 h-4 opacity-80 shrink-0" />
               <span className="text-xs font-semibold truncate">{me.user}</span>
-              {me.isPro && (
-  <Gem
-    className="w-4 h-4 text-purple-400 shrink-0 drop-shadow-lg"
-    style={{
-      filter: "drop-shadow(0 0 8px rgba(168,85,247,1)) drop-shadow(0 0 16px rgba(192,132,252,0.9)) drop-shadow(0 0 24px rgba(168,85,247,0.7))"
-    }}
-  />
+{me.isPro && (
+  <>
+    {/* gradient defs */}
+    <svg width="0" height="0" className="absolute">
+      <defs>
+        <linearGradient id="proGem" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#e9d5ff" />
+          <stop offset="40%" stopColor="#c084fc" />
+          <stop offset="70%" stopColor="#a855f7" />
+          <stop offset="100%" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <Gem
+      className="w-4 h-4 shrink-0"
+      stroke="url(#proGem)"
+      style={{
+        filter: `
+          drop-shadow(0 0 6px rgba(168,85,247,0.9))
+          drop-shadow(0 0 12px rgba(192,132,252,0.9))
+          drop-shadow(0 0 22px rgba(168,85,247,0.8))
+          drop-shadow(0 0 38px rgba(147,51,234,0.7))
+        `,
+      }}
+    />
+  </>
 )}
 
             </div>
