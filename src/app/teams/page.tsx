@@ -26,7 +26,7 @@ export default function TeamsPage() {
   const filtered = teams.filter((t) => t.gender === gender);
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
+    <div className="p-4 max-w-6xl mx-auto mb-15">
       {/* GENDER TOGGLE */}
       <div className="flex justify-center gap-3 mb-6">
         <button

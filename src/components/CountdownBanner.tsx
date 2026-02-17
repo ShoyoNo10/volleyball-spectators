@@ -55,7 +55,7 @@ const formatRangeMN = (
 
   const sm = s.getMonth() + 1;
   const sd = s.getDate();
-  return `${sm} сарын ${sd}-нд`;
+  return `${sm} сарын ${sd}-нд эхэлнэ`;
 };
 
 function Mini({ value }: { value: string }) {
@@ -106,9 +106,7 @@ export default function CountdownBanner({
         <img src={logoSrc} alt={logoAlt} className="w-6 h-6 object-contain" />
 
         <div className="min-w-0 leading-tight">
-   <div className="text-white text-sm font-semibold whitespace-normal line-clamp-2">
-
-
+          <div className="text-white text-sm font-semibold whitespace-normal line-clamp-2">
             Үндэстнүүдийн лиг эхлэхэд
             <span className="text-lime-400 font-extrabold ml-1">
               {timeLeft.days}
@@ -121,28 +119,25 @@ export default function CountdownBanner({
       </div>
 
       {/* RIGHT countdown */}
-{!timeLeft.isStarted && (
-  <div className="flex flex-col items-end gap-0.5 font-mono shrink-0">
-    
-    {/* numbers */}
-    <div className="flex items-center gap-1.5">
-      <Mini value={pad2(timeLeft.hours)} />
-      <Colon />
-      <Mini value={pad2(timeLeft.minutes)} />
-      <Colon />
-      <Mini value={pad2(timeLeft.seconds)} />
-    </div>
+      {!timeLeft.isStarted && (
+        <div className="flex flex-col items-end gap-0.5 font-mono shrink-0">
+          {/* numbers */}
+          <div className="flex items-center gap-1.5">
+            <Mini value={pad2(timeLeft.hours)} />
+            <Colon />
+            <Mini value={pad2(timeLeft.minutes)} />
+            <Colon />
+            <Mini value={pad2(timeLeft.seconds)} />
+          </div>
 
-    {/* labels */}
-    <div className="flex items-center gap-[30px] pr-[2px] text-[10px] text-white/50 font-semibold">
-      <span>цаг</span>
-      <span>мин</span>
-      <span>сек</span>
-    </div>
-
-  </div>
-)}
-
+          {/* labels */}
+          <div className="flex items-center gap-[30px] pr-[2px] text-[10px] text-white/50 font-semibold">
+            <span>цаг</span>
+            <span>мин</span>
+            <span>сек</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

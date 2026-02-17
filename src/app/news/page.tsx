@@ -101,7 +101,6 @@ export default function NewsPage() {
           grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
           gap-4 md:gap-6 pb-16
           lg:max-w-7xl lg:mx-auto
-
           items-start
         "
       >

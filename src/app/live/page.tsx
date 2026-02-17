@@ -112,7 +112,7 @@ export default function LivePage() {
   }, [selectedCompetition]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8">
+    <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8 mb-15">
       <div className="w-full max-w-md">
         {!isPro && !loadingAccess && (
           <div className="mb-6">
@@ -339,8 +339,6 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
   const isUpcoming = match.status === "upcoming";
   const isFinished = match.status === "finished";
 
-
-
   const handleClick = () => {
     if (!isPro) {
       setPopup(true);
@@ -475,115 +473,90 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
           </div>
         </div>
       )}
-{playerOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-    {/* backdrop */}
-    <div
-      className="absolute inset-0 bg-black/75 backdrop-blur-md"
-      onClick={() => {
-        setPlayerOpen(false);
-        setPlayerUrl("");
-      }}
-    />
+      {playerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* backdrop (CLICK хийхэд хаагдахгүй) */}
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
 
-    {/* modal */}
-    <div className="relative w-full max-w-3xl">
-      {/* neon frame */}
-      <div className="absolute -inset-1 rounded-[28px] bg-linear-to-r from-fuchsia-500 via-cyan-400 to-violet-500 blur opacity-60 animate-pulseGlow" />
+          {/* modal */}
+          <div
+            className="relative w-full max-w-3xl border border-purple-400 rounded-[28px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div />
 
-      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#050812] shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-        {/* top bar */}
-        <div className="relative px-4 py-3 border-b border-white/10 bg-linear-to-r from-white/5 via-white/0 to-white/5">
-          {/* subtle shine */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.10),transparent_60%)]" />
+            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#050812] shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+              {/* top bar */}
+              <div className="relative px-4 py-3 border-b border-white/10 bg-linear-to-r from-white/5 via-white/0 to-white/5">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.10),transparent_60%)]" />
 
-          <div className="relative flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.25em] text-cyan-300/80 font-bold">
-                Live Player
+                <div className="relative flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-[0.25em] text-cyan-300/80 font-bold">
+                      Volley live
+                    </div>
+                    <div className="text-sm font-extrabold text-white truncate">
+                      {match.teamA} <span className="text-gray-400">vs</span>{" "}
+                      {match.teamB}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setPlayerOpen(false);
+                      setPlayerUrl("");
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-[11px] font-bold
+                bg-red-600/90 text-white
+                hover:bg-red-500 active:scale-95 transition"
+                  >
+                    Хаах
+                  </button>
+                </div>
               </div>
-              <div className="text-sm font-extrabold text-white truncate">
-                {match.teamA} <span className="text-gray-400">vs</span>{" "}
-                {match.teamB}
+
+              {/* player area */}
+              <div className="p-3 sm:p-4">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10">
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_55%)]" />
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.18),transparent_55%)]" />
+
+                  <iframe
+                    src={playerUrl}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                    title="Live Player"
+                  />
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                        match.status === "live"
+                          ? "border-red-500/40 text-red-300 bg-red-500/10"
+                          : "border-yellow-500/40 text-yellow-200 bg-yellow-500/10"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs ${
+                          match.status === "live" ? "live-blink" : ""
+                        }`}
+                      >
+                        ●
+                      </span>
+                      {match.status === "live" ? "LIVE" : "UPCOMING"}
+                    </span>
+                  </div>
+
+                  <div className="font-mono text-gray-300/80">{match.time}</div>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {/* open in new tab */}
-              <button
-                onClick={() => window.open(match.liveUrl, "_blank")}
-                className="px-3 py-1.5 rounded-xl text-[11px] font-bold
-                           bg-white/5 text-gray-200 border border-white/10
-                           hover:bg-white/10 active:scale-95 transition"
-              >
-                New tab
-              </button>
-
-              {/* close */}
-              <button
-                onClick={() => {
-                  setPlayerOpen(false);
-                  setPlayerUrl("");
-                }}
-                className="px-3 py-1.5 rounded-xl text-[11px] font-bold
-                           bg-red-600/90 text-white
-                           hover:bg-red-500 active:scale-95 transition"
-              >
-                Хаах
-              </button>
             </div>
           </div>
         </div>
-
-        {/* player area */}
-        <div className="p-3 sm:p-4">
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10">
-            {/* corner glow */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_55%)]" />
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.18),transparent_55%)]" />
-
-            <iframe
-              src={playerUrl}
-              className="absolute inset-0 w-full h-full"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-              title="Live Player"
-            />
-          </div>
-
-          {/* footer info */}
-          <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400">
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
-                  match.status === "live"
-                    ? "border-red-500/40 text-red-300 bg-red-500/10"
-                    : "border-yellow-500/40 text-yellow-200 bg-yellow-500/10"
-                }`}
-              >
-                <span
-                  className={`text-xs ${
-                    match.status === "live" ? "live-blink" : ""
-                  }`}
-                >
-                  ●
-                </span>
-                {match.status === "live" ? "LIVE" : "UPCOMING"}
-              </span>
-
-              <span className="hidden sm:inline">
-                Хэрэв тоглохгүй байвал “New tab” дээр дар.
-              </span>
-            </div>
-
-            <div className="font-mono text-gray-300/80">{match.time}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </>
   );
 }
