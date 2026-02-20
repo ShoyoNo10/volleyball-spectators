@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -8,9 +8,14 @@ export default function SignupPage() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false); // ⭐ NEW
+  const [success, setSuccess] = useState(false);
+
+  // ⭐ popup state
+  const [showWarn, setShowWarn] = useState(false);
+  const [confirmedWarn, setConfirmedWarn] = useState(false);
 
   const validatePassword = (pass: string) => {
     if (pass.length < 8) return "Нууц үг 8+ тэмдэгт байх ёстой";
@@ -21,8 +26,17 @@ export default function SignupPage() {
     return "";
   };
 
-  const signup = async () => {
+  const doSignup = async () => {
     setError("");
+
+    if (!username.trim()) {
+      setError("Username оруулна уу");
+      return;
+    }
+    if (!password) {
+      setError("Нууц үг оруулна уу");
+      return;
+    }
 
     const passError = validatePassword(password);
     if (passError) {
@@ -38,15 +52,14 @@ export default function SignupPage() {
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Алдаа гарлаа");
+      setError((data as any)?.error || "Алдаа гарлаа");
       return;
     }
 
-    // ⭐ SUCCESS MODE
     setSuccess(true);
 
     setTimeout(() => {
@@ -54,31 +67,50 @@ export default function SignupPage() {
     }, 1500);
   };
 
+  const signup = async () => {
+    // ⭐ эхний удаа анхааруулга popup харуулна
+    if (!confirmedWarn) {
+      setShowWarn(true);
+      return;
+    }
+    await doSignup();
+  };
+
+  // ⭐ popup нээлттэй үед ESC дарвал хаах
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showWarn) setShowWarn(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showWarn]);
+
   return (
     <div className="flex items-center justify-center min-h-[calc(80vh-100px)] bg-gradient-to-b from-[#020617] via-[#020617] to-black text-white">
       <div className="relative w-[340px]">
-
         {/* glow */}
-        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 blur opacity-50" />
+        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 via-purple-600 to-purple-600 blur opacity-50" />
 
         <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6">
-
           {!success ? (
             <>
-              <h1 className="text-center text-xl font-bold mb-5">
+              <h1 className="text-center text-xl font-extrabold mb-5">
                 Бүртгэл үүсгэх
               </h1>
 
               <input
-                placeholder="Username"
+                placeholder="Нэвтрэх нэр"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setError("");
+                }}
                 className="w-full mb-3 p-3 rounded-xl bg-[#121726] border border-white/10 focus:border-cyan-400 outline-none"
               />
 
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Нууц үг"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -103,14 +135,15 @@ export default function SignupPage() {
 
               <button
                 onClick={signup}
-                className="w-full py-3 mt-4 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 transition"
+                disabled={loading}
+                className="w-full py-3 mt-4 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 transition disabled:opacity-60 disabled:hover:bg-purple-600"
               >
                 {loading ? "..." : "Бүртгүүлэх"}
               </button>
 
               <div
                 onClick={() => router.push("/login")}
-                className="text-center mt-4 text-xs text-cyan-400 cursor-pointer"
+                className="text-center mt-4 text-xs text-white cursor-pointer"
               >
                 Нэвтрэх
               </div>
@@ -129,9 +162,56 @@ export default function SignupPage() {
               </div>
             </div>
           )}
-
         </div>
       </div>
+
+      {/* ⭐ WARNING POPUP */}
+      {showWarn && !success && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowWarn(false)}
+          />
+
+          {/* modal */}
+          <div className="relative w-full max-w-[420px]">
+            {/* neon glow frame */}
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-red-600 blur opacity-60" />
+
+            <div className="relative rounded-3xl border border-white/10 bg-[#050812] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+              <div className="text-lg font-bold mb-2">Анхааруулга</div>
+
+              <div className="text-sm text-gray-300 leading-relaxed">
+                ⚠️ Нэвтрэх нэр болон нууц үгээ мартсан тохиолдолд сэргээх
+                боломжгүй. Иймд мартахгүй нууц үг сонгох эсвэл мэдээллээ хадгалж
+                авна уу.
+              </div>
+
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => setShowWarn(false)}
+                  className="flex py-2.5 px-1 rounded-xl border border-white/15 text-gray-200 hover:bg-white/5 transition"
+                >
+                  Буцах
+                </button>
+
+                <button
+                  onClick={() => {
+                    setConfirmedWarn(true);
+                    setShowWarn(false);
+                    // ⭐ зөвшөөрсөн тул яг одоо signup үргэлжлүүлнэ
+                    doSignup();
+                  }}
+                  className="flex py-2.5 px-1 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 transition"
+                >
+                  Ойлголоо, үргэлжлүүлэх
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

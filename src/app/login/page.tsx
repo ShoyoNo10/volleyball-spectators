@@ -46,15 +46,15 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[calc(80vh-120px)] bg-gradient-to-b from-[#020617] via-[#020617] to-black text-white">
       <div className="relative w-[340px]">
         {/* glow */}
-        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 blur opacity-50" />
+        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-cyan-500 to-cyan-500 blur opacity-50" />
 
         <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6">
           {!success ? (
             <>
-              <h1 className="text-center text-xl font-bold mb-5">Нэвтрэх</h1>
+              <h1 className="text-center text-xl font-extrabold mb-5">Нэвтрэх</h1>
 
               <input
-                placeholder="Username"
+                placeholder="Нэвтрэх нэр"
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value);
@@ -65,7 +65,7 @@ export default function LoginPage() {
 
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Нууц үг"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
               <div
                 onClick={() => router.push("/signup")}
-                className="text-center mt-4 text-xs text-cyan-400 cursor-pointer"
+                className="text-center mt-4 text-xs text-white cursor-pointer"
               >
                 Бүртгэл үүсгэх
               </div>

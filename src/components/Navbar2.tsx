@@ -51,7 +51,7 @@ export default function Navbar2() {
               <Link
                 key={item.href}
                 href={item.href}
-      className={`
+                className={`
     text-center
     px-1.5
     py-1.5
@@ -61,21 +61,23 @@ export default function Navbar2() {
     font-medium
     transition
     truncate
-    ${
-      active
-        ? `
-            text-white
-            bg-linear-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
-            border border-white/20
-            shadow-[0_0_18px_rgba(80,120,255,0.25)]
-          `
-        : `
-            text-gray-300
-            bg-transparent
-            border-transparent
-            hover:text-white
-          `
-    }
+${
+  active
+    ? `
+        text-white
+        bg-linear-to-r from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a]
+        border border-white/20
+        shadow-[0_0_14px_rgba(255,255,255,0.08)]
+        backdrop-blur-md
+      `
+    : `
+        text-gray-400
+        bg-transparent
+        border-transparent
+        hover:text-white
+        hover:bg-white/5
+      `
+}
   `}
                 title={item.label}
               >

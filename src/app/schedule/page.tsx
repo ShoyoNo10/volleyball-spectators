@@ -144,20 +144,24 @@ export default function SchedulePage() {
                   onClick={() => setSelectedDate(d.date)}
                   className={`
                     flex-1 px-1 py-1.5 rounded-lg text-center transition
-                    ${
-                      isSelected
-                        ? `
-                          text-white
-                          bg-linear-to-r from-[#1e2a4a] via-[#2b3f74] to-[#3b4f9a]
-                          border border-white/20
-                          shadow-[0_0_18px_rgba(80,120,255,0.25)]
-                        `
-                        : `
-                          bg-gray-900 text-gray-400
-                          border border-white/10
-                          hover:bg-gray-800 hover:text-white hover:border-white/20
-                        `
-                    }
+                   ${
+                     isSelected
+                       ? `
+        text-white
+        bg-linear-to-r from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a]
+        border border-white/20
+        shadow-[0_0_14px_rgba(255,255,255,0.08)]
+        backdrop-blur-md
+      `
+                       : `
+        bg-gray-900
+        text-gray-400
+        border border-white/10
+        hover:bg-gray-800
+        hover:text-white
+        hover:border-white/20
+      `
+                   }
                   `}
                 >
                   <div className="text-[12px] font-bold leading-none">
