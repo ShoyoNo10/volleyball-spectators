@@ -144,16 +144,15 @@ export default function SchedulePage() {
                   onClick={() => setSelectedDate(d.date)}
                   className={`
                     flex-1 px-1 py-1.5 rounded-lg text-center transition
-                   ${
-                     isSelected
-                       ? `
+                    ${
+  isSelected
+    ? `
         text-white
-        bg-linear-to-r from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a]
-        border border-white/20
-        shadow-[0_0_14px_rgba(255,255,255,0.08)]
-        backdrop-blur-md
+        bg-linear-to-r from-[#1b3a6b] via-[#2563eb] to-[#3b82f6]
+        border border-blue-300/40
+        shadow-[0_0_20px_rgba(59,130,246,0.35)]
       `
-                       : `
+    : `
         bg-gray-900
         text-gray-400
         border border-white/10
@@ -161,7 +160,7 @@ export default function SchedulePage() {
         hover:text-white
         hover:border-white/20
       `
-                   }
+}
                   `}
                 >
                   <div className="text-[12px] font-bold leading-none">
@@ -230,11 +229,11 @@ export default function SchedulePage() {
                       </span>
                     </div>
 
-                    {/* {m.description ? (
+                    {m.description ? (
                       <div className="mt-1 text-xs font-bold text-gray-400 line-clamp-1">
                         {m.description}
                       </div>
-                    ) : null} */}
+                    ) : null}
                   </div>
                 </div>
 
