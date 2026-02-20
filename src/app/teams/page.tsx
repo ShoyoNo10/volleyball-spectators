@@ -83,7 +83,9 @@ export default function TeamsPage() {
         {filtered.map((t) => (
           <div
             key={t._id}
-            onClick={() => router.push(`/teams/${t._id}`)}
+            onClick={() =>
+              router.push(`/teams/${t._id}?name=${encodeURIComponent(t.name)}`)
+            }
             className="
               group
               cursor-pointer

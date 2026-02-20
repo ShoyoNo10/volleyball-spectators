@@ -40,7 +40,7 @@ export default function StatisticsPage() {
   const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
   const CATEGORY_IMG: Record<CategoryKey, string> = {
-    points: "/icons/recive.png",
+    points: "/icons/ptslogo.png",
     receive: "/icons/attack.png",
     block: "/icons/block.png",
     serve: "/icons/serve.png",

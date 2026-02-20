@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 /* ================= TYPES ================= */
 
@@ -57,14 +57,15 @@ interface TeamSchedule {
 
 export default function TeamPage() {
   const params = useParams();
-
+  const sp = useSearchParams();
+  const teamNameFromQuery = sp.get("name");
   const teamIdRaw = params?.teamId;
   const teamId =
     typeof teamIdRaw === "string"
       ? teamIdRaw
       : Array.isArray(teamIdRaw)
-      ? teamIdRaw[0]
-      : null;
+        ? teamIdRaw[0]
+        : null;
 
   const [tab, setTab] = useState<"players" | "success" | "schedule">("players");
 
@@ -74,6 +75,12 @@ export default function TeamPage() {
 
   const [loadingPlayers, setLoadingPlayers] = useState<boolean>(false);
   const [loadingTab, setLoadingTab] = useState<boolean>(false);
+
+  const tabs = [
+  { key: "players", label: "Тоглогчид" },
+  { key: "success", label: "Амжилт" },
+  { key: "schedule", label: "Хуваарь" },
+] as const;
 
   /* ================= LOAD PLAYERS ================= */
 
@@ -168,28 +175,28 @@ export default function TeamPage() {
       <div className="max-w-3xl mx-auto">
         {/* HEADER */}
         <h1 className="text-2xl font-bold mb-4 text-white tracking-wide">
-          Team
+          {teamNameFromQuery || "Team"}
         </h1>
 
         {/* TABS */}
-        <div className="flex gap-2 mb-6">
-          {(["players", "success", "schedule"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`
-                flex-1 py-2 rounded-xl text-xs font-bold tracking-widest transition
-                ${
-                  tab === t
-                    ? "bg-red-600 text-white shadow"
-                    : "bg-gray-900 text-gray-400 hover:text-white"
-                }
-              `}
-            >
-              {t.toUpperCase()}
-            </button>
-          ))}
-        </div>
+<div className="flex gap-2 mb-6">
+  {tabs.map((t) => (
+    <button
+      key={t.key}
+      onClick={() => setTab(t.key)}
+      className={`
+        flex-1 py-2 rounded-xl text-xs font-bold tracking-widest transition
+        ${
+          tab === t.key
+            ? "bg-red-600 text-white shadow"
+            : "bg-gray-900 text-gray-400 hover:text-white"
+        }
+      `}
+    >
+      {t.label}
+    </button>
+  ))}
+</div>
 
         {/* ================= PLAYERS ================= */}
         {tab === "players" && (
@@ -214,10 +221,10 @@ export default function TeamPage() {
                         No.
                       </th>
                       <th className="p-2 text-left text-[10px] text-gray-400">
-                        Player
+                        Тоглогч
                       </th>
                       <th className="p-2 text-left text-[10px] text-gray-400">
-                        Position
+                        Байрлал
                       </th>
                     </tr>
                   </thead>
@@ -260,7 +267,9 @@ export default function TeamPage() {
         {tab === "success" && (
           <div className="space-y-4">
             {loadingTab && (
-              <div className="text-gray-500 text-center">Loading success...</div>
+              <div className="text-gray-500 text-center">
+                Loading success...
+              </div>
             )}
 
             {!loadingTab &&
