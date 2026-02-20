@@ -49,8 +49,10 @@ export default function LivePage() {
 
   const [isPro, setIsPro] = useState<boolean>(false);
   const [proPopup, setProPopup] = useState(false);
-  const [playerOpen, setPlayerOpen] = useState(false);
-  const [playerUrl, setPlayerUrl] = useState("");
+
+  const [replayOpen, setReplayOpen] = useState(false);
+  const [replayUrl, setReplayUrl] = useState("");
+  const [replayTitle, setReplayTitle] = useState("");
 
   const [loadingAccess, setLoadingAccess] = useState(true);
 
@@ -112,15 +114,30 @@ export default function LivePage() {
       .then((data: ReplayVideo[]) => setVideos(data));
   }, [selectedCompetition]);
 
-  const openReplay = (url: string) => {
-    if (loadingAccess) return; // хүсвэл loading үед дарж болохгүй болгоно
+  // const openReplay = (url: string) => {
+  //   if (loadingAccess) return; // хүсвэл loading үед дарж болохгүй болгоно
+
+  //   if (!isPro) {
+  //     setProPopup(true);
+  //     return;
+  //   }
+
+  //   window.open(url, "_blank");
+  // };
+
+  const openReplay = (url: string, title: string) => {
+    if (loadingAccess) return;
 
     if (!isPro) {
       setProPopup(true);
       return;
     }
 
-    window.open(url, "_blank");
+    if (!url) return;
+
+    setReplayTitle(title);
+    setReplayUrl(url);
+    setReplayOpen(true);
   };
 
   return (
@@ -253,28 +270,28 @@ export default function LivePage() {
                     >
                       ← Буцах
                     </button>
-<div className="grid grid-cols-2 gap-3">
-  {videos.map((v) => (
-    <div
-      key={v._id}
-      onClick={() => openReplay(v.videoUrl)}
-      className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.03] border border-white/10"
-    >
-      {/* ✅ 16:9 thumbnail area */}
-      <div className="relative w-full aspect-video bg-black">
-        <img
-          src={v.thumbnail}
-          alt={v.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {videos.map((v) => (
+                        <div
+                          key={v._id}
+                          onClick={() => openReplay(v.videoUrl, v.title)}
+                          className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.03] border border-white/10"
+                        >
+                          {/* ✅ 16:9 thumbnail area */}
+                          <div className="relative w-full aspect-video bg-black">
+                            <img
+                              src={v.thumbnail}
+                              alt={v.title}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                          </div>
 
-      <div className="p-2 text-xs font-semibold line-clamp-2">
-        {v.title}
-      </div>
-    </div>
-  ))}
-</div>
+                          <div className="p-2 text-xs font-semibold line-clamp-2">
+                            {v.title}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </>
                 )}
               </div>
@@ -326,6 +343,69 @@ export default function LivePage() {
               >
                 Хаах
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {replayOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* backdrop */}
+          <div
+            className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            onClick={() => {
+              setReplayOpen(false);
+              setReplayUrl("");
+              setReplayTitle("");
+            }}
+          />
+
+          {/* modal */}
+          <div className="relative w-full max-w-3xl border border-cyan-400 rounded-[28px]">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#050812] shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+              {/* top bar */}
+              <div className="relative px-4 py-3 border-b border-white/10 bg-linear-to-r from-white/5 via-white/0 to-white/5">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.10),transparent_60%)]" />
+
+                <div className="relative flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-[0.25em] text-cyan-300/80 font-bold">
+                      Нөхөж үзэх
+                    </div>
+                    <div className="text-sm font-extrabold text-white truncate">
+                      {replayTitle || "Нөхөж үзэх"}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setReplayOpen(false);
+                      setReplayUrl("");
+                      setReplayTitle("");
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-[11px] font-bold
+                bg-red-600/90 text-white
+                hover:bg-red-500 active:scale-95 transition"
+                  >
+                    Хаах
+                  </button>
+                </div>
+              </div>
+
+              {/* player area */}
+              <div className="p-3 sm:p-4">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10">
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_55%)]" />
+                  <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.18),transparent_55%)]" />
+
+                  <iframe
+                    src={replayUrl}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                    title="Replay Player"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -486,7 +566,7 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
 
           {/* modal */}
           <div
-            className="relative w-full max-w-3xl border border-purple-400 rounded-[28px]"
+            className="relative w-full max-w-3xl border border-black rounded-[28px]"
             onClick={(e) => e.stopPropagation()}
           >
             <div />
