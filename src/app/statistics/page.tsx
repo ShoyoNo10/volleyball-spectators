@@ -19,7 +19,7 @@ type CategoryKey = "points" | "block" | "serve" | "set" | "defense" | "receive";
 
 const CATEGORIES: { key: CategoryKey; label: string; api: string }[] = [
   { key: "points", label: "ОНОО", api: "/api/statistics" },
-  { key: "receive", label: "Довтолгоо", api: "/api/stats-receive" },
+  { key: "receive", label: "ДОВТОЛГОО", api: "/api/stats-receive" },
   { key: "block", label: "ХААЛТ", api: "/api/stats-block" },
   { key: "serve", label: "ДАВУУЛАЛТ", api: "/api/stats-serve" },
   { key: "set", label: "ХОЛБОЛТ", api: "/api/stats-set" },

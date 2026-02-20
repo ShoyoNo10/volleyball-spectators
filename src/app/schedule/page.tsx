@@ -82,18 +82,18 @@ export default function SchedulePage() {
   }, [games]);
 
   const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(days.length / 7));
+    return Math.max(1, Math.ceil(days.length / 4));
   }, [days.length]);
 
   useEffect(() => {
     if (!selectedDate || days.length === 0) return;
     const idx = days.findIndex((d) => d.date === selectedDate);
-    if (idx >= 0) setPage(Math.floor(idx / 5));
+    if (idx >= 0) setPage(Math.floor(idx / 4));
   }, [selectedDate, days]);
 
   const pageDays = useMemo(() => {
-    const start = page * 5;
-    return days.slice(start, start + 5);
+    const start = page * 4;
+    return days.slice(start, start + 4);
   }, [days, page]);
 
   const filteredGames = useMemo(

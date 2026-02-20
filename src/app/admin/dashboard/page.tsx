@@ -55,6 +55,18 @@ export default function Dashboard() {
         >
           Manage Live Link
         </Link>
+                <Link
+          href="/admin/competitions"
+          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage competition
+        </Link>
+        <Link
+          href="/admin/replay"
+          className="bg-white p-6 rounded-xl shadow hover:scale-105 transition"
+        >
+          Manage replay Link
+        </Link>
 
         <Link
           href="/admin/schedule"
@@ -86,25 +98,25 @@ export default function Dashboard() {
         >
           Manage block stats
         </Link>
-                <Link
+        <Link
           href="/admin/stats-serve"
           className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage serve stats
         </Link>
-                <Link
+        <Link
           href="/admin/stats-set"
           className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage set stats
         </Link>
-                <Link
+        <Link
           href="/admin/stats-defense"
           className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
           Manage defense stats
         </Link>
-                <Link
+        <Link
           href="/admin/stats-receive"
           className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >

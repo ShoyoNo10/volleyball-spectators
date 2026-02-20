@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getDeviceId } from "@/src/lib/device";
+import { Play } from "lucide-react";
 
 /* ================= TYPES ================= */
 
@@ -111,6 +112,17 @@ export default function LivePage() {
       .then((data: ReplayVideo[]) => setVideos(data));
   }, [selectedCompetition]);
 
+  const openReplay = (url: string) => {
+    if (loadingAccess) return; // хүсвэл loading үед дарж болохгүй болгоно
+
+    if (!isPro) {
+      setProPopup(true);
+      return;
+    }
+
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-b from-[#020617] via-[#020617] to-black flex items-start justify-center p-4 pt-8 mb-15">
       <div className="w-full max-w-md">
@@ -160,10 +172,6 @@ export default function LivePage() {
 
               <button
                 onClick={() => {
-                  if (!isPro && !loadingAccess) {
-                    setProPopup(true);
-                    return;
-                  }
                   setTab("replay");
                 }}
                 className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wider transition ${
@@ -172,13 +180,13 @@ export default function LivePage() {
                     : "bg-[#121726] text-gray-400 hover:text-white"
                 }`}
               >
-                Нөхөж үзэх
+                <Play className="inline mr-1" size={12} /> Нөхөж үзэх
               </button>
             </div>
 
             {/* HEADER */}
             {tab === "live" && (
-              <div className="text-center font-bold text-sm tracking-wide mb-3 text-blue-400">
+              <div className="text-center font-bold text-sm tracking-wide mb-3 text-white">
                 {todayLabel || " "} өдрийн тоглолтууд
               </div>
             )}
@@ -208,70 +216,68 @@ export default function LivePage() {
 
             {/* REPLAY */}
             {tab === "replay" && (
-              <>
-                {!isPro ? (
-                  <div className="text-center text-sm text-gray-400 py-8">
-                    Нөхөж үзэхийн тулд Pro эрх шаардлагатай
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {/* existing replay UI чинь эндээ хэвээр */}
-                    {!selectedCompetition && (
-                      <div className="grid grid-cols-2 gap-3">
-                        {competitions.map((c) => (
-                          <div
-                            key={c._id}
-                            onClick={() => setSelectedCompetition(c._id)}
-                            className="bg-[#121726] rounded-2xl p-3 cursor-pointer transition hover:scale-[1.05] border border-white/10"
-                          >
-                            <img
-                              src={c.logo}
-                              alt={c.name}
-                              className="w-14 h-14 mx-auto object-contain mb-2"
-                            />
-                            <div className="text-center text-xs font-bold">
-                              {c.name}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+              <div className="space-y-4">
+                {!isPro && !loadingAccess && (
+                  <div className="text-center text-[11px] text-gray-400"></div>
+                )}
 
-                    {selectedCompetition && (
-                      <>
-                        <button
-                          onClick={() => {
-                            setSelectedCompetition("");
-                            setVideos([]);
-                          }}
-                          className="text-xs text-cyan-400 mb-2"
-                        >
-                          ← Буцах
-                        </button>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          {videos.map((v) => (
-                            <div
-                              key={v._id}
-                              onClick={() => window.open(v.videoUrl, "_blank")}
-                              className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.05] border border-white/10"
-                            >
-                              <img
-                                src={v.thumbnail}
-                                alt={v.title}
-                                className="h-28 w-full object-cover"
-                              />
-                              <div className="p-2 text-xs font-semibold line-clamp-2">
-                                {v.title}
-                              </div>
-                            </div>
-                          ))}
+                {!selectedCompetition && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {competitions.map((c) => (
+                      <div
+                        key={c._id}
+                        onClick={() => setSelectedCompetition(c._id)}
+                        className="bg-[#121726] rounded-2xl p-3 cursor-pointer transition hover:scale-[1.05] border border-white/10"
+                      >
+                        <img
+                          src={c.logo}
+                          alt={c.name}
+                          className="w-14 h-14 mx-auto object-contain mb-2"
+                        />
+                        <div className="text-center text-xs font-bold">
+                          {c.name}
                         </div>
-                      </>
-                    )}
+                      </div>
+                    ))}
                   </div>
                 )}
-              </>
+
+                {selectedCompetition && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setSelectedCompetition("");
+                        setVideos([]);
+                      }}
+                      className="text-xs text-cyan-400 mb-2"
+                    >
+                      ← Буцах
+                    </button>
+<div className="grid grid-cols-2 gap-3">
+  {videos.map((v) => (
+    <div
+      key={v._id}
+      onClick={() => openReplay(v.videoUrl)}
+      className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.03] border border-white/10"
+    >
+      {/* ✅ 16:9 thumbnail area */}
+      <div className="relative w-full aspect-video bg-black">
+        <img
+          src={v.thumbnail}
+          alt={v.title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="p-2 text-xs font-semibold line-clamp-2">
+        {v.title}
+      </div>
+    </div>
+  ))}
+</div>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
