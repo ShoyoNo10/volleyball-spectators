@@ -205,15 +205,7 @@ export default function SchedulePage() {
             <Link
               key={m._id}
               href={`/games/${m._id}`}
-              className="
-    block 
-    bg-linear-to-b from-[#0b1220] to-black
-    text-white
-    border border-white/10
-    shadow-[0_10px_40px_rgba(0,0,0,0.6)]
-    hover:border-white/15 hover:-translate-y-0.5 transition
-    active:scale-[0.995]
-  "
+              className=" block  bg-linear-to-b from-[#0b1220] to-black text-white border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)] hover:border-white/15 hover:-translate-y-0.5 transition active:scale-[0.995]"
             >
               <div className="p-4">
                 {/* TOP LINE */}
@@ -229,13 +221,13 @@ export default function SchedulePage() {
                         })()}
                       </span>
 
-                      <span className="text-sm font-semibold text-gray-100 truncate">
+                      <span className="text-sm font-semibold text-gray-100 truncate ">
                         {m.week && m.week.trim().length > 0 ? m.week : "Week"}
                       </span>
                     </div>
 
                     {m.description ? (
-                      <div className="mt-1 text-xs text-gray-400 line-clamp-1">
+                      <div className="mt-1 text-xs font-bold text-gray-400 line-clamp-1">
                         {m.description}
                       </div>
                     ) : null}
@@ -248,7 +240,7 @@ export default function SchedulePage() {
                   <div className="relative space-y-3 min-w-0 pr-14 ">
                     {/* TIME on the right empty space (upcoming only) */}
                     {!m.finished ? (
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-semibold text-gray-200 tabular-nums">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-extrabold text-gray-200 tabular-nums">
                         {m.time}
                       </div>
                     ) : null}

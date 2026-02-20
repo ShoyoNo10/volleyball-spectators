@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Gem, User2, Globe, Phone, LogOut } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getDeviceId } from "@/src/lib/device";
+import Image from "next/image";
 
 type MeResponse = {
   user: string | null;
@@ -82,7 +83,8 @@ export default function Navbar() {
   return (
     <nav className="bg-vnl text-white px-4 py-3">
       <div className="flex justify-between items-center gap-2">
-        <h1 className="font-bold text-lg md:text-xl shrink-0">VOLLEY LIVE</h1>
+        <Image src="/volleylogo.png" alt="VNL Logo" width={120} height={100} className="object-contain" />
+        {/* <h1 className="font-bold text-lg md:text-xl shrink-0">VOLLEY LIVE</h1> */}
 
         {/* RIGHT AREA */}
         <div className="flex items-center gap-2 ml-auto">

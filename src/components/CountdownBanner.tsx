@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 type ISODateString = string;
 
@@ -75,8 +76,6 @@ export default function CountdownBanner({
   endDateISO,
   logoSrc = "/vnlLOGO.svg",
   logoAlt = "VNL",
-  title = "VNL 2026",
-  liveText = "ТЭМЦЭЭН ЭХЭЛСЭН",
 }: CountdownBannerProps) {
   const startMs = useMemo(
     () => new Date(startDateISO).getTime(),
@@ -103,8 +102,7 @@ export default function CountdownBanner({
     <div className="w-full rounded-xl border border-white/10 bg-gradient-to-r from-zinc-950 via-black to-zinc-950 px-4 py-2.5 flex items-center justify-between">
       {/* LEFT */}
       <div className="flex items-center gap-2.5 min-w-0">
-        <img src={logoSrc} alt={logoAlt} className="w-6 h-6 object-contain" />
-
+        <Image src={logoSrc} alt={logoAlt} width={28} height={28} className="object-contain" />
         <div className="min-w-0 leading-tight">
           <div className="text-white text-sm font-semibold whitespace-normal line-clamp-2">
             Үндэстнүүдийн лиг эхлэхэд

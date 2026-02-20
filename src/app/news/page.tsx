@@ -106,8 +106,8 @@ export default function NewsPage() {
       >
         <CountdownBanner
           title="VNL 2026"
-          logoSrc="/vnlLOGO.svg" // эсвэл Cloudinary URL
-          startDateISO="2026-06-03T00:00:00+08:00"
+          logoSrc="/vnllogo3.png"
+          startDateISO="2026-06-03T00:55:00+08:00"
           endDateISO="2026-08-03T00:00:00+08:00"
           locationText="Олон байршил"
         />
