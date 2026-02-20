@@ -454,20 +454,20 @@ function MatchRow({ match, isPro }: { match: Match; isPro: boolean }) {
         {/* TOP ROW: STATUS LEFT + COMPETITION CENTER */}
         <div className="relative mb-2">
           {/* status left */}
-          <div className="absolute left-0 top-0 text-[10px] font-bold tracking-widest">
+          <div className="absolute left-0 top-0 text-[10px] font-bold tracking-widest ">
             {isLive && (
-              <span className="text-red-400 live-blink border rounded-full p-1">
+              <span className="text-red-400 live-blink border rounded-full px-2 py-1">
                 ● LIVE
               </span>
             )}
             {isUpcoming && (
-              <span className="text-yellow-400 border rounded-full p-1">
-                UPCOMING
+              <span className="text-yellow-400 border rounded-full px-2 py-1">
+                Тун удахгүй
               </span>
             )}
             {isFinished && (
-              <span className="text-gray-400 border rounded-full p-1">
-                FINISHED
+              <span className="text-gray-400 border rounded-full px-2 py-1">
+                Дууссан
               </span>
             )}
           </div>

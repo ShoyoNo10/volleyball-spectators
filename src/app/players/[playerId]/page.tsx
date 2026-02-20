@@ -45,11 +45,7 @@ export default function PlayerPage() {
   const params = useParams();
   const raw = params?.playerId;
   const playerId =
-    typeof raw === "string"
-      ? raw
-      : Array.isArray(raw)
-      ? raw[0]
-      : null;
+    typeof raw === "string" ? raw : Array.isArray(raw) ? raw[0] : null;
 
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -60,10 +56,8 @@ export default function PlayerPage() {
     const load = async (): Promise<void> => {
       try {
         const res = await fetch(
-          `/api/players?playerId=${encodeURIComponent(
-            playerId
-          )}`,
-          { cache: "no-store" }
+          `/api/players?playerId=${encodeURIComponent(playerId)}`,
+          { cache: "no-store" },
         );
 
         if (!res.ok) {
@@ -86,18 +80,12 @@ export default function PlayerPage() {
 
   if (loading) {
     return (
-      <div className="p-6 text-center text-gray-400">
-        Loading player...
-      </div>
+      <div className="p-6 text-center text-gray-400">Loading player...</div>
     );
   }
 
   if (!player) {
-    return (
-      <div className="p-6 text-center text-red-500">
-        Player not found
-      </div>
-    );
+    return <div className="p-6 text-center text-red-500">Player not found</div>;
   }
 
   // 🔥 SAFE STATS (хуучин document-ууд дээр ч ажиллана)
@@ -106,19 +94,19 @@ export default function PlayerPage() {
     ...(player.stats || {}),
   };
 
- return (
-  <div className="min-h-screen bg-[#0b0f19] text-white p-4">
-    <div
-      className="
+  return (
+    <div className="min-h-screen bg-[#0b0f19] text-white p-4 mb-15">
+      <div
+        className="
         max-w-5xl mx-auto
         grid grid-cols-1
         lg:grid-cols-[380px_1fr]
         gap-6
       "
-    >
-      {/* LEFT — PROFILE */}
-      <div
-        className="
+      >
+        {/* LEFT — PROFILE */}
+        <div
+          className="
           text-center
           lg:bg-[#0f1629]
           lg:border lg:border-white/10
@@ -126,96 +114,80 @@ export default function PlayerPage() {
           lg:p-6
           lg:shadow-xl
         "
-      >
-        <img
-          src={player.avatarUrl || "/user.png"}
-          alt={player.name}
-          className="
+        >
+          <img
+            src={player.avatarUrl || "/user.png"}
+            alt={player.name}
+            className="
             w-32 h-32
             rounded-full
             border
             border-black
+            bg-black
             mx-auto
             object-cover
             lg:border-4
             lg:border-red-500/40
             lg:shadow-lg
           "
-        />
-
-        <div className="text-red-500 text-4xl font-bold mt-3">
-          {player.number}
-        </div>
-
-        <h1 className="text-2xl font-bold mt-1">
-          {player.name.toUpperCase()}
-        </h1>
-
-        {/* BIO */}
-        <div className="grid grid-cols-2 gap-3 my-4 text-sm">
-          <Info label="Байрлал" value={player.position} />
-          <Info label="Улс" value={player.nationality || "-"} />
-          <Info label="Төрсөн он, сар" value={player.birthDate || "-"} />
-          <Info
-            label="Өндөр"
-            value={player.height ? `${player.height} cm` : "-"}
           />
-        </div>
-      </div>
 
-      {/* RIGHT — STATS */}
-      <div
-        className="
+          <div className="text-red-500 text-4xl font-bold mt-3">
+            {player.number}
+          </div>
+
+          <h1 className="text-2xl font-bold mt-1">
+            {player.name.toUpperCase()}
+          </h1>
+
+          {/* BIO */}
+          <div className="grid grid-cols-2 gap-3 my-4 text-sm">
+            <Info label="Байрлал" value={player.position} />
+            <Info label="Улс" value={player.nationality || "-"} />
+            <Info label="Төрсөн он, сар" value={player.birthDate || "-"} />
+            <Info
+              label="Өндөр"
+              value={player.height ? `${player.height} cm` : "-"}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT — STATS */}
+        <div
+          className="
           lg:bg-[#0f1629]
           lg:border lg:border-white/10
           lg:rounded-2xl
           lg:p-6
           lg:shadow-xl
         "
-      >
-        <div className="font-bold my-4 text-center text-[13px] lg:text-left">
-          2025 оны Үндэстнүүдийн лигийн үзүүлэлт
-        </div>
+        >
+          <div className="font-bold my-4 text-center text-[13px] lg:text-left">
+            2025 оны Үндэстнүүдийн лигийн үзүүлэлт
+          </div>
 
-        <div className="space-y-1">
-          <Stat label="Оноо" value={s.totalPoints} />
-          {/* <Stat label="Average By Match" value={s.avgByMatch} /> */}
-          <Stat label="Довтолгоо" value={s.attackPoints} />
-          {/* <Stat
-            label="Attack Efficiency"
-            value={`${s.attackEfficiency}%`}
-          /> */}
-          <Stat label="Хаалт" value={s.blockPoints} />
-          {/* <Stat
-            label="Block Success"
-            value={`${s.blockSuccess}%`}
-          /> */}
-          <Stat label="Давуулалт" value={s.servePoints} />
+          <div className="space-y-1">
+            <Stat label="Оноо" value={s.totalPoints} iconSrc="/icons/ptslogo.png"/>
+            {/* <Stat label="Average By Match" value={s.avgByMatch} /> */}
+            <Stat label="Довтолгоо" value={s.attackPoints} iconSrc="/icons/attack.png"/>
+            <Stat label="Холболт" value={`${s.attackEfficiency}`} iconSrc="/icons/set.png"/>
+            <Stat label="Хаалт" value={s.blockPoints} iconSrc="/icons/block.png"/>
+            <Stat label="Хамгаалалт" value={`${s.blockSuccess}`} iconSrc="/icons/defense.png"/>
+            <Stat label="Давуулалт" value={s.servePoints} iconSrc="/icons/serve.png"/>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
-
+  );
 }
 
 /* ================= UI ================= */
 
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[#121826] p-2 rounded">
-      <div className="text-gray-400 text-xs">
-        {label}
-      </div>
-      <div className="font-bold">
-        {value}
-      </div>
+      <div className="text-gray-400 text-xs">{label}</div>
+      <div className="font-bold">{value}</div>
     </div>
   );
 }
@@ -223,18 +195,26 @@ function Info({
 function Stat({
   label,
   value,
+  iconSrc,
 }: {
   label: string;
   value: string | number;
+  iconSrc: string;
 }) {
   return (
-    <div className="flex justify-between border-b border-gray-700 py-2">
-      <span className="text-gray-400">
-        {label}
-      </span>
-      <span className="text-red-400 font-bold">
-        {value}
-      </span>
+    <div className="flex items-center justify-between border-b border-gray-700 py-2">
+      {/* left */}
+      <div className="flex items-center gap-2">
+        <img
+          src={iconSrc}
+          alt={label}
+          className="w-6 h-6 object-contain"
+        />
+        <span className="text-gray-400">{label}</span>
+      </div>
+
+      {/* right */}
+      <span className="text-red-400 font-bold">{value}</span>
     </div>
   );
 }

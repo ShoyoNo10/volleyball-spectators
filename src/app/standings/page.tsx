@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Info } from 'lucide-react';
 
 type Gender = "men" | "women";
 
@@ -75,9 +76,9 @@ export default function StandingsPage() {
         <div className="flex items-center gap-3 ml-3">
           <button
             onClick={() => setShowInfo(true)}
-            className="flex items-center gap-1 text-xs text-cyan-400 font-bold"
+            className="flex items-center justify-center gap-1 text-xs text-purple-400 font-bold"
           >
-            ℹ️ Тайлбар
+            <Info size={14} /> Тайлбар
           </button>
         </div>
       </div>

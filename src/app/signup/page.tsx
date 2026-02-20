@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Info } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -180,10 +181,10 @@ export default function SignupPage() {
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-red-600 blur opacity-60" />
 
             <div className="relative rounded-3xl border border-white/10 bg-[#050812] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-              <div className="text-lg font-bold mb-2">Анхааруулга</div>
+              <div className="text-lg font-bold mb-2 flex items-center gap-2">Анхааруулга <Info size={20} /></div>
 
-              <div className="text-sm text-gray-300 leading-relaxed">
-                ⚠️ Нэвтрэх нэр болон нууц үгээ мартсан тохиолдолд сэргээх
+              <div className="text-sm text-gray-300 leading-relaxed flex gap-1 items-start">
+               Нэвтрэх нэр болон нууц үгээ мартсан тохиолдолд сэргээх
                 боломжгүй. Иймд мартахгүй нууц үг сонгох эсвэл мэдээллээ хадгалж
                 авна уу.
               </div>
@@ -203,7 +204,7 @@ export default function SignupPage() {
                     // ⭐ зөвшөөрсөн тул яг одоо signup үргэлжлүүлнэ
                     doSignup();
                   }}
-                  className="flex py-2.5 px-1 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500 transition"
+                  className="flex py-2.5 px-1 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 disabled:opacity-60 disabled:hover:bg-purple-600 transition"
                 >
                   Ойлголоо, үргэлжлүүлэх
                 </button>

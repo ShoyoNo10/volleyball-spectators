@@ -101,9 +101,9 @@ export default function AdminPlayers() {
     totalPoints: "Нийт оноо",
     avgByMatch: "X",
     attackPoints: "Довтолгооны оноо",
-    attackEfficiency: "X",
+    attackEfficiency: "Холболт",
     blockPoints: "Хаалтын оноо",
-    blockSuccess: "X",
+    blockSuccess: "Хамгаалалт",
     servePoints: "Давуулалтын оноо",
   };
   const [teams, setTeams] = useState<Team[]>([]);
