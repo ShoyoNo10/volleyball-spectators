@@ -133,6 +133,8 @@ export default function PlayerPage() {
           className="
             w-32 h-32
             rounded-full
+            border
+            border-black
             mx-auto
             object-cover
             lg:border-4

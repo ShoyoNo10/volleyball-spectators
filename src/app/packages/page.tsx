@@ -63,7 +63,7 @@ export default function Page() {
         <div className="text-center mb-6">
           <div className="text-xl font-bold mb-1">Pro хэрэглэгч болох</div>
           <div className="text-xs text-gray-400">
-            Тоглолт шууд болон нөхөж үзэж эрх
+            Тоглолт шууд болон нөхөж үзэх эрх
           </div>
         </div>
 

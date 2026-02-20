@@ -83,7 +83,13 @@ export default function Navbar() {
   return (
     <nav className="bg-vnl text-white px-4 py-3">
       <div className="flex justify-between items-center gap-2">
-        <Image src="/volleylogo.png" alt="VNL Logo" width={120} height={100} className="object-contain" />
+        <Image
+          src="/volleylogo.png"
+          alt="VNL Logo"
+          width={120}
+          height={100}
+          className="object-contain"
+        />
         {/* <h1 className="font-bold text-lg md:text-xl shrink-0">VOLLEY LIVE</h1> */}
 
         {/* RIGHT AREA */}
@@ -95,35 +101,40 @@ export default function Navbar() {
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 border border-white/10 max-w-40">
               <User2 className="w-4 h-4 opacity-80 shrink-0" />
               <span className="text-xs font-semibold truncate">{me.user}</span>
-{me.isPro && (
-  <>
-    {/* gradient defs */}
-    <svg width="0" height="0" className="absolute">
-      <defs>
-        <linearGradient id="proGem" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#e9d5ff" />
-          <stop offset="40%" stopColor="#c084fc" />
-          <stop offset="70%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#6366f1" />
-        </linearGradient>
-      </defs>
-    </svg>
+              {me.isPro && (
+                <>
+                  {/* gradient defs */}
+                  <svg width="0" height="0" className="absolute">
+                    <defs>
+                      <linearGradient
+                        id="proGem"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stopColor="#e9d5ff" />
+                        <stop offset="40%" stopColor="#e9d5ff" />
+                        <stop offset="70%" stopColor="#e9d5ff" />
+                        <stop offset="100%" stopColor="#e9d5ff" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
 
-    <Gem
-      className="w-4 h-4 shrink-0"
-      stroke="url(#proGem)"
-      style={{
-        filter: `
+                  <Gem
+                    className="w-4 h-4 shrink-0"
+                    stroke="url(#proGem)"
+                    style={{
+                      filter: `
           drop-shadow(0 0 6px rgba(168,85,247,0.9))
           drop-shadow(0 0 12px rgba(192,132,252,0.9))
           drop-shadow(0 0 22px rgba(168,85,247,0.8))
           drop-shadow(0 0 38px rgba(147,51,234,0.7))
         `,
-      }}
-    />
-  </>
-)}
-
+                    }}
+                  />
+                </>
+              )}
             </div>
           ) : (
             <Link
@@ -148,23 +159,22 @@ export default function Navbar() {
             {/* Links group */}
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1">
               <Link
-                href="/contact"
-                className="group flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 transition"
-              >
-                <Phone className="w-4 h-4 opacity-80 group-hover:opacity-100" />
-                <span className="relative">
-                  Холбогдох
-                  <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white/70 group-hover:w-full transition-all" />
-                </span>
-              </Link>
-
-              <Link
                 href="/ranking"
                 className="group flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 transition"
               >
                 <Globe className="w-4 h-4 opacity-80 group-hover:opacity-100" />
                 <span className="relative">
                   Дэлхийн чансаа
+                  <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white/70 group-hover:w-full transition-all" />
+                </span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 transition"
+              >
+                <Phone className="w-4 h-4 opacity-80 group-hover:opacity-100" />
+                <span className="relative">
+                  Холбогдох
                   <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-white/70 group-hover:w-full transition-all" />
                 </span>
               </Link>
@@ -214,23 +224,22 @@ export default function Navbar() {
       {/* Mobile menu (өөрчлөхгүй) */}
       {open && (
         <div className="flex flex-col mt-3 md:hidden">
-          <div className="flex flex-col space-y-2">
-            <Link
-              href="/contact"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2"
-            >
-              <Phone size={18} />
-              Холбогдох
-            </Link>
-
+          <div className="flex flex-col space-y-2 ">
             <Link
               href="/ranking"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1"
             >
               <Globe size={18} />
               Дэлхийн чансаа
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1"
+            >
+              <Phone size={18} />
+              Холбогдох
             </Link>
           </div>
 

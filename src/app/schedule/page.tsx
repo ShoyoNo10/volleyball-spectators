@@ -205,7 +205,7 @@ export default function SchedulePage() {
             <Link
               key={m._id}
               href={`/games/${m._id}`}
-              className=" block  bg-linear-to-b from-[#0b1220] to-black text-white border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.6)] hover:border-white/15 hover:-translate-y-0.5 transition active:scale-[0.995]"
+              className=" block  bg-linear-to-b from-[#0b1220] to-black text-white border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.6)] hover:border-white/15 hover:-translate-y-0.5 transition active:scale-[0.995]"
             >
               <div className="p-4">
                 {/* TOP LINE */}
@@ -221,16 +221,16 @@ export default function SchedulePage() {
                         })()}
                       </span>
 
-                      <span className="text-sm font-semibold text-gray-100 truncate ">
+                      <span className="text-[12px] font-semibold text-gray-100 truncate ">
                         {m.week && m.week.trim().length > 0 ? m.week : "Week"}
                       </span>
                     </div>
 
-                    {m.description ? (
+                    {/* {m.description ? (
                       <div className="mt-1 text-xs font-bold text-gray-400 line-clamp-1">
                         {m.description}
                       </div>
-                    ) : null}
+                    ) : null} */}
                   </div>
                 </div>
 
@@ -255,7 +255,7 @@ export default function SchedulePage() {
                         className="rounded border border-white/10 object-cover bg-black"
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-gray-100 truncate">
+                        <div className="text-sm font-semibold text-gray-100 ">
                           {m.teamA.name}
                         </div>
                       </div>
@@ -271,7 +271,7 @@ export default function SchedulePage() {
                         className="rounded border border-white/10 object-cover bg-black"
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-gray-300 truncate">
+                        <div className="text-sm font-semibold text-gray-100  ">
                           {m.teamB.name}
                         </div>
                       </div>
@@ -283,30 +283,64 @@ export default function SchedulePage() {
                     <div className="shrink-0 flex items-center gap-3">
                       {/* sets row (left) */}
                       {(m.sets?.length ?? 0) > 0 ? (
-                        <div className="pt-1">
-                          {/* set A points */}
-                          <div className="flex justify-end gap-2 text-[12px] tabular-nums font-semibold text-gray-100">
+                        <div className="flex flex-col justify-between h-[56px]">
+                          {/* Set A points (row) */}
+                          <div className="flex justify-end gap-2 text-[12px] tabular-nums font-normal">
                             {m.sets!.map((s, i) => {
                               const norm = String(s)
                                 .replace(":", "-")
                                 .replace("–", "-");
-                              const [aStr] = norm
+                              const [aStr, bStr] = norm
                                 .split("-")
                                 .map((x) => x?.trim());
-                              return <span key={i}>{aStr}</span>;
+                              const a = Number(aStr);
+                              const b = Number(bStr);
+
+                              const aWin =
+                                Number.isFinite(a) && Number.isFinite(b)
+                                  ? a > b
+                                  : false;
+
+                              return (
+                                <span
+                                  key={i}
+                                  className={
+                                    aWin ? "text-gray-100" : "text-gray-500"
+                                  }
+                                >
+                                  {aStr}
+                                </span>
+                              );
                             })}
                           </div>
 
-                          {/* set B points */}
-                          <div className="mt-3 flex justify-end gap-2 text-[12px] tabular-nums font-semibold text-gray-400">
+                          {/* Set B points (row) */}
+                          <div className=" flex justify-end gap-2 text-[12px] tabular-nums font-semibold">
                             {m.sets!.map((s, i) => {
                               const norm = String(s)
                                 .replace(":", "-")
                                 .replace("–", "-");
-                              const [, bStr] = norm
+                              const [aStr, bStr] = norm
                                 .split("-")
                                 .map((x) => x?.trim());
-                              return <span key={i}>{bStr}</span>;
+                              const a = Number(aStr);
+                              const b = Number(bStr);
+
+                              const bWin =
+                                Number.isFinite(a) && Number.isFinite(b)
+                                  ? b > a
+                                  : false;
+
+                              return (
+                                <span
+                                  key={i}
+                                  className={
+                                    bWin ? "text-gray-100" : "text-gray-500"
+                                  }
+                                >
+                                  {bStr}
+                                </span>
+                              );
                             })}
                           </div>
                         </div>
@@ -315,12 +349,14 @@ export default function SchedulePage() {
                       )}
 
                       {/* big score column (right) */}
-                      <div className="text-right">
-                        <div className="text-3xl font-extrabold leading-none tabular-nums text-gray-100">
-                          {m.score?.a ?? 0}
-                        </div>
-                        <div className="mt-3 text-3xl font-extrabold leading-none tabular-nums text-gray-500">
-                          {m.score?.b ?? 0}
+                      <div className="text-right flex flex-col justify-center h-[56px]">
+                        <div className="flex flex-col items-end gap-3">
+                          <div className="text-3xl font-extrabold leading-none tabular-nums text-gray-100">
+                            {m.score?.a ?? 0}
+                          </div>
+                          <div className="text-3xl font-extrabold leading-none tabular-nums text-gray-500">
+                            {m.score?.b ?? 0}
+                          </div>
                         </div>
                       </div>
                     </div>
