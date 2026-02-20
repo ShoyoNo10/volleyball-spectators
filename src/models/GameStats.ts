@@ -6,6 +6,7 @@ const TeamStatsSchema = new mongoose.Schema(
     attack: { type: Number, default: 0 },
     block: { type: Number, default: 0 },
     serve: { type: Number, default: 0 },
+    error: { type: Number, default: 0 }, // ✅ NEW: алдаагаар авсан
   },
   { _id: false },
 );
@@ -19,6 +20,8 @@ const PlayerStatsSchema = new mongoose.Schema(
     attack: { type: Number, default: 0 },
     block: { type: Number, default: 0 },
     serve: { type: Number, default: 0 },
+    defense: { type: Number, default: 0 }, // ✅ NEW: хамгаалалт
+    set: { type: Number, default: 0 },
   },
   { _id: false },
 );

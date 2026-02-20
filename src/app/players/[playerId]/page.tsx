@@ -162,8 +162,8 @@ export default function PlayerPage() {
           lg:shadow-xl
         "
         >
-          <div className="font-bold my-4 text-center text-[13px] lg:text-left">
-            2025 оны Үндэстнүүдийн лигийн үзүүлэлт
+          <div className="font-bold my-4 text-center text-[20px] lg:text-left">
+            Үзүүлэлт
           </div>
 
           <div className="space-y-1">
@@ -214,7 +214,7 @@ function Stat({
       </div>
 
       {/* right */}
-      <span className="text-red-400 font-bold">{value}</span>
+      <span className="text-red-500 font-bold">{value}</span>
     </div>
   );
 }

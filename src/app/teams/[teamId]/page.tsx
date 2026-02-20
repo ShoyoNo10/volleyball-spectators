@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 /* ================= TYPES ================= */
 
@@ -77,10 +78,10 @@ export default function TeamPage() {
   const [loadingTab, setLoadingTab] = useState<boolean>(false);
 
   const tabs = [
-  { key: "players", label: "Тоглогчид" },
-  { key: "success", label: "Амжилт" },
-  { key: "schedule", label: "Хуваарь" },
-] as const;
+    { key: "players", label: "Тоглогчид" },
+    { key: "success", label: "Амжилт" },
+    { key: "schedule", label: "Хуваарь" },
+  ] as const;
 
   /* ================= LOAD PLAYERS ================= */
 
@@ -179,12 +180,12 @@ export default function TeamPage() {
         </h1>
 
         {/* TABS */}
-<div className="flex gap-2 mb-6">
-  {tabs.map((t) => (
-    <button
-      key={t.key}
-      onClick={() => setTab(t.key)}
-      className={`
+        <div className="flex gap-2 mb-6">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`
         flex-1 py-2 rounded-xl text-xs font-bold tracking-widest transition
         ${
           tab === t.key
@@ -192,11 +193,11 @@ export default function TeamPage() {
             : "bg-gray-900 text-gray-400 hover:text-white"
         }
       `}
-    >
-      {t.label}
-    </button>
-  ))}
-</div>
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
         {/* ================= PLAYERS ================= */}
         {tab === "players" && (
@@ -313,119 +314,151 @@ export default function TeamPage() {
         )}
 
         {/* ================= SCHEDULE ================= */}
-        {tab === "schedule" && (
-          <div className="space-y-4">
-            {loadingTab && (
-              <div className="text-gray-500 text-center">
-                Loading schedule...
-              </div>
-            )}
+{tab === "schedule" && (
+  <div className="space-y-4">
+    {loadingTab && (
+      <div className="text-gray-500 text-center">Loading schedule...</div>
+    )}
 
-            {!loadingTab && schedule.length === 0 && (
-              <div className="text-gray-400 text-center">No matches</div>
-            )}
+    {!loadingTab && schedule.length === 0 && (
+      <div className="text-gray-400 text-center">No matches</div>
+    )}
 
-            {schedule.map((m) => (
-              <div
-                key={m._id}
-                className="
-                  bg-linear-to-r from-gray-950 to-black
-                  border border-gray-800
-                  rounded-2xl
-                  overflow-hidden
-                  shadow-lg
-                "
-              >
-                <div className="flex justify-between items-center px-3 py-2 bg-gray-900">
-                  <span className="text-xs text-cyan-400 font-bold tracking-widest">
-                    {m.week}
-                  </span>
+    {schedule.map((m) => (
+      <div
+        key={m._id}
+        className="
+          block
+          bg-linear-to-b from-[#0b1220] to-black
+          text-white
+          border border-white/10
+          rounded-2xl
+          shadow-[0_10px_40px_rgba(0,0,0,0.6)]
+          hover:border-white/15
+          hover:-translate-y-0.5
+          transition
+          active:scale-[0.995]
+        "
+      >
+        <div className="p-4">
+          {/* TOP LINE */}
+          <div className="flex items-center justify-between gap-3">
+            
+            {/* WEEK badge (gender style) */}
+            <span className="
+              px-2 py-0.5
+              text-[11px]
+              font-extrabold
+              rounded
+              bg-white/10
+              text-gray-100
+              border border-white/10
+            ">
+              {m.week}
+            </span>
 
-                  <span
-                    className={`text-xs font-bold tracking-widest ${
-                      m.gender === "men" ? "text-blue-400" : "text-pink-400"
-                    }`}
-                  >
-                    {m.gender.toUpperCase()}
-                  </span>
+            {/* DATE */}
+            <span className="text-[12px] font-semibold text-gray-400">
+              {m.matchDate}
+            </span>
+          </div>
+
+          {/* MAIN GRID */}
+          <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+            {/* LEFT */}
+            <div className="relative space-y-3 min-w-0 pr-14">
+              {!m.finished && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-extrabold text-gray-200">
+                  {m.matchTime}
                 </div>
+              )}
 
-                <div className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {m.logoA && (
-                        <img
-                          src={m.logoA}
-                          className="w-10 h-10 object-contain"
-                          alt=""
-                        />
-                      )}
-                      <span className="font-bold text-white truncate">
-                        {m.teamA}
-                      </span>
+              {/* TEAM A */}
+              <div className="flex items-center gap-3 min-w-0">
+                {m.logoA && (
+                  <img
+                    src={m.logoA}
+                    className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
+                  />
+                )}
+                <div className="text-sm font-semibold text-gray-100 truncate">
+                  {m.teamA}
+                </div>
+              </div>
+
+              {/* TEAM B */}
+              <div className="flex items-center gap-3 min-w-0">
+                {m.logoB && (
+                  <img
+                    src={m.logoB}
+                    className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
+                  />
+                )}
+                <div className="text-sm font-semibold text-gray-100 truncate">
+                  {m.teamB}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT */}
+            {m.finished ? (
+              <div className="shrink-0 flex items-center gap-3">
+                {/* SETS */}
+                {m.sets?.length > 0 && (
+                  <div className="flex flex-col justify-between h-[56px]">
+                    <div className="flex justify-end gap-2 text-[12px] font-normal">
+                      {m.sets.map((s, i) => {
+                        const a = s.teamA;
+                        const b = s.teamB;
+                        return (
+                          <span
+                            key={i}
+                            className={a > b ? "text-white" : "text-gray-500"}
+                          >
+                            {a}
+                          </span>
+                        );
+                      })}
                     </div>
 
-                    <div className="text-gray-400 font-bold text-sm">VS</div>
-
-                    <div className="flex items-center gap-2 justify-end min-w-0">
-                      <span className="font-bold text-white truncate">
-                        {m.teamB}
-                      </span>
-                      {m.logoB && (
-                        <img
-                          src={m.logoB}
-                          className="w-10 h-10 object-contain"
-                          alt=""
-                        />
-                      )}
+                    <div className="flex justify-end gap-2 text-[12px] font-semibold">
+                      {m.sets.map((s, i) => {
+                        const a = s.teamA;
+                        const b = s.teamB;
+                        return (
+                          <span
+                            key={i}
+                            className={b > a ? "text-white" : "text-gray-500"}
+                          >
+                            {b}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
+                )}
 
-                  {!m.finished && (
-                    <div className="text-center mt-3 text-sm text-gray-400">
-                      🗓 {m.matchDate} — ⏰ {m.matchTime}
+                {/* BIG SCORE */}
+                <div className="text-right flex flex-col justify-center h-[56px]">
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-3xl font-extrabold text-gray-100">
+                      {m.finalA}
                     </div>
-                  )}
-
-                  {m.finished && (
-                    <>
-                      <div className="text-center mt-3">
-                        <span className="text-3xl font-extrabold text-white">
-                          {m.finalA}
-                        </span>
-                        <span className="mx-3 text-gray-400 text-xl">:</span>
-                        <span className="text-3xl font-extrabold text-white">
-                          {m.finalB}
-                        </span>
-                      </div>
-
-                      {Array.isArray(m.sets) && m.sets.length > 0 && (
-                        <div className="flex justify-center gap-2 mt-3">
-                          {m.sets.map((s, i) => (
-                            <div
-                              key={i}
-                              className="
-                                bg-gray-900
-                                border border-gray-700
-                                rounded-lg
-                                px-2 py-1
-                                text-xs
-                                text-white
-                                font-bold
-                              "
-                            >
-                              {s.teamA}–{s.teamB}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
+                    <div className="text-3xl font-extrabold text-gray-500">
+                      {m.finalB}
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
+            ) : (
+              <div />
+            )}
           </div>
-        )}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
       </div>
     </div>
   );

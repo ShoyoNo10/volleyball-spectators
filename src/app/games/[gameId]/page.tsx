@@ -12,6 +12,8 @@ interface Player {
   attack: number;
   block: number;
   serve: number;
+  defense: number; // ✅ NEW
+  set: number; // ✅ NEW
 }
 
 interface TeamBlock {
@@ -20,6 +22,7 @@ interface TeamBlock {
     attack: number;
     block: number;
     serve: number;
+    error?: number;
   };
   players: Player[];
 }
@@ -49,9 +52,12 @@ interface Game {
 /* ================= HELPERS ================= */
 
 function total(p: Player) {
-  return p.attack + p.block + p.serve;
+  return p.attack + p.block + p.serve + (p.defense ?? 0) + (p.set ?? 0);
 }
 
+// function total(p: Player) {
+//   return p.attack + p.block + p.serve + (p.error ?? 0);
+// }
 /* ================= PAGE ================= */
 
 export default function GamePage() {
@@ -202,34 +208,38 @@ export default function GamePage() {
         </div>
 
         {/* TEAM SWITCH */}
-        <div className="mt-2 flex gap-2">
-          <button
-            onClick={() => setActiveTeam("A")}
-            className={`
-              flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
-              ${
-                activeTeam === "A"
-                  ? "bg-[#1c2338] text-white"
-                  : "bg-[#121726] text-gray-400 hover:text-white"
-              }
-            `}
-          >
-            {gameInfo.teamA.name}
-          </button>
-          <button
-            onClick={() => setActiveTeam("B")}
-            className={`
-              flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
-              ${
-                activeTeam === "B"
-                  ? "bg-[#1c2338] text-white"
-                  : "bg-[#121726] text-gray-400 hover:text-white"
-              }
-            `}
-          >
-            {gameInfo.teamB.name}
-          </button>
-        </div>
+        {/* TEAM SWITCH (Зөвхөн TOGLOGCHID дээр) */}
+        {activeTab === "players" && (
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => setActiveTeam("A")}
+              className={`
+        flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
+        ${
+          activeTeam === "A"
+            ? "bg-[#1c2338] text-white"
+            : "bg-[#121726] text-gray-400 hover:text-white"
+        }
+      `}
+            >
+              {gameInfo.teamA.name}
+            </button>
+
+            <button
+              onClick={() => setActiveTeam("B")}
+              className={`
+        flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition
+        ${
+          activeTeam === "B"
+            ? "bg-[#1c2338] text-white"
+            : "bg-[#121726] text-gray-400 hover:text-white"
+        }
+      `}
+            >
+              {gameInfo.teamB.name}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
@@ -288,6 +298,12 @@ export default function GamePage() {
                   label: "ДАВУУЛАЛТ",
                   a: stats.teamA.stats.serve,
                   b: stats.teamB.stats.serve,
+                },
+                {
+                  key: "error",
+                  label: "АЛДАА",
+                  a: stats.teamA.stats.error ?? 0,
+                  b: stats.teamB.stats.error ?? 0,
                 },
               ].map((row) => {
                 const aWin = row.a > row.b;
@@ -367,14 +383,15 @@ export default function GamePage() {
         {activeTab === "players" && (
           <div className="bg-[#121726] rounded-xl overflow-hidden border border-white/10">
             {/* HEADER */}
-            <div className="grid grid-cols-[0.6fr_0.8fr_2fr_1fr_1fr_1fr_1fr] px-3 py-2 text-[10px] font-bold text-gray-400 border-b border-white/10 tracking-wide">
-              <span className="text-center">БАЙР</span>
+            <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] px-1 py-2 text-[10px] font-bold text-gray-400 border-b border-white/10 tracking-wide">
               <span className="text-center">#</span>
               <span>ТОГЛОГЧ</span>
               <span className="text-center">НИЙТ</span>
               <span className="text-center">ДОВ</span>
               <span className="text-center">ХААЛТ</span>
               <span className="text-center">ДАВ</span>
+              <span className="text-center">ХАМ</span>
+              <span className="text-center">SET</span>
             </div>
 
             {[...team.players]
@@ -383,27 +400,23 @@ export default function GamePage() {
                 <div
                   key={i}
                   className="
-                    grid grid-cols-[0.6fr_0.8fr_2fr_1fr_1fr_1fr_1fr]
-                    px-3 py-2 text-xs
-                    border-b border-white/5
-                    hover:bg-white/5 transition
-                  "
+  grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr]
+  px-1 py-2 text-xs
+  border-b border-white/5
+  hover:bg-white/5 transition
+"
                 >
-                  <div className="text-center font-bold text-yellow-400">
-                    {i + 1}
-                  </div>
-
                   <div className="text-center text-gray-400">{p.number}</div>
-
                   <div className="font-semibold truncate">{p.name}</div>
 
                   <div className="text-center font-bold">{total(p)}</div>
 
                   <div className="text-center">{p.attack}</div>
-
                   <div className="text-center">{p.block}</div>
-
                   <div className="text-center">{p.serve}</div>
+
+                  <div className="text-center">{p.defense ?? 0}</div>
+                  <div className="text-center">{p.set ?? 0}</div>
                 </div>
               ))}
           </div>

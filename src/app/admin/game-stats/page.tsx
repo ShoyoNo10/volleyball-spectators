@@ -18,11 +18,13 @@ interface Player {
   attack: number;
   block: number;
   serve: number;
+  defense: number; // ✅ NEW
+  set: number; // ✅ NEW
 }
 
 interface TeamBlock {
   teamName: string;
-  stats: { attack: number; block: number; serve: number };
+  stats: { attack: number; block: number; serve: number; error: number };
   players: Player[];
 }
 
@@ -33,14 +35,22 @@ interface GameStats {
 
 /* ================= HELPERS ================= */
 
-function calcTotal(a: number, b: number, c: number): number {
-  return a + b + c;
+function calcTotal(...nums: number[]): number {
+  return nums.reduce((acc, v) => acc + n(v), 0);
 }
+
+const n = (v: unknown) => {
+  const x = Number(v);
+  return Number.isFinite(x) ? x : 0;
+};
 
 const MN = {
   attack: "Довт",
   block: "Хаалт",
   serve: "Сервис",
+  defense: "Хам", // ✅ NEW (богино)
+  set: "Set", // ✅ NEW
+  error: "Алдаа", // ✅ NEW
   total: "Нийт",
 };
 
@@ -73,20 +83,27 @@ export default function AdminGameStats() {
     const data = (await res.json()) as GameStats | null;
 
     if (data && data.teamA && data.teamB) {
-      setTeamA(data.teamA);
-      setTeamB(data.teamB);
+      const normPlayers = (arr: Player[] = []) =>
+        arr.map((p) => ({
+          ...p,
+          defense: n(p.defense),
+          set: n(p.set),
+        }));
+
+      setTeamA({ ...data.teamA, players: normPlayers(data.teamA.players) });
+      setTeamB({ ...data.teamB, players: normPlayers(data.teamB.players) });
       return;
     }
 
     setTeamA({
       teamName: g.teamA.name,
-      stats: { attack: 0, block: 0, serve: 0 },
+      stats: { attack: 0, block: 0, serve: 0, error: 0 }, // ✅
       players: [],
     });
 
     setTeamB({
       teamName: g.teamB.name,
-      stats: { attack: 0, block: 0, serve: 0 },
+      stats: { attack: 0, block: 0, serve: 0, error: 0 }, // ✅
       players: [],
     });
   };
@@ -100,10 +117,14 @@ export default function AdminGameStats() {
       attack: 0,
       block: 0,
       serve: 0,
+      defense: 0, // ✅
+      set: 0, // ✅
     };
 
-    if (team === "A" && teamA) setTeamA({ ...teamA, players: [...teamA.players, p] });
-    if (team === "B" && teamB) setTeamB({ ...teamB, players: [...teamB.players, p] });
+    if (team === "A" && teamA)
+      setTeamA({ ...teamA, players: [...teamA.players, p] });
+    if (team === "B" && teamB)
+      setTeamB({ ...teamB, players: [...teamB.players, p] });
   };
 
   /* SAVE / UPDATE */
@@ -139,19 +160,37 @@ export default function AdminGameStats() {
   /* COMPUTED TOTALS */
   const teamATotal = useMemo(
     () =>
-      teamA ? calcTotal(teamA.stats.attack, teamA.stats.block, teamA.stats.serve) : 0,
-    [teamA]
+      teamA
+        ? calcTotal(
+            teamA.stats.attack,
+            teamA.stats.block,
+            teamA.stats.serve,
+            teamA.stats.error,
+          )
+        : 0,
+    [teamA],
   );
+
   const teamBTotal = useMemo(
     () =>
-      teamB ? calcTotal(teamB.stats.attack, teamB.stats.block, teamB.stats.serve) : 0,
-    [teamB]
+      teamB
+        ? calcTotal(
+            teamB.stats.attack,
+            teamB.stats.block,
+            teamB.stats.serve,
+            teamB.stats.error,
+          )
+        : 0,
+    [teamB],
   );
 
   /* RENDER TEAM BLOCK */
   const renderTeam = (team: TeamBlock, setTeam: (t: TeamBlock) => void) => {
-    const sum = calcTotal(team.stats.attack, team.stats.block, team.stats.serve);
-
+    const sum =
+      n(team.stats.attack) +
+      n(team.stats.block) +
+      n(team.stats.serve) +
+      n(team.stats.error);
     return (
       <div className={`${card} p-4 space-y-4`}>
         {/* title */}
@@ -170,8 +209,8 @@ export default function AdminGameStats() {
         </div>
 
         {/* TEAM TOTAL INPUTS */}
-        <div className="grid grid-cols-3 gap-2">
-          {(["attack", "block", "serve"] as const).map((k) => (
+        <div className="grid grid-cols-4 gap-2">
+          {(["attack", "block", "serve", "error"] as const).map((k) => (
             <div key={k} className="space-y-1">
               <div className={label}>{MN[k]}</div>
               <input
@@ -192,11 +231,13 @@ export default function AdminGameStats() {
         {/* PLAYERS TABLE */}
         <div className="overflow-hidden rounded-2xl border border-black/10">
           {/* header */}
-          <div className="grid grid-cols-[1.6fr_.9fr_.9fr_.9fr_.9fr_.4fr] gap-2 px-3 py-2 bg-gray-50 text-xs font-extrabold text-gray-700 border-b border-black/10">
+          <div className="grid grid-cols-[1.6fr_.9fr_.9fr_.9fr_.9fr_.9fr_.9fr_.9fr_.4fr] gap-2 px-3 py-2 bg-gray-50 text-xs font-extrabold text-gray-700 border-b border-black/10">
             <span>Тоглогч</span>
             <span className="text-center">{MN.attack}</span>
             <span className="text-center">{MN.block}</span>
             <span className="text-center">{MN.serve}</span>
+            <span className="text-center">{MN.defense}</span>
+            <span className="text-center">{MN.set}</span>
             <span className="text-center">{MN.total}</span>
             <span className="text-right"> </span>
           </div>
@@ -207,12 +248,12 @@ export default function AdminGameStats() {
             </div>
           ) : (
             team.players.map((p, i) => {
-              const t = calcTotal(p.attack, p.block, p.serve);
+              const t = calcTotal(p.attack, p.block, p.serve, p.defense, p.set);
 
               return (
                 <div
                   key={`${p.id}-${i}`}
-                  className="grid grid-cols-[1.6fr_.9fr_.9fr_.9fr_.9fr_.4fr] gap-2 px-3 py-2 items-center border-b border-black/5 hover:bg-gray-50/60 transition"
+                  className="grid grid-cols-[1.6fr_.9fr_.9fr_.9fr_.9fr_.9fr_.9fr_.9fr_.4fr] gap-2 px-3 py-2 items-center border-b border-black/5 hover:bg-gray-50/60 transition"
                 >
                   {/* Name */}
                   <div className="flex gap-2 items-center min-w-0">
@@ -274,9 +315,34 @@ export default function AdminGameStats() {
                       setTeam({ ...team, players: arr });
                     }}
                   />
+                  {/* defense */}
+                  <input
+                    className={`${input} text-center`}
+                    type="number"
+                    value={p.defense}
+                    onChange={(e) => {
+                      const arr = [...team.players];
+                      arr[i] = { ...p, defense: Number(e.target.value) };
+                      setTeam({ ...team, players: arr });
+                    }}
+                  />
+
+                  {/* set */}
+                  <input
+                    className={`${input} text-center`}
+                    type="number"
+                    value={p.set}
+                    onChange={(e) => {
+                      const arr = [...team.players];
+                      arr[i] = { ...p, set: Number(e.target.value) };
+                      setTeam({ ...team, players: arr });
+                    }}
+                  />
 
                   {/* total */}
-                  <div className="text-center font-extrabold text-black">{t}</div>
+                  <div className="text-center font-extrabold text-black">
+                    {t}
+                  </div>
 
                   {/* delete */}
                   <div className="flex justify-end">
@@ -306,7 +372,9 @@ export default function AdminGameStats() {
       <div className="p-6 max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-extrabold text-black">Админ — Game Stats</h1>
+          <h1 className="text-3xl font-extrabold text-black">
+            Админ — Game Stats
+          </h1>
           <div className="text-sm text-gray-600">
             Тоглолт сонгоод баг бүр дээр тоглогчдын оноог оруулна.
           </div>
@@ -314,7 +382,9 @@ export default function AdminGameStats() {
 
         {/* GAME SELECT */}
         <div className={`${card} p-4 space-y-2`}>
-          <div className="text-sm font-extrabold text-black">Тоглолт сонгох</div>
+          <div className="text-sm font-extrabold text-black">
+            Тоглолт сонгох
+          </div>
           <select
             className={input}
             value={gameId}
@@ -340,7 +410,10 @@ export default function AdminGameStats() {
           <div className={`${card} p-4 space-y-3`}>
             <div className="flex flex-wrap gap-2 justify-between items-center">
               <div className="text-sm font-extrabold text-black">
-                Нийт: <span className="text-gray-700">{teamATotal} - {teamBTotal}</span>
+                Нийт:{" "}
+                <span className="text-gray-700">
+                  {teamATotal} - {teamBTotal}
+                </span>
               </div>
               <div className="text-xs text-gray-600">
                 “Player Row” дарвал 2 багт зэрэг мөр нэмнэ.
