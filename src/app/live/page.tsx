@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getDeviceId } from "@/src/lib/device";
 import { Play } from "lucide-react";
+import { Lock, Gem } from "lucide-react";
 
 /* ================= TYPES ================= */
 
@@ -56,6 +57,10 @@ export default function LivePage() {
 
   const [loadingAccess, setLoadingAccess] = useState(true);
 
+  const [disabledComps, setDisabledComps] = useState<Record<string, boolean>>(
+    {},
+  );
+
   /* ================= LOAD MATCHES ================= */
 
   useEffect(() => {
@@ -107,12 +112,30 @@ export default function LivePage() {
       .then((data: Competition[]) => setCompetitions(data));
   }, [tab]);
 
-  useEffect(() => {
-    if (!selectedCompetition) return;
-    fetch(`/api/replay?competitionId=${selectedCompetition}`)
-      .then((r) => r.json())
-      .then((data: ReplayVideo[]) => setVideos(data));
-  }, [selectedCompetition]);
+  // useEffect(() => {
+  //   if (!selectedCompetition) return;
+  //   fetch(`/api/replay?competitionId=${selectedCompetition}`)
+  //     .then((r) => r.json())
+  //     .then((data: ReplayVideo[]) => setVideos(data));
+  // }, [selectedCompetition]);
+
+  const pickCompetition = async (id: string) => {
+    // өмнө нь тоглолтгүй гэж мэдэгдсэн бол даруулахгүй
+    if (disabledComps[id]) return;
+
+    const res = await fetch(`/api/replay?competitionId=${id}`);
+    const data: ReplayVideo[] = await res.json();
+
+    // video байхгүй
+    if (!data || data.length === 0) {
+      setDisabledComps((p) => ({ ...p, [id]: true }));
+      return;
+    }
+
+    // video байвал хэвийн нээнэ
+    setSelectedCompetition(id);
+    setVideos(data);
+  };
 
   // const openReplay = (url: string) => {
   //   if (loadingAccess) return; // хүсвэл loading үед дарж болохгүй болгоно
@@ -161,7 +184,8 @@ export default function LivePage() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_60%)]" />
 
               <span className="relative">
-                🔒 Зөвхөн Pro эрхтэй хэрэглэгч үзэх боломжтой
+                <Gem className="inline mr-1" size={12} /> Зөвхөн Pro эрхтэй
+                хэрэглэгч үзэх боломжтой
               </span>
             </div>
           </div>
@@ -243,15 +267,27 @@ export default function LivePage() {
                     {competitions.map((c) => (
                       <div
                         key={c._id}
-                        onClick={() => setSelectedCompetition(c._id)}
-                        className="bg-[#121726] rounded-2xl p-3 cursor-pointer transition hover:scale-[1.05] border border-white/10"
+                        onClick={() => pickCompetition(c._id)}
+                        className={`cursor-pointer ${disabledComps[c._id] ? "pointer-events-none opacity-50" : ""}`}
                       >
-                        <img
-                          src={c.logo}
-                          alt={c.name}
-                          className="w-14 h-14 mx-auto object-contain mb-2"
-                        />
-                        <div className="text-center text-xs font-bold">
+                        {/* CARD (image only) */}
+                        
+                        <div className="bg-[#121726] rounded-2xl overflow-hidden border border-white/10 hover:scale-[1.03] transition">
+                          {/* Image area */}
+                          <div className="relative w-full aspect-[16/10] bg-black">
+                            <img
+                              src={c.logo}
+                              alt={c.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            
+                            {/* optional dark overlay for readability */}
+                            <div className="absolute inset-0 bg-black/10" />
+                          </div>
+                        </div>
+
+                        {/* TEXT (outside border) */}
+                        <div className="mt-2 text-center text-xs font-extrabold text-white/90">
                           {c.name}
                         </div>
                       </div>
@@ -275,18 +311,21 @@ export default function LivePage() {
                         <div
                           key={v._id}
                           onClick={() => openReplay(v.videoUrl, v.title)}
-                          className="bg-[#121726] rounded-2xl overflow-hidden cursor-pointer transition hover:scale-[1.03] border border-white/10"
+                          className="cursor-pointer"
                         >
-                          {/* ✅ 16:9 thumbnail area */}
-                          <div className="relative w-full aspect-video bg-black">
-                            <img
-                              src={v.thumbnail}
-                              alt={v.title}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
+                          {/* CARD (image only) */}
+                          <div className="bg-[#121726] rounded-2xl overflow-hidden border border-white/10 hover:scale-[1.03] transition">
+                            <div className="relative w-full aspect-video bg-black">
+                              <img
+                                src={v.thumbnail}
+                                alt={v.title}
+                                className="absolute inset-0 w-full h-full object-cover"
+                              />
+                            </div>
                           </div>
 
-                          <div className="p-2 text-xs font-semibold line-clamp-2">
+                          {/* TEXT OUTSIDE */}
+                          <div className="mt-2 text-center text-xs font-bold text-white/90 leading-tight line-clamp-2">
                             {v.title}
                           </div>
                         </div>
@@ -350,17 +389,13 @@ export default function LivePage() {
       {replayOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* backdrop */}
-          <div
-            className="absolute inset-0 bg-black/75 backdrop-blur-md"
-            onClick={() => {
-              setReplayOpen(false);
-              setReplayUrl("");
-              setReplayTitle("");
-            }}
-          />
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
 
           {/* modal */}
-          <div className="relative w-full max-w-3xl border border-cyan-400 rounded-[28px]">
+          <div
+            className="relative w-full max-w-3xl border border-cyan-400 rounded-[28px]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#050812] shadow-[0_0_40px_rgba(0,0,0,0.6)]">
               {/* top bar */}
               <div className="relative px-4 py-3 border-b border-white/10 bg-linear-to-r from-white/5 via-white/0 to-white/5">

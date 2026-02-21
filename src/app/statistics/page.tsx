@@ -39,7 +39,7 @@ export default function StatisticsPage() {
 
   const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
-  const cols = "grid grid-cols-[0.5fr_5fr_1fr_1fr]";
+  const cols = "grid grid-cols-[0.5fr_3fr_1fr_1fr]";
 
   const CATEGORY_IMG: Record<CategoryKey, string> = {
     points: "/icons/ptslogo.png",
@@ -189,7 +189,7 @@ export default function StatisticsPage() {
               genericFiltered.map((p, i) => (
                 <div
                   key={p._id}
-                  className={`${cols} px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center`}
+                  className={`${cols} px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center bg-gradient-to-r from-[#020617] to-[#051a3a] mb-1`}
                 >
                   {/* rank */}
                   <span className="font-extrabold text-yellow-400 tabular-nums">
