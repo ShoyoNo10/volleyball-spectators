@@ -265,6 +265,7 @@ export default function TeamPage() {
         )}
 
         {/* ================= SUCCESS ================= */}
+        {/* ================= SUCCESS ================= */}
         {tab === "success" && (
           <div className="space-y-4">
             {loadingTab && (
@@ -285,28 +286,39 @@ export default function TeamPage() {
                 key={c._id}
                 className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden"
               >
-                <div className="bg-gray-900 text-center py-2 font-bold text-cyan-300">
+                {/* Competition title */}
+                <div className="bg-gray-900 text-center py-2 font-bold text-white">
                   {c.competitionName}
                 </div>
 
-                <div className="p-3 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Appearances</span>
-                    <span className="text-white">
-                      {c.appearances} (First in {c.firstYear || "—"})
-                    </span>
-                  </div>
+                {/* Best results list (no labels) */}
+                <div className="p-3">
+                  {Array.isArray(c.bestResults) && c.bestResults.length > 0 ? (
+                    <div className="divide-y divide-white/10">
+                      {c.bestResults
+                        // optional: year-ээр эрэмбэлж болно (шинээс нь)
+                        .slice()
+                        .sort((a, b) => b.year - a.year)
+                        .map((r, idx) => (
+                          <div
+                            key={`${r.title}-${r.year}-${idx}`}
+                            className="py-2 flex items-center justify-between"
+                          >
+                            <div className="text-[13px] font-semibold text-white">
+                              {r.year}
+                            </div>
 
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Best result</span>
-                    <span className="text-white">
-                      {Array.isArray(c.bestResults) && c.bestResults.length > 0
-                        ? c.bestResults
-                            .map((r) => `${r.title} (${r.year})`)
-                            .join(", ")
-                        : "—"}
-                    </span>
-                  </div>
+                            <div className="text-[13px] text-gray-300 text-right">
+                              {r.title}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-sm text-center py-2">
+                      —
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -314,20 +326,22 @@ export default function TeamPage() {
         )}
 
         {/* ================= SCHEDULE ================= */}
-{tab === "schedule" && (
-  <div className="space-y-4">
-    {loadingTab && (
-      <div className="text-gray-500 text-center">Loading schedule...</div>
-    )}
+        {tab === "schedule" && (
+          <div className="space-y-4">
+            {loadingTab && (
+              <div className="text-gray-500 text-center">
+                Loading schedule...
+              </div>
+            )}
 
-    {!loadingTab && schedule.length === 0 && (
-      <div className="text-gray-400 text-center">No matches</div>
-    )}
+            {!loadingTab && schedule.length === 0 && (
+              <div className="text-gray-400 text-center">No matches</div>
+            )}
 
-    {schedule.map((m) => (
-      <div
-        key={m._id}
-        className="
+            {schedule.map((m) => (
+              <div
+                key={m._id}
+                className="
           block
           bg-linear-to-b from-[#0b1220] to-black
           text-white
@@ -339,13 +353,13 @@ export default function TeamPage() {
           transition
           active:scale-[0.995]
         "
-      >
-        <div className="p-4">
-          {/* TOP LINE */}
-          <div className="flex items-center justify-between gap-3">
-            
-            {/* WEEK badge (gender style) */}
-            <span className="
+              >
+                <div className="p-4">
+                  {/* TOP LINE */}
+                  <div className="flex items-center justify-between gap-3">
+                    {/* WEEK badge (gender style) */}
+                    <span
+                      className="
               px-2 py-0.5
               text-[11px]
               font-extrabold
@@ -353,112 +367,117 @@ export default function TeamPage() {
               bg-white/10
               text-gray-100
               border border-white/10
-            ">
-              {m.week}
-            </span>
+            "
+                    >
+                      {m.week}
+                    </span>
 
-            {/* DATE */}
-            <span className="text-[12px] font-semibold text-gray-400">
-              {m.matchDate}
-            </span>
-          </div>
-
-          {/* MAIN GRID */}
-          <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
-            {/* LEFT */}
-            <div className="relative space-y-3 min-w-0 pr-14">
-              {!m.finished && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-extrabold text-gray-200">
-                  {m.matchTime}
-                </div>
-              )}
-
-              {/* TEAM A */}
-              <div className="flex items-center gap-3 min-w-0">
-                {m.logoA && (
-                  <img
-                    src={m.logoA}
-                    className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
-                  />
-                )}
-                <div className="text-sm font-semibold text-gray-100 truncate">
-                  {m.teamA}
-                </div>
-              </div>
-
-              {/* TEAM B */}
-              <div className="flex items-center gap-3 min-w-0">
-                {m.logoB && (
-                  <img
-                    src={m.logoB}
-                    className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
-                  />
-                )}
-                <div className="text-sm font-semibold text-gray-100 truncate">
-                  {m.teamB}
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT */}
-            {m.finished ? (
-              <div className="shrink-0 flex items-center gap-3">
-                {/* SETS */}
-                {m.sets?.length > 0 && (
-                  <div className="flex flex-col justify-between h-[56px]">
-                    <div className="flex justify-end gap-2 text-[12px] font-normal">
-                      {m.sets.map((s, i) => {
-                        const a = s.teamA;
-                        const b = s.teamB;
-                        return (
-                          <span
-                            key={i}
-                            className={a > b ? "text-white" : "text-gray-500"}
-                          >
-                            {a}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex justify-end gap-2 text-[12px] font-semibold">
-                      {m.sets.map((s, i) => {
-                        const a = s.teamA;
-                        const b = s.teamB;
-                        return (
-                          <span
-                            key={i}
-                            className={b > a ? "text-white" : "text-gray-500"}
-                          >
-                            {b}
-                          </span>
-                        );
-                      })}
-                    </div>
+                    {/* DATE */}
+                    <span className="text-[12px] font-semibold text-gray-400">
+                      {m.matchDate}
+                    </span>
                   </div>
-                )}
 
-                {/* BIG SCORE */}
-                <div className="text-right flex flex-col justify-center h-[56px]">
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="text-3xl font-extrabold text-gray-100">
-                      {m.finalA}
+                  {/* MAIN GRID */}
+                  <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-start">
+                    {/* LEFT */}
+                    <div className="relative space-y-3 min-w-0 pr-14">
+                      {!m.finished && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-extrabold text-gray-200">
+                          {m.matchTime}
+                        </div>
+                      )}
+
+                      {/* TEAM A */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        {m.logoA && (
+                          <img
+                            src={m.logoA}
+                            className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
+                          />
+                        )}
+                        <div className="text-sm font-semibold text-gray-100 truncate">
+                          {m.teamA}
+                        </div>
+                      </div>
+
+                      {/* TEAM B */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        {m.logoB && (
+                          <img
+                            src={m.logoB}
+                            className="w-9 h-6 rounded border border-white/10 object-cover bg-black"
+                          />
+                        )}
+                        <div className="text-sm font-semibold text-gray-100 truncate">
+                          {m.teamB}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-3xl font-extrabold text-gray-500">
-                      {m.finalB}
-                    </div>
+
+                    {/* RIGHT */}
+                    {m.finished ? (
+                      <div className="shrink-0 flex items-center gap-3">
+                        {/* SETS */}
+                        {m.sets?.length > 0 && (
+                          <div className="flex flex-col justify-between h-[56px]">
+                            <div className="flex justify-end gap-2 text-[12px] font-normal">
+                              {m.sets.map((s, i) => {
+                                const a = s.teamA;
+                                const b = s.teamB;
+                                return (
+                                  <span
+                                    key={i}
+                                    className={
+                                      a > b ? "text-white" : "text-gray-500"
+                                    }
+                                  >
+                                    {a}
+                                  </span>
+                                );
+                              })}
+                            </div>
+
+                            <div className="flex justify-end gap-2 text-[12px] font-semibold">
+                              {m.sets.map((s, i) => {
+                                const a = s.teamA;
+                                const b = s.teamB;
+                                return (
+                                  <span
+                                    key={i}
+                                    className={
+                                      b > a ? "text-white" : "text-gray-500"
+                                    }
+                                  >
+                                    {b}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* BIG SCORE */}
+                        <div className="text-right flex flex-col justify-center h-[56px]">
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="text-3xl font-extrabold text-gray-100">
+                              {m.finalA}
+                            </div>
+                            <div className="text-3xl font-extrabold text-gray-500">
+                              {m.finalB}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div />
+                    )}
                   </div>
                 </div>
               </div>
-            ) : (
-              <div />
-            )}
+            ))}
           </div>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+        )}
       </div>
     </div>
   );

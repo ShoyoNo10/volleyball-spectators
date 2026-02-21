@@ -145,14 +145,14 @@ export default function SchedulePage() {
                   className={`
                     flex-1 px-1 py-1.5 rounded-lg text-center transition
                     ${
-  isSelected
-    ? `
+                      isSelected
+                        ? `
         text-white
         bg-linear-to-r from-[#1b3a6b] via-[#2563eb] to-[#3b82f6]
         border border-blue-300/40
         shadow-[0_0_20px_rgba(59,130,246,0.35)]
       `
-    : `
+                        : `
         bg-gray-900
         text-gray-400
         border border-white/10
@@ -160,7 +160,7 @@ export default function SchedulePage() {
         hover:text-white
         hover:border-white/20
       `
-}
+                    }
                   `}
                 >
                   <div className="text-[12px] font-bold leading-none">
@@ -243,8 +243,16 @@ export default function SchedulePage() {
                   <div className="relative space-y-3 min-w-0 pr-14 ">
                     {/* TIME on the right empty space (upcoming only) */}
                     {!m.finished ? (
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[25px] font-extrabold text-gray-200 tabular-nums">
-                        {m.time}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-right">
+                        {/* label */}
+                        <div className="text-[10px] text-gray-500 tracking-wide">
+                          Эхлэх цаг
+                        </div>
+
+                        {/* time */}
+                        <div className="text-[25px] font-extrabold text-gray-200 tabular-nums">
+                          {m.time}
+                        </div>
                       </div>
                     ) : null}
 

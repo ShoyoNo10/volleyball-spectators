@@ -6,6 +6,8 @@ import Image from "next/image";
 
 /* ================= TYPES ================= */
 
+type SetScore = { teamA: number; teamB: number };
+
 interface Player {
   name: string;
   number: number;
@@ -43,10 +45,111 @@ interface Game {
 
   finished?: boolean;
   score?: { a: number; b: number };
-  sets?: string[];
+  sets?: Array<string | SetScore>;
 
   teamA: { name: string; logo: string };
   teamB: { name: string; logo: string };
+}
+
+/* ================= HELPERS (дээшээ, total() доор нэм) ================= */
+
+function topScorers(players: Player[], take = 2) {
+  return [...(players ?? [])]
+    .sort((a, b) => total(b) - total(a))
+    .slice(0, take);
+}
+
+type ScoreVariant = "win" | "lose" | "tie";
+
+function ScorePill({ value, variant }: { value: number; variant: ScoreVariant }) {
+  const cls =
+    variant === "win"
+      ? "text-red-500"
+      : variant === "tie"
+        ? "text-white"
+        : "text-gray-400";
+
+  return (
+    <div className="w-[50px] h-[40px] rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+      <span className={`text-[18px] font-extrabold tabular-nums ${cls}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function compareVariant(self: number, other: number): ScoreVariant {
+  if (self > other) return "win";
+  if (self < other) return "lose";
+  return "tie";
+}
+
+/* ================= HELPERS (GamePage дотор дээр нь) ================= */
+
+const MN_DAYS = [
+  "Ням",
+  "Даваа",
+  "Мягмар",
+  "Лхагва",
+  "Пүрэв",
+  "Баасан",
+  "Бямба",
+];
+
+const MN_MONTHS = [
+  "1-р сар",
+  "2-р сар",
+  "3-р сар",
+  "4-р сар",
+  "5-р сар",
+  "6-р сар",
+  "7-р сар",
+  "8-р сар",
+  "9-р сар",
+  "10-р сар",
+  "11-р сар",
+  "12-р сар",
+];
+
+function toDateSafe(dateStr?: string) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function formatMNDateLine(dateStr?: string) {
+  const d = toDateSafe(dateStr);
+  if (!d) return { full: "—", day: "—" };
+
+  const dayName = MN_DAYS[d.getDay()];
+  const dd = pad2(d.getDate());
+  const mm = MN_MONTHS[d.getMonth()];
+  const yyyy = d.getFullYear();
+
+  return {
+    day: dayName,
+    full: ` ${mm} ${dd} ${yyyy}`,
+  };
+}
+
+function normalizeSets(sets?: Array<string | SetScore>): string[] {
+  if (!Array.isArray(sets)) return [];
+
+  return sets
+    .map((x) => {
+      if (typeof x === "object" && x !== null) {
+        return `${x.teamA}-${x.teamB}`;
+      }
+      return x.replace(":", "-").replace("–", "-").trim();
+    })
+    .filter((s) => {
+      const cleaned = s.replace(/\s+/g, "");
+      return /^\d+-\d+$/.test(cleaned);
+    });
 }
 
 /* ================= HELPERS ================= */
@@ -100,71 +203,157 @@ export default function GamePage() {
   return (
     <div className="max-w-md mx-auto min-h-screen bg-linear-to-b from-[#0b0f1a] to-black text-white">
       {/* SCHEDULE CARD */}
+      {/* ================= SCHEDULE CARD (солих хэсэг) ================= */}
       <div className="mt-3 px-3">
-        <div
-          className="
-    rounded-2xl p-3
-    bg-linear-to-b from-[#0b1220] to-black
-    border border-white/10
-  "
-        >
-          {/* week + gender */}
-          <div className="flex justify-between text-xs">
-            <span className="text-cyan-300 font-bold">{gameInfo.week}</span>
-            <span className="text-gray-400">
-              {gameInfo.gender?.toUpperCase()}
-            </span>
-          </div>
-
-          {/* description */}
-          <div className="text-[11px] text-gray-400">
-            {gameInfo.description}
-          </div>
-
-          {/* teams */}
-          <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center">
-            <div className="flex items-center gap-2">
-              <Image src={gameInfo.teamA.logo} alt="" width={40} height={40} />
-              <span className="font-bold text-white">
-                {gameInfo.teamA.name}
-              </span>
-            </div>
-
-            <div className="text-center">
-              {!gameInfo.finished ? (
-                <div className="text-white font-bold">VS</div>
-              ) : (
-                <div className="text-2xl font-bold text-white">
-                  {gameInfo.score?.a}:{gameInfo.score?.b}
+        <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#0b0f1a]">
+          {/* subtle background */}
+          <div className="relative p-4">
+            <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+            <div className="relative">
+              {/* TOP TITLE */}
+              <div className="text-center">
+                <div className="text-[12px] font-extrabold tracking-wide text-gray-100">
+                  {gameInfo.week || "—"}
+                  {gameInfo.gender
+                    ? ` • ${gameInfo.gender === "men" ? "ЭРЭГТЭЙ" : "ЭМЭГТЭЙ"}`
+                    : ""}
                 </div>
-              )}
-            </div>
 
-            <div className="flex items-center gap-2 justify-end">
-              <span className="font-bold text-white">
-                {gameInfo.teamB.name}
-              </span>
-              <Image src={gameInfo.teamB.logo} alt="" width={40} height={40} />
+                {gameInfo.description ? (
+                  <div className="mt-1 text-[11px] text-gray-400">
+                    {gameInfo.description}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* MAIN ROW */}
+              <div className="mt-4">
+                {(() => {
+                  const sets = normalizeSets(gameInfo.sets);
+                  const codeA = gameInfo.teamA.name.slice(0, 3).toUpperCase();
+                  const codeB = gameInfo.teamB.name.slice(0, 3).toUpperCase();
+
+                  return gameInfo.finished ? (
+                    <>
+                      {/* FINISHED LAYOUT */}
+                      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                        {/* LEFT */}
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={gameInfo.teamA.logo}
+                            alt={gameInfo.teamA.name}
+                            width={56}
+                            height={40}
+                            className="rounded-md border border-white/10 bg-black object-cover"
+                          />
+                          <div className="text-[13px] font-extrabold text-white truncate max-w-[110px] text-center">
+                            {gameInfo.teamA.name}
+                          </div>
+                        </div>
+
+                        {/* SCORE */}
+                        <div className="px-4 py-2 rounded-xl bg-black/70 border border-white/10 flex items-center gap-3">
+                          <span className="text-2xl font-extrabold text-white tabular-nums">
+                            {gameInfo.score?.a ?? 0}
+                          </span>
+                          <span className="text-gray-300 font-extrabold text-xl">
+                            :
+                          </span>
+                          <span className="text-2xl font-extrabold text-white tabular-nums">
+                            {gameInfo.score?.b ?? 0}
+                          </span>
+                        </div>
+
+                        {/* RIGHT */}
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={gameInfo.teamB.logo}
+                            alt={gameInfo.teamB.name}
+                            width={56}
+                            height={40}
+                            className="rounded-md border border-white/10 bg-black object-cover"
+                          />
+                          <div className="text-[13px] font-extrabold text-white truncate max-w-[110px] text-center">
+                            {gameInfo.teamB.name}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SETS */}
+                      {sets.length > 0 && (
+                        <div className="mt-3 flex justify-center gap-6 text-[12px] font-semibold text-gray-300 tabular-nums">
+                          {sets.map((s, i) => (
+                            <span key={i}>{s}</span>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {/* UPCOMING LAYOUT (LOGO буцааж орлоо) */}
+                      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                        {/* LEFT TEAM */}
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={gameInfo.teamA.logo}
+                            alt={gameInfo.teamA.name}
+                            width={56}
+                            height={40}
+                            className="rounded-md border border-white/10 bg-black object-cover"
+                          />
+                          <div className="text-[13px] font-extrabold text-white truncate max-w-[110px] text-center">
+                            {gameInfo.teamA.name}
+                          </div>
+                        </div>
+
+                        {/* CENTER TIME */}
+                        <div className="text-center">
+                          {(() => {
+                            const d = formatMNDateLine(gameInfo.date);
+                            return (
+                              <>
+                                <div className="text-[11px] font-extrabold text-white">
+                                  {d.day}
+                                </div>
+                                <div className="text-[11px] font-extrabold text-white">
+                                  {d.full}
+                                </div>
+
+                                <div className="mt-1 text-[16px] text-gray-400 tracking-widest">
+                                  VS
+                                </div>
+
+                                <div className="mt-2 text-[28px] font-extrabold text-white tabular-nums">
+                                  <div className="text-xs text-gray-400">
+                                    Эхлэх цаг
+                                  </div>
+                                  {gameInfo.time}
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+
+                        {/* RIGHT TEAM */}
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={gameInfo.teamB.logo}
+                            alt={gameInfo.teamB.name}
+                            width={56}
+                            height={40}
+                            className="rounded-md border border-white/10 bg-black object-cover"
+                          />
+                          <div className="text-[13px] font-extrabold text-white truncate max-w-[110px] text-center">
+                            {gameInfo.teamB.name}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
             </div>
           </div>
-
-          {/* time */}
-          {!gameInfo.finished && (
-            <div className="text-center text-xs text-gray-400 mt-2">
-              {gameInfo.date} — {gameInfo.time}
-            </div>
-          )}
-
-          {/* sets */}
-          {gameInfo.finished && (
-            <div className="flex gap-2 justify-center mt-2">
-              {gameInfo.sets?.map((s, i) => (
-                <div key={i} className="px-2 py-1 bg-black border text-xs">
-                  {s}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -262,7 +451,7 @@ export default function GamePage() {
                 </span>
               </div>
 
-              <span className="text-gray-400 text-xs font-bold">VS</span>
+              <span className="text-gray-400 text-[18px] font-bold">-</span>
 
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm tracking-wide">
@@ -376,6 +565,75 @@ export default function GamePage() {
                 );
               })()}
             </div>
+            {/* ================= BEST SCORERS (GENERAL-ийн хамгийн доор) ================= */}
+            {(() => {
+              const aTop = topScorers(stats.teamA.players, 2);
+              const bTop = topScorers(stats.teamB.players, 2);
+
+              const rows = Array.from(
+                { length: Math.max(aTop.length, bTop.length) },
+                (_, i) => ({ a: aTop[i], b: bTop[i] }),
+              );
+
+              return (
+                <div className="mt-4 pt-4 border-t border-white/10 mb-15">
+                  <div className="text-center text-[14px] font-extrabold tracking-wide">
+                    Онооны шилдэгүүд
+                  </div>
+
+                  <div className="mt-3 space-y-3">
+                    {rows.map((r, idx) => {
+                      const aScore = r.a ? total(r.a) : 0;
+                      const bScore = r.b ? total(r.b) : 0;
+
+                      const aVar = compareVariant(aScore, bScore);
+                      const bVar = compareVariant(bScore, aScore);
+
+                      return (
+                        <div
+                          key={idx}
+                          className="grid grid-cols-[1fr_auto_auto_1fr] items-center gap-3"
+                        >
+                          {/* LEFT player */}
+                          <div className="text-center font-bold flex-col gap-1">
+                            {r.a ? (
+                              <>
+                                {r.a.name}{" "}
+                                {/* <span className="text-gray-400 font-extrabold">
+                                  ({r.a.number})
+                                </span> */}
+                              </>
+                            ) : (
+                              <span className="text-gray-500">—</span>
+                            )}
+                          </div>
+
+                          {/* LEFT score box */}
+                          <ScorePill value={aScore} variant={aVar} />
+
+                          {/* RIGHT score box */}
+                          <ScorePill value={bScore} variant={bVar} />
+
+                          {/* RIGHT player */}
+                          <div className="text-center font-bold flex-col gap-1">
+                            {r.b ? (
+                              <>
+                                {r.b.name}{" "}
+                                {/* <span className="text-gray-400 font-extrabold">
+                                  ({r.b.number})
+                                </span> */}
+                              </>
+                            ) : (
+                              <span className="text-gray-500">—</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -386,7 +644,7 @@ export default function GamePage() {
             <div className="grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] px-1 py-2 text-[10px] font-bold text-gray-400 border-b border-white/10 tracking-wide">
               <span className="text-center">#</span>
               <span>ТОГЛОГЧ</span>
-              <span className="text-center">НИЙТ</span>
+              <span className="text-center">ОНОО</span>
               <span className="text-center">ДОВ</span>
               <span className="text-center">ХААЛТ</span>
               <span className="text-center">ДАВ</span>
@@ -402,6 +660,7 @@ export default function GamePage() {
                   className="
   grid grid-cols-[0.8fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr]
   px-1 py-2 text-xs
+  bg-gradient-to-r from-[#020617] to-[#051a3a] mb-1
   border-b border-white/5
   hover:bg-white/5 transition
 "
