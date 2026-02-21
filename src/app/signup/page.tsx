@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Info } from 'lucide-react';
+import { Info } from "lucide-react";
+import { getDeviceId } from "@/src/lib/device";
+
+type ApiError = { error?: string; resetSec?: number };
 
 export default function SignupPage() {
   const router = useRouter();
@@ -14,7 +17,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // ⭐ popup state
+  // popup state
   const [showWarn, setShowWarn] = useState(false);
   const [confirmedWarn, setConfirmedWarn] = useState(false);
 
@@ -30,46 +33,43 @@ export default function SignupPage() {
   const doSignup = async () => {
     setError("");
 
-    if (!username.trim()) {
-      setError("Username оруулна уу");
-      return;
-    }
-    if (!password) {
-      setError("Нууц үг оруулна уу");
-      return;
-    }
+    const u = username.trim();
+    if (!u) return setError("Username оруулна уу");
+    if (!password) return setError("Нууц үг оруулна уу");
 
     const passError = validatePassword(password);
-    if (passError) {
-      setError(passError);
-      return;
-    }
+    if (passError) return setError(passError);
 
     setLoading(true);
 
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      const deviceId = getDeviceId();
 
-    const data = await res.json().catch(() => ({}));
-    setLoading(false);
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: u, password, deviceId }),
+      });
 
-    if (!res.ok) {
-      setError((data as any)?.error || "Алдаа гарлаа");
-      return;
+      const data = (await res.json().catch(() => ({}))) as ApiError;
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          setError("Хэт олон оролдлого. 24 цагийн дараа дахин оролдоно уу.");
+        } else {
+          setError(data.error || "Алдаа гарлаа");
+        }
+        return;
+      }
+
+      setSuccess(true);
+      setTimeout(() => router.push("/login"), 1200);
+    } finally {
+      setLoading(false);
     }
-
-    setSuccess(true);
-
-    setTimeout(() => {
-      router.push("/login");
-    }, 1500);
   };
 
   const signup = async () => {
-    // ⭐ эхний удаа анхааруулга popup харуулна
     if (!confirmedWarn) {
       setShowWarn(true);
       return;
@@ -77,7 +77,7 @@ export default function SignupPage() {
     await doSignup();
   };
 
-  // ⭐ popup нээлттэй үед ESC дарвал хаах
+  // popup нээлттэй үед ESC
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && showWarn) setShowWarn(false);
@@ -89,7 +89,6 @@ export default function SignupPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(80vh-100px)] bg-gradient-to-b from-[#020617] via-[#020617] to-black text-white">
       <div className="relative w-[340px]">
-        {/* glow */}
         <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 via-purple-600 to-purple-600 blur opacity-50" />
 
         <div className="relative bg-[#020617] border border-white/10 rounded-3xl p-6">
@@ -120,14 +119,12 @@ export default function SignupPage() {
                 className="w-full p-3 rounded-xl bg-[#121726] border border-white/10 focus:border-cyan-400 outline-none"
               />
 
-              {/* password rule */}
               {password && (
                 <div className="text-[11px] mt-2 text-gray-400">
                   8+ тэмдэгт, Том үсэг, Жижиг үсэг, Тоо, Тусгай тэмдэгт
                 </div>
               )}
 
-              {/* error */}
               {error && (
                 <div className="text-red-500 text-xs mt-2 font-semibold">
                   {error}
@@ -150,14 +147,11 @@ export default function SignupPage() {
               </div>
             </>
           ) : (
-            // ⭐ SUCCESS VIEW
             <div className="text-center py-8">
               <div className="text-green-400 text-3xl mb-2">✓</div>
-
               <div className="font-bold text-lg mb-2">
                 Амжилттай бүртгэгдлээ
               </div>
-
               <div className="text-xs text-gray-400">
                 Нэвтрэх хуудас руу шилжиж байна...
               </div>
@@ -166,25 +160,24 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* ⭐ WARNING POPUP */}
+      {/* WARNING POPUP */}
       {showWarn && !success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* backdrop */}
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setShowWarn(false)}
           />
 
-          {/* modal */}
           <div className="relative w-full max-w-[420px]">
-            {/* neon glow frame */}
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-red-600 via-red-500 to-red-600 blur opacity-60" />
 
             <div className="relative rounded-3xl border border-white/10 bg-[#050812] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-              <div className="text-lg font-bold mb-2 flex items-center gap-2">Анхааруулга <Info size={20} /></div>
+              <div className="text-lg font-bold mb-2 flex items-center gap-2">
+                Анхааруулга <Info size={20} />
+              </div>
 
-              <div className="text-sm text-gray-300 leading-relaxed flex gap-1 items-start">
-               Нэвтрэх нэр болон нууц үгээ мартсан тохиолдолд сэргээх
+              <div className="text-sm text-gray-300 leading-relaxed">
+                Нэвтрэх нэр болон нууц үгээ мартсан тохиолдолд сэргээх
                 боломжгүй. Иймд мартахгүй нууц үг сонгох эсвэл мэдээллээ хадгалж
                 авна уу.
               </div>
@@ -192,7 +185,7 @@ export default function SignupPage() {
               <div className="mt-5 flex gap-3">
                 <button
                   onClick={() => setShowWarn(false)}
-                  className="flex py-2.5 px-1 rounded-xl border border-white/15 text-gray-200 hover:bg-white/5 transition"
+                  className="flex-1 py-2.5 rounded-xl border border-white/15 text-gray-200 hover:bg-white/5 transition"
                 >
                   Буцах
                 </button>
@@ -201,10 +194,9 @@ export default function SignupPage() {
                   onClick={() => {
                     setConfirmedWarn(true);
                     setShowWarn(false);
-                    // ⭐ зөвшөөрсөн тул яг одоо signup үргэлжлүүлнэ
                     doSignup();
                   }}
-                  className="flex py-2.5 px-1 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 disabled:opacity-60 disabled:hover:bg-purple-600 transition"
+                  className="flex-1 py-2.5 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 transition"
                 >
                   Ойлголоо, үргэлжлүүлэх
                 </button>

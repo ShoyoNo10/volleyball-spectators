@@ -113,7 +113,7 @@ export default function StandingsPage() {
                 <div
                   key={t._id}
                   className={`
-        mx-2 my-1 rounded-xl
+         my-1 rounded-xl
         border ${isLast ? "border-red-500/50" : "border-[#0f2747]"}
         ${isLast ? "bg-gradient-to-r from-red-950/40 to-[#051a3a]" : "bg-gradient-to-r from-[#020617] to-[#051a3a]"}
         ${isLast ? "hover:from-red-900/40 hover:to-[#07224d]" : "hover:from-[#04122b] hover:to-[#07224d]"}

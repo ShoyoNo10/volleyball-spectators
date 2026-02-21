@@ -39,6 +39,8 @@ export default function StatisticsPage() {
 
   const current = useMemo(() => CATEGORIES.find((c) => c.key === cat)!, [cat]);
 
+  const cols = "grid grid-cols-[0.5fr_5fr_1fr_1fr]";
+
   const CATEGORY_IMG: Record<CategoryKey, string> = {
     points: "/icons/ptslogo.png",
     receive: "/icons/attack.png",
@@ -172,11 +174,13 @@ export default function StatisticsPage() {
         ) : (
           <div className="max-w-md mx-auto bg-[#020617] rounded-2xl overflow-hidden border border-white/10">
             {/* header */}
-            <div className="grid grid-cols-[0.5fr_5fr_1fr_1fr] px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10">
+            <div
+              className={`${cols} px-3 py-2 text-[11px] font-bold text-gray-400 border-b border-white/10`}
+            >
               <span>#</span>
               <span>Тоглогч</span>
-              <span>Баг</span>
-              <span className="text-center">Оноо</span>
+              <span className="">Баг</span>
+              <span className="">Оноо</span>
             </div>
 
             {genericFiltered.length === 0 ? (
@@ -185,14 +189,14 @@ export default function StatisticsPage() {
               genericFiltered.map((p, i) => (
                 <div
                   key={p._id}
-                  className="grid grid-cols-[0.5fr_3fr_1fr_1fr] px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center"
+                  className={`${cols} px-3 py-2 text-sm border-b border-white/5 hover:bg-white/5 transition items-center`}
                 >
-                  {/* RANK */}
-                  <span className="font-extrabold text-yellow-400">
+                  {/* rank */}
+                  <span className="font-extrabold text-yellow-400 tabular-nums">
                     {i + 1}
                   </span>
 
-                  {/* PLAYER */}
+                  {/* player */}
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-white/5 border border-white/10 shrink-0">
                       <Image
@@ -200,24 +204,20 @@ export default function StatisticsPage() {
                         alt={p.playerName}
                         width={36}
                         height={36}
-                        className="w-9 h-9 object-cover"
+                        className="object-cover"
                       />
                     </div>
 
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold text-white">
-                        {p.playerName}
-                      </div>
-                    </div>
+                    <div className="truncate font-semibold">{p.playerName}</div>
                   </div>
 
-                  {/* TEAM */}
-                  <span className="font-bold text-cyan-400 text-right">
+                  {/* team */}
+                  <span className=" font-bold text-cyan-400 tabular-nums">
                     {p.teamCode}
                   </span>
 
-                  {/* SCORE */}
-                  <span className="text-right font-extrabold text-white">
+                  {/* score */}
+                  <span className=" font-extrabold tabular-nums">
                     {p.score}
                   </span>
                 </div>
