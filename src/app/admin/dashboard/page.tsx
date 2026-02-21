@@ -120,7 +120,7 @@ export default function Dashboard() {
           href="/admin/stats-receive"
           className="bg-green-300 p-6 rounded-xl shadow hover:scale-105 transition"
         >
-          Manage receive stats
+          Manage attack stats
         </Link>
         <Link
           href="/admin/ranking"

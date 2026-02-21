@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongodb";
 import Statistic from "@/src/models/Statistic";
+import mongoose from "mongoose";
 
 export async function GET(req: Request) {
   await connectDB();
@@ -35,7 +36,32 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   await connectDB();
-  const { id } = await req.json();
-  await Statistic.findByIdAndDelete(id);
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json(
+      { success: false, message: "Missing id" },
+      { status: 400 }
+    );
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json(
+      { success: false, message: "Invalid id" },
+      { status: 400 }
+    );
+  }
+
+  const deleted = await Statistic.findByIdAndDelete(id);
+
+  if (!deleted) {
+    return NextResponse.json(
+      { success: false, message: "Not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({ success: true });
 }

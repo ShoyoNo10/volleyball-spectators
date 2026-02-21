@@ -39,9 +39,10 @@ export default function Navbar2() {
             grid
             grid-cols-5
             gap-1
-            md:flex
-            md:gap-3
-            md:justify-center
+    md:grid
+    md:grid-cols-5
+    md:gap-0
+    md:justify-between
           "
         >
           {items.map((item) => {
