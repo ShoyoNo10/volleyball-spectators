@@ -248,7 +248,7 @@ export default function AdminGameStats() {
             </div>
           ) : (
             team.players.map((p, i) => {
-              const t = calcTotal(p.attack, p.block, p.serve, p.defense, p.set);
+              const t = calcTotal(p.attack, p.block, p.serve);
 
               return (
                 <div

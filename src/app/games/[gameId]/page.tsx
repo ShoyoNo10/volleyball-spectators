@@ -649,7 +649,7 @@ export default function GamePage() {
               <span className="text-center">ХААЛТ</span>
               <span className="text-center">ДАВ</span>
               <span className="text-center">ХАМ</span>
-              <span className="text-center">SET</span>
+              <span className="text-center">ХОЛ</span>
             </div>
 
             {[...team.players]
