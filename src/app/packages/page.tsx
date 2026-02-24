@@ -9,6 +9,11 @@ export default function Page() {
   const [loading, setLoading] = useState<number | null>(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
+  const isFBIGInApp = () => {
+  const ua = navigator.userAgent || "";
+  return ua.includes("FBAN") || ua.includes("FBAV") || ua.includes("Instagram");
+};
+
   const buy = async (months: number) => {
     if (loading !== null) return; // ✅ давхар дарахаас хамгаална
 
@@ -57,25 +62,20 @@ export default function Page() {
     // }
 
     if (data?.url) {
-      const url = data.url as string;
-      console.log(data.url);
-      window.location.href = url;
+  const url = data.url as string;
 
-      const t = setTimeout(() => {
-        alert(
-          "Төлбөрийн линк Facebook/Instagram дотор заримдаа нээгдэхгүй байдаг.\n\n" +
-            "… (3 цэг) → Open in browser / Open in Chrome (Safari) гэж нээгээд дахин орж төлнө үү.",
-        );
-      }, 1200);
+  // ✅ FB/IG дотор байвал: QPay руу шууд явуулахгүй (хар дэлгэц гарах учраас)
+  if (isFBIGInApp()) {
+    // өөрийн "open" page руу явуулж заавар харуулна
+    router.push(`/open-in-browser?to=${encodeURIComponent(url)}`);
+    return;
+  }
 
-      const onHide = () => {
-        clearTimeout(t);
-        window.removeEventListener("visibilitychange", onHide);
-        window.removeEventListener("pagehide", onHide);
-      };
-      window.addEventListener("visibilitychange", onHide);
-      window.addEventListener("pagehide", onHide);
-    }
+  // ✅ Chrome/Safari бол шууд нээнэ
+  window.location.href = url;
+}
+
+
   };
 
   return (
