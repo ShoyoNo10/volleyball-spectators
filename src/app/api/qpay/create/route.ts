@@ -108,12 +108,12 @@ export async function POST(req: Request) {
       months,
     });
 
-    return NextResponse.json({
-      url: data.qPay_shortUrl || null, // ✅ хамгийн гол нь (https)
-      shortUrl: data.qPay_shortUrl || null, // optional
-      qr_text: data.qr_text || null, // optional (дараа нь QR гаргах бол хэрэгтэй)
-      qr_image: data.qr_image || null, // optional
-    });
+return NextResponse.json({
+  invoice_id: data.invoice_id,
+  url: data.qPay_shortUrl || null,
+  qr_text: data.qr_text || null,
+  qr_image: data.qr_image || null, // base64 png
+});
   } catch (err) {
     console.log("❌ CREATE INVOICE ERROR:", err);
     return NextResponse.json({ error: "server error" });
