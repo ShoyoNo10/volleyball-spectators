@@ -58,11 +58,9 @@ export default function Page() {
 
     if (data?.url) {
       const url = data.url as string;
-
-      // 1) ЭХЛЭЭД оролдоно (FB/Insta дээр ч гэсэн)
+      console.log(data.url);
       window.location.href = url;
 
-      // 2) Хэрвээ 1 сек дотор app/browser шилжээгүй бол fallback (заавар)
       const t = setTimeout(() => {
         alert(
           "Төлбөрийн линк Facebook/Instagram дотор заримдаа нээгдэхгүй байдаг.\n\n" +
@@ -70,7 +68,6 @@ export default function Page() {
         );
       }, 1200);
 
-      // 3) Шилжсэн тохиолдолд timer-ийг цуцлах (page далдрах үед)
       const onHide = () => {
         clearTimeout(t);
         window.removeEventListener("visibilitychange", onHide);
