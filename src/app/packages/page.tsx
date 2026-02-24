@@ -61,33 +61,17 @@ const [qpayInvoiceId, setQpayInvoiceId] = useState<string | null>(null);
 
     const data = await res.json();
 
-    const isFB = isFBIGInApp();
 
     // nemeltttttt
 
-if (isFB) {
-  // ✅ LookTV шиг: FB дээр шууд QR харуулна
-  if (data?.qr_image) {
-    setQpayQR(`data:image/png;base64,${data.qr_image}`);
-    setQpayInvoiceId(data.invoice_id || null);
-    setQpayOpen(true);
-    return;
-  }
 
-  // fallback
-  router.push(`/open-in-browser`);
-  return;
-}
-
-// ✅ FB биш бол ердийнхөөрөө link рүү
-if (data?.url) window.location.href = data.url;
 
 
 // ene bsanguuuddd
 
     setLoading(null);
 
-    console.log("QPay URL:", data?.url); // 👈 ЭНД НЭМ
+
 
     // if (data?.url) {
     //   window.location.href = data.url;
@@ -205,39 +189,7 @@ if (data?.url) window.location.href = data.url;
           </div>
         </div>
       )}
-      {qpayOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div
-      className="absolute inset-0 bg-black/70 backdrop-blur"
-      onClick={() => setQpayOpen(false)}
-    />
-
-    <div className="relative w-full max-w-sm rounded-3xl border border-white/10 bg-[#05010b] p-6">
-      <div className="text-lg font-extrabold mb-2 text-center">
-        QPay төлбөр
-      </div>
-
-      <div className="text-xs text-white/60 mb-4 text-center">
-        Доорх QR-ийг банкаа app-аараа уншуулаад төлнө үү
-      </div>
-
-      {qpayQR && (
-        <div className="flex justify-center mb-4">
-          <div className="p-3 bg-white rounded-2xl">
-            <img src={qpayQR} alt="QPay QR" className="w-[240px] h-[240px]" />
-          </div>
-        </div>
-      )}
-
-      <button
-        onClick={() => setQpayOpen(false)}
-        className="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 font-semibold"
-      >
-        Хаах
-      </button>
-    </div>
-  </div>
-)}
+      
     </div>
   );
 }
