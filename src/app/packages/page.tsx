@@ -59,17 +59,38 @@ export default function Page() {
 
     setLoading(null);
 
+    console.log("QPay URL:", data?.url); // 👈 ЭНД НЭМ
+
     // if (data?.url) {
     //   window.location.href = data.url;
+    // }
+
+    // if (data?.url) {
+    //   const url = data.url as string;
+
+    //   // ✅ FB/IG дотор байвал: QPay руу шууд явуулахгүй (хар дэлгэц гарах учраас)
+    //   if (isFBIGInApp()) {
+    //     // өөрийн "open" page руу явуулж заавар харуулна
+    //     router.push(`/open-in-browser?to=${encodeURIComponent(url)}`);
+    //     return;
+    //   }
+
+    //   // ✅ Chrome/Safari бол шууд нээнэ
+    //   window.location.href = url;
     // }
 
     if (data?.url) {
       const url = data.url as string;
 
-      // ✅ FB/IG дотор байвал: QPay руу шууд явуулахгүй (хар дэлгэц гарах учраас)
+      // ✅ FB/IG дээр эхлээд шууд shortUrl руу оруулж үзнэ
       if (isFBIGInApp()) {
-        // өөрийн "open" page руу явуулж заавар харуулна
-        router.push(`/open-in-browser?to=${encodeURIComponent(url)}`);
+        window.location.href = url;
+
+        // 1.2 сек дотор шилжихгүй бол open-in-browser (заавар/QR)
+        setTimeout(() => {
+          router.push(`/open-in-browser?to=${encodeURIComponent(url)}`);
+        }, 1200);
+
         return;
       }
 
