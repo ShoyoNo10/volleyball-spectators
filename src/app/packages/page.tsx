@@ -52,8 +52,32 @@ export default function Page() {
 
     setLoading(null);
 
+    // if (data?.url) {
+    //   window.location.href = data.url;
+    // }
+
     if (data?.url) {
-      window.location.href = data.url;
+      const url = data.url as string;
+
+      // 1) ЭХЛЭЭД оролдоно (FB/Insta дээр ч гэсэн)
+      window.location.href = url;
+
+      // 2) Хэрвээ 1 сек дотор app/browser шилжээгүй бол fallback (заавар)
+      const t = setTimeout(() => {
+        alert(
+          "Төлбөрийн линк Facebook/Instagram дотор заримдаа нээгдэхгүй байдаг.\n\n" +
+            "… (3 цэг) → Open in browser / Open in Chrome (Safari) гэж нээгээд дахин орж төлнө үү.",
+        );
+      }, 1200);
+
+      // 3) Шилжсэн тохиолдолд timer-ийг цуцлах (page далдрах үед)
+      const onHide = () => {
+        clearTimeout(t);
+        window.removeEventListener("visibilitychange", onHide);
+        window.removeEventListener("pagehide", onHide);
+      };
+      window.addEventListener("visibilitychange", onHide);
+      window.addEventListener("pagehide", onHide);
     }
   };
 
