@@ -9,14 +9,15 @@ export default function Page() {
   const [loading, setLoading] = useState<number | null>(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
-  const [qpayOpen, setQpayOpen] = useState(false);
-const [qpayQR, setQpayQR] = useState<string | null>(null);
-const [qpayInvoiceId, setQpayInvoiceId] = useState<string | null>(null);
-
-  const isFBIGInApp = () => {
+  const isFBInApp = () => {
     const ua = navigator.userAgent || "";
     return (
-      ua.includes("FBAN") || ua.includes("FBAV") || ua.includes("Instagram")
+      ua.includes("FBAN") ||
+      ua.includes("FBAV") ||
+      ua.includes("Instagram") ||
+      ua.includes("FB_IAB") || // ✅ Messenger/FB in-app browser
+      ua.includes("FB4A") ||
+      ua.includes("FB4I")
     );
   };
 
@@ -61,17 +62,11 @@ const [qpayInvoiceId, setQpayInvoiceId] = useState<string | null>(null);
 
     const data = await res.json();
 
-
     // nemeltttttt
 
-
-
-
-// ene bsanguuuddd
+    // ene bsanguuuddd
 
     setLoading(null);
-
-
 
     // if (data?.url) {
     //   window.location.href = data.url;
@@ -94,15 +89,9 @@ const [qpayInvoiceId, setQpayInvoiceId] = useState<string | null>(null);
     if (data?.url) {
       const url = data.url as string;
 
-      // ✅ FB/IG дээр эхлээд шууд shortUrl руу оруулж үзнэ
-      if (isFBIGInApp()) {
-        window.location.href = url;
-
-        // 1.2 сек дотор шилжихгүй бол open-in-browser (заавар/QR)
-        setTimeout(() => {
-          router.push(`/open-in-browser?to=${encodeURIComponent(url)}`);
-        }, 1200);
-
+      // ✅ FB/IG/Messenger: QPay руу үсрэхгүй, шууд зааврын page
+      if (isFBInApp()) {
+        router.replace(`/open-in-browser?to=${encodeURIComponent(url)}`);
         return;
       }
 
@@ -189,7 +178,6 @@ const [qpayInvoiceId, setQpayInvoiceId] = useState<string | null>(null);
           </div>
         </div>
       )}
-      
     </div>
   );
 }

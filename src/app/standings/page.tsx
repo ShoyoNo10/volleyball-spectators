@@ -32,15 +32,30 @@ export default function StandingsPage() {
       .then((d) => setData(d));
   }, []);
 
+  // const filtered = useMemo(() => {
+  //   return data
+  //     .filter((t) => t.gender === tab)
+  //     .sort((a, b) => {
+  //       if (b.points !== a.points) return b.points - a.points;
+  //       if (b.won !== a.won) return b.won - a.won;
+  //       return a.played - b.played;
+  //     });
+  // }, [data, tab]);
+
   const filtered = useMemo(() => {
-    return data
-      .filter((t) => t.gender === tab)
-      .sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (b.won !== a.won) return b.won - a.won;
-        return a.played - b.played;
-      });
-  }, [data, tab]);
+  const arr = data.filter((t) => t.gender === tab);
+
+  // ✅ Бүх багийн points = 0 бол mongo дарааллаар нь харуулна
+  const allZero = arr.length > 0 && arr.every((x) => (x.points ?? 0) === 0);
+  if (allZero) return arr;
+
+  // ✅ Оноо орсон үед л ranking sort
+  return [...arr].sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.won !== a.won) return b.won - a.won;
+    return a.played - b.played;
+  });
+}, [data, tab]);
 
   const leader = filtered[0];
   const avgPts =

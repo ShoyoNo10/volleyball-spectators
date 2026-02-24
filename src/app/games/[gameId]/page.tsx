@@ -171,7 +171,7 @@ export default function GamePage() {
 
   const [activeTeam, setActiveTeam] = useState<"A" | "B">("A");
 
-  const [activeTab, setActiveTab] = useState<"general" | "players">("players");
+  const [activeTab, setActiveTab] = useState<"general" | "players">("general");
 
   // 🔹 Fetch STATS (existing API)
   useEffect(() => {
