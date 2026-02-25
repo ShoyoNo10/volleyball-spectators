@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { getDeviceId } from "@/src/lib/device";
 
 /* ================= TYPES ================= */
 
@@ -24,6 +25,8 @@ interface Player {
   birthDate: string;
   height: number;
   avatarUrl: string;
+  likes?: number;
+  likedBy?: string[];
   stats?: Partial<Stats>; // 👈 stats optional
 }
 
@@ -50,6 +53,20 @@ export default function PlayerPage() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const [likeCount, setLikeCount] = useState(0);
+  const [liked, setLiked] = useState(false);
+
+  const getDeviceId = () => {
+    // fallback: localStorage
+    const k = "deviceId";
+    let v = localStorage.getItem(k);
+    if (!v) {
+      v = crypto.randomUUID();
+      localStorage.setItem(k, v);
+    }
+    return v;
+  };
+
   useEffect(() => {
     if (!playerId) return;
 
@@ -67,6 +84,12 @@ export default function PlayerPage() {
 
         const data: unknown = await res.json();
         setPlayer(data as Player);
+
+        const p = data as Player;
+        const deviceId = getDeviceId();
+
+        setLikeCount(p.likes ?? 0);
+        setLiked((p.likedBy ?? []).includes(deviceId));
       } catch (err) {
         console.error("LOAD PLAYER ERROR:", err);
         setPlayer(null);
@@ -92,6 +115,35 @@ export default function PlayerPage() {
   const s: Stats = {
     ...defaultStats,
     ...(player.stats || {}),
+  };
+
+  const toggleLike = async () => {
+    if (!player?._id) return;
+
+    const deviceId = getDeviceId();
+    const wasLiked = liked;
+
+    // optimistic update
+    setLiked(!wasLiked);
+    setLikeCount((c) => (wasLiked ? Math.max(0, c - 1) : c + 1));
+
+    try {
+      const res = await fetch("/api/players/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: player._id, deviceId }),
+      });
+
+      if (!res.ok) throw new Error("Like failed");
+
+      const out = (await res.json()) as { likes: number; liked: boolean };
+      setLikeCount(out.likes);
+      setLiked(out.liked);
+    } catch (e) {
+      // rollback
+      setLiked(wasLiked);
+      setLikeCount((c) => (wasLiked ? c + 1 : Math.max(0, c - 1)));
+    }
   };
 
   return (
@@ -139,6 +191,34 @@ export default function PlayerPage() {
           <h1 className="text-2xl font-bold mt-1">
             {player.name.toUpperCase()}
           </h1>
+          
+          <button
+            onClick={toggleLike}
+            className={`
+    mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold
+    border border-white/10
+    ${liked ? "bg-red-600 text-white" : "bg-[#121826] text-gray-200 hover:bg-[#182033]"}
+  `}
+          >
+            <span>{liked ? "❤️ Liked" : "🤍 Like"}</span>
+            <span className="text-white/70">•</span>
+            <span className="text-white">{likeCount}</span>
+          </button>
+
+          {/* <button
+  onClick={toggleLike}
+  className={`
+    mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold
+    border border-white/10
+    ${liked ? "bg-red-600 text-white" : "bg-[#121826] text-gray-200 hover:bg-[#182033]"}
+  `}
+>
+  <span>
+    {liked ? "❤️ Миний дуртай тоглогч" : "🤍 Миний дуртай тоглогч"}
+  </span>
+  <span className="text-white/70">•</span>
+  <span className="text-white">{likeCount}</span>
+</button> */}
 
           {/* BIO */}
           <div className="grid grid-cols-2 gap-3 my-4 text-sm">
@@ -167,13 +247,37 @@ export default function PlayerPage() {
           </div>
 
           <div className="space-y-1">
-            <Stat label="Оноо" value={s.totalPoints} iconSrc="/icons/ptslogo.png"/>
+            <Stat
+              label="Оноо"
+              value={s.totalPoints}
+              iconSrc="/icons/ptslogo.png"
+            />
             {/* <Stat label="Average By Match" value={s.avgByMatch} /> */}
-            <Stat label="Довтолгоо" value={s.attackPoints} iconSrc="/icons/attack.png"/>
-            <Stat label="Холболт" value={`${s.attackEfficiency}`} iconSrc="/icons/set.png"/>
-            <Stat label="Хаалт" value={s.blockPoints} iconSrc="/icons/block.png"/>
-            <Stat label="Хамгаалалт" value={`${s.blockSuccess}`} iconSrc="/icons/defense.png"/>
-            <Stat label="Давуулалт" value={s.servePoints} iconSrc="/icons/serve.png"/>
+            <Stat
+              label="Довтолгоо"
+              value={s.attackPoints}
+              iconSrc="/icons/attack.png"
+            />
+            <Stat
+              label="Холболт"
+              value={`${s.attackEfficiency}`}
+              iconSrc="/icons/set.png"
+            />
+            <Stat
+              label="Хаалт"
+              value={s.blockPoints}
+              iconSrc="/icons/block.png"
+            />
+            <Stat
+              label="Хамгаалалт"
+              value={`${s.blockSuccess}`}
+              iconSrc="/icons/defense.png"
+            />
+            <Stat
+              label="Давуулалт"
+              value={s.servePoints}
+              iconSrc="/icons/serve.png"
+            />
           </div>
         </div>
       </div>
@@ -205,11 +309,7 @@ function Stat({
     <div className="flex items-center justify-between border-b border-gray-700 py-2">
       {/* left */}
       <div className="flex items-center gap-2">
-        <img
-          src={iconSrc}
-          alt={label}
-          className="w-6 h-6 object-contain"
-        />
+        <img src={iconSrc} alt={label} className="w-6 h-6 object-contain" />
         <span className="text-gray-400">{label}</span>
       </div>
 

@@ -24,6 +24,8 @@ const PlayerSchema = new mongoose.Schema({
   height: { type: Number, default: 0 },
   avatarUrl: { type: String, default: "" },
   stats: { type: StatsSchema, default: () => ({}) },
+  likes: { type: Number, default: 0 },
+likedBy: { type: [String], default: [] }, // deviceId эсвэл userId
   createdAt: { type: Date, default: Date.now },
 });
 

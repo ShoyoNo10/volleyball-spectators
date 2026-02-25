@@ -183,7 +183,7 @@ export default function StandingsPage() {
                                 alt={t.teamName}
                                 className={`
                                   w-7 h-7 lg:w-8 lg:h-8 object-contain shrink-0
-                                  rounded-md bg-black/30 border border-white/10
+                                  rounded-md bg-black/30 
                                 `}
                               />
                             )}
