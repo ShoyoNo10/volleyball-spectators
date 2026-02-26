@@ -94,7 +94,7 @@ export default function StatisticsPage() {
   }, [genericData, gender]);
 
   return (
-    <div className="min-h-screen bg-black text-white mb-15">
+    <div className=" bg-black text-white mb-15">
       {/* top header */}
       <div className="sticky top-0 z-10 bg-black/80 backdrop-blur border-b border-white/10">
         <div className="max-w-md mx-auto px-4 pt-4 pb-3 space-y-3">
