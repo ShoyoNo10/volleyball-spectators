@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 /* ================= TYPES ================= */
 
@@ -19,6 +19,16 @@ interface PlayerStats {
   servePoints: number;
 }
 
+// type Handedness = "right" | "left" | "";
+
+// interface Achievement {
+//   year: string; // input дээр string байхад амар
+//   competition: string;
+//   medal: string;
+//   trophy: string;
+//   note: string;
+// }
+
 interface PlayerForm {
   teamId: string;
   number: number;
@@ -29,6 +39,15 @@ interface PlayerForm {
   height: number;
   avatarUrl: string;
   stats: PlayerStats;
+
+  // ✅ NEW
+  handedness: Handedness;
+  nationalTeamFromYear: number;
+  nationalTeamToYear: number;
+  spikeHeight: number;
+  blockHeight: number;
+
+  achievements: Achievement[];
 }
 
 interface Player {
@@ -42,6 +61,53 @@ interface Player {
   height?: number;
   avatarUrl?: string;
   stats?: PlayerStats;
+
+  // ✅ NEW
+  handedness?: "right" | "left";
+  nationalTeamFromYear?: number;
+  nationalTeamToYear?: number;
+  spikeHeight?: number;
+  blockHeight?: number;
+  achievements?: Partial<Achievement>[]; // API-аас mixed ирж болно
+}
+
+/* ================= SCHEMA (for reference) ================= */
+type Handedness = "" | "right" | "left";
+
+interface Achievement {
+  year?: number | string;
+  competition?: string;
+  medal?: string;
+  trophy?: string;
+  note?: string;
+}
+
+interface Player {
+  _id: string;
+  teamId?: string;
+  number: number;
+  name: string;
+  position: string;
+  nationality?: string;
+  birthDate?: string;
+  height?: number;
+  avatarUrl?: string;
+  stats?: PlayerStats;
+
+  handedness?: "right" | "left";
+  nationalTeamFromYear?: number;
+  nationalTeamToYear?: number;
+  spikeHeight?: number;
+  blockHeight?: number;
+  achievements?: Achievement[];
+}
+
+interface AchievementForm {
+  year: string; // input дээр string байхад хамгийн амар
+  competition: string;
+  medal: string;
+  trophy: string;
+  note: string;
 }
 
 /* ================= HELPERS ================= */
@@ -58,6 +124,20 @@ function emptyStats(): PlayerStats {
   };
 }
 
+function emptyAchievement(): Achievement {
+  return { year: "", competition: "", medal: "", trophy: "", note: "" };
+}
+
+function toAchievementForm(a: Achievement): AchievementForm {
+  return {
+    year: a.year === undefined ? "" : String(a.year),
+    competition: a.competition ?? "",
+    medal: a.medal ?? "",
+    trophy: a.trophy ?? "",
+    note: a.note ?? "",
+  };
+}
+
 function toForm(p?: Player): PlayerForm {
   return {
     teamId: p?.teamId || "",
@@ -69,26 +149,28 @@ function toForm(p?: Player): PlayerForm {
     height: p?.height ?? 0,
     avatarUrl: p?.avatarUrl || "",
     stats: p?.stats ? { ...emptyStats(), ...p.stats } : emptyStats(),
+
+    // ✅ NEW
+    handedness: p?.handedness ?? "",
+    nationalTeamFromYear: p?.nationalTeamFromYear ?? 0,
+    nationalTeamToYear: p?.nationalTeamToYear ?? 0,
+    spikeHeight: p?.spikeHeight ?? 0,
+    blockHeight: p?.blockHeight ?? 0,
+
+    achievements: (p?.achievements ?? []).map(toAchievementForm),
   };
 }
 
-type UploadRes =
-  | { url: string }
-  | { secure_url: string }
-  | { secureUrl: string };
+type UploadRes = { url: string } | { secure_url: string } | { secureUrl: string };
 
 function pickUploadUrl(data: unknown): string {
-  if (!data || typeof data !== "object")
-    throw new Error("Upload response invalid");
-
+  if (!data || typeof data !== "object") throw new Error("Upload response invalid");
   const obj = data as UploadRes;
 
   let url: string | undefined;
   if ("url" in obj && typeof obj.url === "string") url = obj.url;
-  else if ("secure_url" in obj && typeof obj.secure_url === "string")
-    url = obj.secure_url;
-  else if ("secureUrl" in obj && typeof obj.secureUrl === "string")
-    url = obj.secureUrl;
+  else if ("secure_url" in obj && typeof obj.secure_url === "string") url = obj.secure_url;
+  else if ("secureUrl" in obj && typeof obj.secureUrl === "string") url = obj.secureUrl;
 
   if (!url) throw new Error("Upload response missing url");
   return url;
@@ -106,6 +188,7 @@ export default function AdminPlayers() {
     blockSuccess: "Хамгаалалт",
     servePoints: "Давуулалтын оноо",
   };
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
 
@@ -126,9 +209,7 @@ export default function AdminPlayers() {
   /* ================= LOAD PLAYERS ================= */
 
   const loadPlayers = async (teamId: string) => {
-    const res = await fetch(
-      `/api/players?teamId=${encodeURIComponent(teamId)}`,
-    );
+    const res = await fetch(`/api/players?teamId=${encodeURIComponent(teamId)}`);
     const data = await res.json();
     setPlayers(Array.isArray(data) ? data : []);
   };
@@ -174,17 +255,33 @@ export default function AdminPlayers() {
         blockSuccess: Number(form.stats.blockSuccess || 0),
         servePoints: Number(form.stats.servePoints || 0),
       };
+const payload = {
+  ...form,
+  number: Number(form.number),
+  height: Number(form.height || 0),
+  avatarUrl,
+  stats,
 
-      const payload = {
-        ...form,
-        number: Number(form.number),
-        height: Number(form.height || 0),
-        avatarUrl,
-        stats,
-      };
+  handedness: form.handedness === "" ? undefined : form.handedness,
+  nationalTeamFromYear: form.nationalTeamFromYear ? Number(form.nationalTeamFromYear) : undefined,
+  nationalTeamToYear: form.nationalTeamToYear ? Number(form.nationalTeamToYear) : undefined,
+  spikeHeight: form.spikeHeight ? Number(form.spikeHeight) : undefined,
+  blockHeight: form.blockHeight ? Number(form.blockHeight) : undefined,
+
+  achievements: (form.achievements || [])
+    .filter((a) => a.year || a.competition || a.medal || a.trophy || a.note)
+    .map((a): Achievement => ({
+      year: a.year
+        ? (Number.isFinite(Number(a.year)) ? Number(a.year) : a.year)
+        : undefined,
+      competition: a.competition || "",
+      medal: a.medal || "",
+      trophy: a.trophy || "",
+      note: a.note || "",
+    })),
+};
 
       if (editingId) {
-        // ✅ PUT update
         await fetch("/api/players", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -227,12 +324,24 @@ export default function AdminPlayers() {
     loadPlayers(form.teamId);
   };
 
-  /* ================= UI HELPERS ================= */
+  /* ================= ACHIEVEMENTS UI ================= */
 
-  const statKeys = useMemo(
-    () => Object.keys(form.stats) as (keyof PlayerStats)[],
-    [form.stats],
-  );
+  const addAch = () =>
+    setForm((p) => ({ ...p, achievements: [...p.achievements, emptyAchievement()] }));
+
+  const updateAch = (idx: number, key: keyof Achievement, value: string) =>
+    setForm((p) => ({
+      ...p,
+      achievements: p.achievements.map((a, i) => (i === idx ? { ...a, [key]: value } : a)),
+    }));
+
+  const removeAch = (idx: number) =>
+    setForm((p) => ({
+      ...p,
+      achievements: p.achievements.filter((_, i) => i !== idx),
+    }));
+
+  /* ================= UI STYLES ================= */
 
   const card = "bg-white rounded-2xl shadow-sm border border-black/10";
   const label = "block text-sm font-bold text-black mb-1";
@@ -249,12 +358,8 @@ export default function AdminPlayers() {
     <div className="min-h-screen bg-gray-100">
       <div className="p-6 max-w-6xl mx-auto space-y-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-black">
-            Admin — Players
-          </h1>
-          <div className="text-sm text-gray-600">
-            Team сонго → Player нэм/зас → Stats бөглөнө
-          </div>
+          <h1 className="text-3xl font-extrabold text-black">Admin — Players</h1>
+          <div className="text-sm text-gray-600">Team сонго → Player нэм/зас</div>
         </div>
 
         {/* TEAM SELECT */}
@@ -277,13 +382,11 @@ export default function AdminPlayers() {
               </option>
             ))}
           </select>
-          <div className={hint}>
-            Team сонгосны дараа доор тоглогчдын list гарна.
-          </div>
+          <div className={hint}>Team сонгосны дараа доор тоглогчдын list гарна.</div>
         </div>
 
         {/* FORM */}
-        <div className={`${card} p-4 space-y-3`}>
+        <div className={`${card} p-4 space-y-4`}>
           <div className="flex items-center justify-between">
             <div className="text-lg font-extrabold text-black">
               {editingId ? "✏️ Засах" : "➕ Нэмэх"}
@@ -294,16 +397,13 @@ export default function AdminPlayers() {
                   Cancel
                 </button>
               )}
-              <button
-                onClick={submit}
-                disabled={uploading}
-                className={btnPrimary}
-              >
+              <button onClick={submit} disabled={uploading} className={btnPrimary}>
                 {uploading ? "Saving..." : editingId ? "Save" : "Add Player"}
               </button>
             </div>
           </div>
 
+          {/* BASIC */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label className={label}>Number</label>
@@ -311,9 +411,7 @@ export default function AdminPlayers() {
                 type="number"
                 className={input}
                 value={form.number}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, number: Number(e.target.value) }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, number: Number(e.target.value) }))}
               />
             </div>
 
@@ -323,9 +421,7 @@ export default function AdminPlayers() {
                 className={input}
                 placeholder="Yuki Ishikawa"
                 value={form.name}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, name: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
               />
             </div>
 
@@ -342,9 +438,7 @@ export default function AdminPlayers() {
                   }))
                 }
               />
-              <div className={hint}>
-                OH=Outside, MB=Middle, S=Setter, L=Libero
-              </div>
+              <div className={hint}>OH=Outside, MB=Middle, S=Setter, L=Libero</div>
             </div>
 
             <div>
@@ -353,9 +447,7 @@ export default function AdminPlayers() {
                 className={input}
                 placeholder="JPN"
                 value={form.nationality}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, nationality: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, nationality: e.target.value }))}
               />
             </div>
 
@@ -365,9 +457,7 @@ export default function AdminPlayers() {
                 className={input}
                 placeholder="YYYY-MM-DD"
                 value={form.birthDate}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, birthDate: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, birthDate: e.target.value }))}
               />
             </div>
 
@@ -377,9 +467,7 @@ export default function AdminPlayers() {
                 type="number"
                 className={input}
                 value={form.height}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, height: Number(e.target.value) }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, height: Number(e.target.value) }))}
               />
             </div>
 
@@ -398,9 +486,7 @@ export default function AdminPlayers() {
                     className={input}
                     placeholder="Avatar URL (эсвэл upload)"
                     value={form.avatarUrl}
-                    onChange={(e) =>
-                      setForm((p) => ({ ...p, avatarUrl: e.target.value }))
-                    }
+                    onChange={(e) => setForm((p) => ({ ...p, avatarUrl: e.target.value }))}
                   />
                   <input
                     type="file"
@@ -410,28 +496,163 @@ export default function AdminPlayers() {
                     className="block w-full text-sm text-black"
                   />
                   <div className={hint}>
-                    Зураг сонговол upload хийгээд avatarUrl автоматаар
-                    шинэчлэгдэнэ.
+                    Зураг сонговол upload хийгээд avatarUrl автоматаар шинэчлэгдэнэ.
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* STATS */}
+          {/* ✅ GENERAL (NEW) */}
+          <div className="pt-2">
+            <div className="text-lg font-extrabold text-black mb-1">Ерөнхий (шинэ)</div>
+            <div className={hint}>Баруун/зүүн гар + Шигшээ жилүүд + Өндрүүд</div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-3">
+              <div>
+                <label className={label}>Гар</label>
+                <select
+                  className={input}
+                  value={form.handedness}
+                  onChange={(e) => setForm((p) => ({ ...p, handedness: e.target.value as Handedness }))}
+                >
+                  <option value="">—</option>
+                  <option value="right">Баруун</option>
+                  <option value="left">Зүүн</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={label}>Шигшээ From (он)</label>
+                <input
+                  type="number"
+                  className={input}
+                  value={form.nationalTeamFromYear}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, nationalTeamFromYear: Number(e.target.value) }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className={label}>Шигшээ To (он)</label>
+                <input
+                  type="number"
+                  className={input}
+                  value={form.nationalTeamToYear}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, nationalTeamToYear: Number(e.target.value) }))
+                  }
+                />
+              </div>
+
+              <div>
+                <label className={label}>Довтолгооны өндөр (cm)</label>
+                <input
+                  type="number"
+                  className={input}
+                  value={form.spikeHeight}
+                  onChange={(e) => setForm((p) => ({ ...p, spikeHeight: Number(e.target.value) }))}
+                />
+              </div>
+
+              <div>
+                <label className={label}>Хаалтны өндөр (cm)</label>
+                <input
+                  type="number"
+                  className={input}
+                  value={form.blockHeight}
+                  onChange={(e) => setForm((p) => ({ ...p, blockHeight: Number(e.target.value) }))}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ ACHIEVEMENTS (NEW) */}
+          <div className="pt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-lg font-extrabold text-black mb-1">Амжилт (шинэ)</div>
+                <div className={hint}>Competition / он / медаль / trophy / тайлбар</div>
+              </div>
+              <button onClick={addAch} className={btnSoft} type="button">
+                ➕ Add
+              </button>
+            </div>
+
+            {form.achievements.length === 0 ? (
+              <div className="text-gray-600 mt-2">Амжилт нэмээгүй байна.</div>
+            ) : (
+              <div className="space-y-3 mt-3">
+                {form.achievements.map((a, idx) => (
+                  <div key={idx} className="bg-gray-50 border border-black/10 rounded-xl p-3">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-gray-600">Он</div>
+                        <input
+                          className="border p-2 rounded w-full"
+                          value={a.year}
+                          placeholder="2025"
+                          onChange={(e) => updateAch(idx, "year", e.target.value)}
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <div className="text-xs font-bold text-gray-600">Competition</div>
+                        <input
+                          className="border p-2 rounded w-full"
+                          value={a.competition}
+                          placeholder="VNL / Asia Cup..."
+                          onChange={(e) => updateAch(idx, "competition", e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-gray-600">Медаль</div>
+                        <input
+                          className="border p-2 rounded w-full"
+                          value={a.medal}
+                          placeholder="🥇/🥈/🥉"
+                          onChange={(e) => updateAch(idx, "medal", e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-gray-600">Trophy</div>
+                        <input
+                          className="border p-2 rounded w-full"
+                          value={a.trophy}
+                          placeholder="MVP / Best..."
+                          onChange={(e) => updateAch(idx, "trophy", e.target.value)}
+                        />
+                      </div>
+                      <div className="md:col-span-6">
+                        <div className="text-xs font-bold text-gray-600">Note</div>
+                        <div className="flex gap-2">
+                          <input
+                            className="border p-2 rounded w-full"
+                            value={a.note}
+                            placeholder="Тайлбар..."
+                            onChange={(e) => updateAch(idx, "note", e.target.value)}
+                          />
+                          <button onClick={() => removeAch(idx)} className={btnDanger} type="button">
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* STATS (EXISTING) */}
           <div className="pt-2">
             <div className="text-lg font-extrabold text-black mb-1">Stats</div>
-            <div className={hint}>
-              Бүх утга тоо байх ёстой. Хоосон бол 0 гэж үзнэ.
-            </div>
+            <div className={hint}>Бүх утга тоо байх ёстой. Хоосон бол 0 гэж үзнэ.</div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
               {(Object.keys(form.stats) as (keyof PlayerStats)[]).map((k) => (
                 <div key={k} className="space-y-1">
-                  <div className="text-xs font-bold text-gray-600">
-                    {STATS_MN[k]}
-                  </div>
-
+                  <div className="text-xs font-bold text-gray-600">{STATS_MN[k]}</div>
                   <input
                     type="number"
                     className="border p-2 rounded w-full"
@@ -453,9 +674,7 @@ export default function AdminPlayers() {
         {/* LIST */}
         <div className={`${card} p-4`}>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-lg font-extrabold text-black">
-              Players list
-            </div>
+            <div className="text-lg font-extrabold text-black">Players list</div>
             <div className={hint}>{players.length} хүн</div>
           </div>
 

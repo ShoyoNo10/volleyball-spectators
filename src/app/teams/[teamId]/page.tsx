@@ -327,7 +327,7 @@ export default function TeamPage() {
 
         {/* ================= SCHEDULE ================= */}
         {tab === "schedule" && (
-          <div className="space-y-4">
+          <div className="space-y-4 mb-15">
             {loadingTab && (
               <div className="text-gray-500 text-center">
                 Loading schedule...
