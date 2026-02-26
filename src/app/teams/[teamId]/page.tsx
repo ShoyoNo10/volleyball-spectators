@@ -213,7 +213,7 @@ export default function TeamPage() {
             )}
 
             {players.length > 0 && (
-              <div className="overflow-hidden rounded-xl border border-gray-800 shadow-lg">
+              <div className="overflow-hidden rounded-xl border border-gray-800 shadow-lg mb-15">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-linear-to-r from-gray-900 to-black">
