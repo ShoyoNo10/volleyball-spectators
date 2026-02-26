@@ -306,6 +306,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { Heart } from "lucide-react";
 
 /* ================= TYPES ================= */
 
@@ -532,22 +533,7 @@ export default function PlayerPage() {
             lg:shadow-xl
           "
         >
-          <button
-            onClick={toggleLike}
-            className={`
-              inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold
-              border border-white/10 absolute right-1 top-1 md:left-4 md:top-4 md:w-fit
-              ${
-                liked
-                  ? "bg-red-600 text-white"
-                  : "bg-[#121826] text-gray-200 hover:bg-[#182033]"
-              }
-            `}
-          >
-            <span>{liked ? "❤️ Liked" : "🤍 Like"}</span>
-            <span className="text-white/70">•</span>
-            <span className="text-white">{likeCount}</span>
-          </button>
+
 
           <img
             src={player.avatarUrl || "/user.png"}
@@ -572,6 +558,27 @@ export default function PlayerPage() {
           <h1 className="text-2xl font-bold mt-1">
             {player.name.toUpperCase()}
           </h1>
+
+                    <button
+            onClick={toggleLike}
+            className={`
+              inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold
+              border border-white/10 absolute right-1 top-1 md:left-4 md:top-4 md:w-fit
+              ${
+                liked
+                  ? "bg-[#121826] text-white"
+                  : "bg-[#121826] text-gray-200 hover:bg-[#182033]"
+              }
+            `}
+          >
+            <Heart
+              className={liked ? "fill-red-500 text-red-500" : "text-white" }
+              size={16}
+            />
+            <span>{liked ? "Fan" : "Fan"}</span>
+            <span className="text-white/70">•</span>
+            <span className="text-white">{likeCount}</span>
+          </button>
 
           {/* BIO */}
           <div className="grid grid-cols-2 gap-3 my-4 text-sm">
@@ -773,22 +780,22 @@ function AchievementGroups({ achievements }: { achievements: Achievement[] }) {
     {},
   );
 
-function medalText(medal?: string) {
-  if (!medal) return "-";
+  function medalText(medal?: string) {
+    if (!medal) return "-";
 
-  const m = medal.toLowerCase();
+    const m = medal.toLowerCase();
 
-  if (m.includes("алт") || m.includes("gold") || m.includes("🥇"))
-    return "Алтан медаль";
+    if (m.includes("алт") || m.includes("gold") || m.includes("🥇"))
+      return "Алтан медаль";
 
-  if (m.includes("мөнгө") || m.includes("silver") || m.includes("🥈"))
-    return "Мөнгөн медаль";
+    if (m.includes("мөнгө") || m.includes("silver") || m.includes("🥈"))
+      return "Мөнгөн медаль";
 
-  if (m.includes("хүрэл") || m.includes("bronze") || m.includes("🥉"))
-    return "Хүрэл медаль";
+    if (m.includes("хүрэл") || m.includes("bronze") || m.includes("🥉"))
+      return "Хүрэл медаль";
 
-  return medal;
-}
+    return medal;
+  }
 
   // sort groups by name (optional)
   const entries = Object.entries(groups);
@@ -828,16 +835,16 @@ function medalText(medal?: string) {
                   </div>
 
                   {/* RIGHT: MEDAL (like image) */}
-<div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
-  {a.trophy ? (
-    <>
-      <span>👍</span>
-      <span>{a.trophy}</span>
-    </>
-  ) : (
-    <span>{medalText(a.medal)}</span>
-  )}
-</div>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+                    {a.trophy ? (
+                      <>
+                        <span>👍</span>
+                        <span>{a.trophy}</span>
+                      </>
+                    ) : (
+                      <span>{medalText(a.medal)}</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
